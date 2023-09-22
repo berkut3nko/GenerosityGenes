@@ -1,0 +1,39 @@
+#pragma once
+
+#include <vector>
+#include <fstream>
+#include <sstream>
+#include <string>
+const double precision = 0.05;
+using std::string; using std::vector;
+class NeuralNetwork;
+class Layer {
+public:
+    Layer(size_t input_size, size_t output_size);
+    vector<double> forward(const vector<double>& input)const;
+    const vector<vector<double>>& weights() const;
+    void save_weights(const string& filename) const;
+    void load_weights(const string& filename);
+
+private:
+    friend NeuralNetwork;
+    size_t input_size_;
+    size_t output_size_;
+    vector<vector<double>> weights_;
+};
+
+
+
+class NeuralNetwork {
+public:
+    NeuralNetwork(const vector<std::pair<size_t, size_t>>& layer_sizes, string way);
+    void mutate();
+    vector<double> forward(const vector<double>& input) const;
+    void train(const vector<double>& input, const vector<double>& output, size_t answerId, const double points);
+    void SaveAI()const;
+    void LoadAI();
+    string NeuralNetworkWay;
+
+private:
+    vector<Layer> layers_;
+};
