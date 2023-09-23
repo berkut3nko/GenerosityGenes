@@ -2,8 +2,8 @@
 #include "include.hpp"
 class Minion;
 class Colony;
-const size_t sizeWorldX = 30;
-const size_t sizeWorldY = 30;
+const size_t sizeWorldX = 100;
+const size_t sizeWorldY = 100;
 const float speedSummonFruit = 2.0f;
 
 namespace dC //defaultColors

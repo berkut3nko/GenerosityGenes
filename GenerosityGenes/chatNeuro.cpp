@@ -4,7 +4,6 @@ Layer::Layer(size_t input_size, size_t output_size) : input_size_(input_size), o
     // ініціалізуємо випадкові ваги
     weights_ = std::vector<std::vector<double>>(input_size_, std::vector<double>(output_size_));
     for (size_t i = 0; i < input_size_; ++i) {
-        srand(time(NULL));
         for (size_t j = 0; j < output_size_; ++j) {
             weights_[i][j] = (rand() % 20000 * 0.0001)-1;
         }

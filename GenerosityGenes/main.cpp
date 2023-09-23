@@ -37,7 +37,6 @@ int main()
 
     //Colony::LoadMiniones(version);
 
-
     Colony::startLife();
 
 

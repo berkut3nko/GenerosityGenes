@@ -146,9 +146,11 @@
     <ClCompile Include="main.cpp" />
     <ClCompile Include="MinionLogic.cpp" />
     <ClCompile Include="primary_utilities.cpp" />
+    <ClCompile Include="renderMap.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="chatNeuro.hpp" />
+    <ClInclude Include="settings.hpp" />
     <ClInclude Include="include.hpp" />
     <ClInclude Include="primary_utilities.hpp" />
     <ClInclude Include="worldMap.hpp" />

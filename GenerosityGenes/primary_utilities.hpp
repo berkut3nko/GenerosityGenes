@@ -3,6 +3,8 @@
 #include "chatNeuro.hpp"
 #include "include.hpp"
 void render();
+void cameraMovement();
+void renderCamera();
 void worldInitialization();
 namespace MinionSettings
 {

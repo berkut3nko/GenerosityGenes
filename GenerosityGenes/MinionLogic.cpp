@@ -136,8 +136,7 @@ std::vector<double> Minion::inputs()
 }
 void Minion::nextMove()
 {
-    if (!IsDead)
-    {
+
         vector<double> answers = MyBrain.forward(inputs());
         size_t answerId = 0; double maxValue= std::numeric_limits<double>::lowest();;
         for (size_t id=0;id < MinionSettings::minionOutputs;++id)
@@ -194,7 +193,7 @@ void Minion::nextMove()
             bornRight();
             break;
         }
-    }
+    
     return;
 }
 void Minion::getHungry(double count)
@@ -219,11 +218,12 @@ void Minion::getHungry(double count)
         IsDead = true; 
         hunger = 0; 
         --MinionSettings::countMiniones;
-  /*      for(auto it=myColony->minionAddresses.begin();it!=myColony->minionAddresses.end();++it )
+        for(auto it=myColony->minionAddresses.begin();it!=myColony->minionAddresses.end();++it )
             if (*(it) == this)
             {
                 myColony->minionAddresses.erase(it);
-            }*/
+                return;
+            }
     }
 
 }

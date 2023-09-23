@@ -20,72 +20,7 @@ void worldInitialization()
     }
 
 }
-unsigned int findMultiplierSize(unsigned int monitorSizeX, unsigned int monitorSizeY)
-{
-    return (monitorSizeX / sizeWorldX >= monitorSizeY / sizeWorldY) ? monitorSizeY / sizeWorldY : monitorSizeX / sizeWorldX;
-}
-unsigned int multiplicator = findMultiplierSize(1680, 980);
-sf::RenderWindow window(sf::VideoMode(multiplicator* sizeWorldX, multiplicator* sizeWorldY), "SFML works!");
-void render()
-{
-    sf::RectangleShape tempShape;
-    sf::CircleShape tempShapeMinion;
-    if (window.isOpen())
-    {
-        sf::Event event;
-        while (window.pollEvent(event))
-        {
-            if (event.type == sf::Event::Closed)
-                window.close();
-        }
 
-        window.clear();
-        for (int x = 0; x < sizeWorldX; ++x) {
-            for (int y = 0; y < sizeWorldY; ++y) {
-                if (worldMap[x][y].type != minion)
-                {
-                    tempShape.setSize(sf::Vector2f(multiplicator, multiplicator));
-                    tempShape.setFillColor(worldMap[x][y].color);
-                    tempShape.setPosition(sf::Vector2f(multiplicator * x, multiplicator * y));
-                    window.draw(tempShape);
-                }
-                else 
-                {
-                    tempShape.setSize(sf::Vector2f(multiplicator, multiplicator));
-                    tempShape.setFillColor(dC::air);
-                    tempShape.setPosition(sf::Vector2f(multiplicator * x, multiplicator * y));
-                    window.draw(tempShape);
-                    tempShapeMinion.setRadius(static_cast<float>(multiplicator / 2.5));
-                    tempShapeMinion.setOutlineColor(dC::air);
-                    if(!worldMap[x][y].minionAsdress->IsDead)
-                        tempShapeMinion.setFillColor(worldMap[x][y].color);
-                    else
-                        tempShapeMinion.setFillColor(dC::dead);
-                    tempShapeMinion.setPosition(sf::Vector2f(multiplicator * x, multiplicator * y));
-
-                    if (worldMap[x][y].minionAsdress->IsSynthesis)
-                    {
-                        tempShapeMinion.setOutlineThickness(static_cast<size_t>(multiplicator/15));
-                        tempShapeMinion.setOutlineColor(sf::Color::Green);
-                    }
-                    else if (worldMap[x][y].minionAsdress->IsProtection)
-                    {
-                        tempShapeMinion.setOutlineThickness(static_cast<size_t>(multiplicator / 15));
-                        tempShapeMinion.setOutlineColor(sf::Color::Blue);
-                    }
-                    else
-                    {
-                        tempShapeMinion.setOutlineThickness(static_cast<size_t>(multiplicator / 30));
-                        tempShapeMinion.setOutlineColor(sf::Color::Black);
-                    }
-                    window.draw(tempShapeMinion);
-                }
-            }
-        }
-
-        window.display();
-    }
-}
 
 
 //Це конснтруктор класса Колонія
@@ -139,8 +74,16 @@ void Colony::startLife()
             summonFruit();
         }
 
-        render();
-        std::this_thread::sleep_for(std::chrono::seconds(1));
+
+
+        for (size_t i = 0; i < 10; ++i)
+        {
+            std::this_thread::sleep_for(std::chrono::milliseconds(100));
+            render();
+        }
+
+
+
         for (Minion* minion : minionAddresses)
         {
             minion->nextMove();
