@@ -15,11 +15,12 @@ public:
     void save_weights(const string& filename) const;
     void load_weights(const string& filename);
 
-private:
-    friend NeuralNetwork;
     size_t input_size_;
     size_t output_size_;
+private:
     vector<vector<double>> weights_;
+    friend NeuralNetwork;
+
 };
 
 
@@ -33,7 +34,5 @@ public:
     void SaveAI()const;
     void LoadAI();
     string NeuralNetworkWay;
-
-private:
     vector<Layer> layers_;
 };

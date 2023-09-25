@@ -94,38 +94,42 @@ double Minion::analyzeMove(infoMove move)
 
 }
 
+
+object tempObj;
 std::vector<double> Minion::inputs()
 {
     vector<double> input(MinionSettings::minionInputs,{0});
+
     for (int y = 0; y < 3; ++y)
     {
         for (int x = 0; x < 3; ++x)
         {
-            if (x != 1 && y != 1)
+            if (x != 1 || y != 1)
             {
-                if (worldMap[position.x - (x - 1)][position.y - (y - 1)].type == Types::fruit)
+                tempObj = worldMap[position.x - (x - 1)][position.y - (y - 1)];
+                if (tempObj.type == Types::fruit)
+                {
+                    input[x + (y * 3)] = 1;
+                }
+                else if (tempObj.type == Types::air)
                 {
                     input[x + (y * 3) + 1] = 1;
                 }
-                else if (worldMap[position.x - (x - 1)][position.y - (y - 1)].type == Types::air)
+                else if (tempObj.type == Types::border)
                 {
                     input[x + (y * 3) + 2] = 1;
                 }
-                else if (worldMap[position.x - (x - 1)][position.y - (y - 1)].type == Types::border)
+                else if (tempObj.type == Types::minion)
                 {
-                    input[x + (y * 3) + 3] = 1;
-                }
-                else if (worldMap[position.x - (x - 1)][position.y - (y - 1)].type == Types::minion)
-                {
-                    if(worldMap[position.x - (x - 1)][position.y - (y - 1)].minionAsdress->myColony == myColony)
-                        input[x + (y * 3) + 4] = 1;
+                    if(tempObj.minionAsdress->myColony == myColony)
+                        input[x + (y * 3) + 3] = 1;
                     else 
+                        input[x + (y * 3) + 4] = 1;
+                    if(tempObj.minionAsdress->IsDead)
                         input[x + (y * 3) + 5] = 1;
-                    if(worldMap[position.x - (x - 1)][position.y - (y - 1)].minionAsdress->IsDead)
+                    if (tempObj.minionAsdress->IsProtection)
                         input[x + (y * 3) + 6] = 1;
-                    if (worldMap[position.x - (x - 1)][position.y - (y - 1)].minionAsdress->IsProtection)
-                        input[x + (y * 3) + 7] = 1;
-                    input[x + (y * 3) + 8] = worldMap[position.x - (x - 1)][position.y - (y - 1)].minionAsdress->fat;
+                    input[x + (y * 3) + 7] = tempObj.minionAsdress->fat;
                 }
             }
         }

@@ -19,31 +19,27 @@ void worldInitialization()
 
 
 //Це конснтруктор класса Колонія
-Colony::Colony(size_t neuronsCount, std::string name) : nameColony(name), _neuronsCount(neuronsCount)
+Colony::Colony(size_t neuronsCount, std::string name) : 
+               nameColony(name), _neuronsCount(neuronsCount), 
+               colonyBrain(
+                   new NeuralNetwork(
+                   {{MinionSettings::minionInputs,     _neuronsCount},
+                   {_neuronsCount,    MinionSettings::minionOutputs}}, nameColony)
+                                     ),
+               colonyColor(sf::Color(rand() % 256, rand() % 256, rand() % 128 + 128, 255))
 {
-    colonyColor = sf::Color(rand() % 256, rand() % 256, rand() % 128 +128, 255);
-
     allColonys.insert(std::make_pair(nameColony, this));
 }
 //Це завантажувальний конструктор
 Colony::Colony(string name) : nameColony(name)
 {
+    colonyColor = sf::Color(rand() % 256, rand() % 256, rand() % 128 + 128, 255);
     colonyBrain->NeuralNetworkWay = name;
     LoadColony();
     allColonys.insert(std::make_pair(nameColony, this));
 }
 
 //Очищення динамічної пам'яті 
-Colony::~Colony()
-{
-    for (auto minion : minionAddresses)
-    {
-        if (minion->myColony == this)
-        {
-            delete minion;
-        }
-    }
-}
 
 //Ініціалізація верктору вказивників на своїх мінійонів
 std::vector<Minion*> Colony::minionAddresses;
@@ -71,12 +67,24 @@ void Colony::startLife()
 
 
 
-        for (size_t i = 0; i < 20; ++i)
+        for (size_t i = 0; i < 60; ++i)
         {
             std::this_thread::sleep_for(std::chrono::milliseconds(1));
             render();
         }
+        if (isMainWindowOpen == false)
+        {
+            for (auto minion : Colony::minionAddresses)
+            {
+                delete minion;
+            }
+            for (const auto colony : allColonys)
+            {
+                delete colony.second->colonyBrain;
+            }
 
+            return;
+        }
 
 
         for (Minion* minion : minionAddresses)
@@ -94,6 +102,7 @@ void Colony::startLife()
                         if (minion->points > maxPoints)
                         {
                             maxPoints = minion->points;
+                            delete item.second->colonyBrain;
                             item.second->colonyBrain = &(minion->MyBrain);
                         }
                         minion->points = 0;

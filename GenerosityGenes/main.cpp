@@ -16,7 +16,7 @@ int main()
 {
     std::srand(static_cast<unsigned int>(time(NULL)));
     worldInitialization();
-
+    InitializationRender();
 
     // ініціалізація колонії
     Colony myFirstColony(/*кількість нейронів у прихованому шарі*/28,/*назва колонії(для збереження)*/ "testColony1");

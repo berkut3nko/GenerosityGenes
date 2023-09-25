@@ -3,7 +3,8 @@
 #include "chatNeuro.hpp"
 #include "include.hpp"
 void render();
-void renderCamera();
+extern bool isMainWindowOpen;
+void InitializationRender();
 void worldInitialization();
 sf::Color defaultColor(Types type);
 namespace MinionSettings
@@ -92,7 +93,6 @@ class Colony
 public:
     Colony(size_t neuronsCount, string name);
     Colony(string name);
-    ~Colony();
     void createMinion(Point coordinate);
     void createMinion();
     friend class Minion;
