@@ -4,7 +4,6 @@ Minion::Minion(Point spawn_position, Colony* currentColony) :position(spawn_posi
 {
     id = MinionSettings::countMiniones;
     worldMap[position.x][position.y].type = minion;
-    worldMap[position.x][position.y].color = myColony->colonyColor;
     worldMap[position.x][position.y].minionAsdress = this;
     ++MinionSettings::countMiniones;
 
@@ -16,7 +15,6 @@ Minion::Minion(string data) :MyBrain(*(myColony->colonyBrain))
     myColony->minionAddresses.push_back(this);
     id = MinionSettings::countMiniones;
     worldMap[position.x][position.y].type = minion;
-    worldMap[position.x][position.y].color = myColony->colonyColor;
     worldMap[position.x][position.y].minionAsdress = this;
     ++MinionSettings::countMiniones;
 }
@@ -138,7 +136,9 @@ void Minion::nextMove()
 {
 
         vector<double> answers = MyBrain.forward(inputs());
-        size_t answerId = 0; double maxValue= std::numeric_limits<double>::lowest();;
+
+        //Пошук максимального
+        size_t answerId = 0; double maxValue = answers[0];
         for (size_t id=0;id < MinionSettings::minionOutputs;++id)
         {
             if (answers.at(id) > maxValue) 
@@ -234,7 +234,7 @@ infoMove Minion::move(size_t newPosX, size_t newPosY)
         if (worldMap[newPosX][newPosY].type == minion)
         {
             //Attack();
-            getHungry(.1f);
+            getHungry(.05f);
             return infoMove::attack;
         }
         else 
@@ -249,24 +249,20 @@ infoMove Minion::move(size_t newPosX, size_t newPosY)
                 }
 
                 worldMap[position.x][position.y].type = air;
-                worldMap[position.x][position.y].color = dC::air;
                 position.x = newPosX;
                 position.y = newPosY;
                 worldMap[position.x][position.y].type = minion;
-                worldMap[position.x][position.y].color = myColony->colonyColor;
                 worldMap[position.x][position.y].minionAsdress = this;
-                getHungry(.1f);
+                getHungry(.02f);
                 return infoMove::eat;
                 }
             else {
                 worldMap[position.x][position.y].type = air;
-                worldMap[position.x][position.y].color = dC::air;
                 position.x = newPosX;
                 position.y = newPosY;
                 worldMap[position.x][position.y].type = minion;
-                worldMap[position.x][position.y].color = myColony->colonyColor;
                 worldMap[position.x][position.y].minionAsdress = this;
-                getHungry(.1f);
+                getHungry(.02f);
                 return infoMove::move;
             }
         }

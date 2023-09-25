@@ -8,25 +8,20 @@ void worldInitialization()
     {
         worldMap[x][0].type = border;
         worldMap[x][sizeWorldY - 1].type = border;
-        worldMap[x][0].color = dC::border;
-        worldMap[x][sizeWorldY - 1].color = dC::border;
     }
     for (size_t y = 1; y < sizeWorldY - 1; ++y)
     {
         worldMap[0][y].type = border;
         worldMap[sizeWorldX - 1][y].type = border;
-        worldMap[0][y].color = dC::border;
-        worldMap[sizeWorldX - 1][y].color = dC::border;
     }
 
 }
 
 
-
 //Це конснтруктор класса Колонія
 Colony::Colony(size_t neuronsCount, std::string name) : nameColony(name), _neuronsCount(neuronsCount)
 {
-    colonyColor = sf::Color(rand() % 256, rand() % 256, rand() % 256, rand() % 256);
+    colonyColor = sf::Color(rand() % 256, rand() % 256, rand() % 128 +128, 255);
 
     allColonys.insert(std::make_pair(nameColony, this));
 }
@@ -76,9 +71,9 @@ void Colony::startLife()
 
 
 
-        for (size_t i = 0; i < 10; ++i)
+        for (size_t i = 0; i < 20; ++i)
         {
-            std::this_thread::sleep_for(std::chrono::milliseconds(100));
+            std::this_thread::sleep_for(std::chrono::milliseconds(1));
             render();
         }
 
@@ -149,7 +144,6 @@ void Colony::summonFruit()
         if (worldMap[Xtemp][Ytemp].type == Types::air)
         {
             worldMap[Xtemp][Ytemp].type  = Types::fruit; 
-            worldMap[Xtemp][Ytemp].color =    dC::fruit;
             return;
         }
     }

@@ -3,9 +3,9 @@
 #include "chatNeuro.hpp"
 #include "include.hpp"
 void render();
-void cameraMovement();
 void renderCamera();
 void worldInitialization();
+sf::Color defaultColor(Types type);
 namespace MinionSettings
 {
     static const size_t minionInputs = 64;
@@ -106,10 +106,9 @@ public:
     
     double coef_Synthesis;
     double coef_Defending;
-
+    sf::Color colonyColor;
 private:
     size_t _neuronsCount;
-    sf::Color colonyColor;
     std::string nameColony;
     NeuralNetwork* colonyBrain;
     static std::vector<Minion*> minionAddresses;
