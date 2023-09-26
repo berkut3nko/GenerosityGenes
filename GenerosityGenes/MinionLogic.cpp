@@ -1,15 +1,27 @@
 #include "primary_utilities.hpp"
 
-Minion::Minion(Point spawn_position, Colony* currentColony) :position(spawn_position), myColony(currentColony), MyBrain({ {MinionSettings::minionInputs, myColony->_neuronsCount}, {myColony->_neuronsCount, MinionSettings::minionOutputs} }, myColony->nameColony)
+Minion::Minion(Point spawn_position, Colony* currentColony) :position(spawn_position), myColony(currentColony), 
+MyBrain({ {MinionSettings::minionInputs + myColony->sizeMemmory, myColony->_neuronsCount}, {myColony->_neuronsCount, MinionSettings::minionOutputs+myColony->sizeMemmory} }, myColony->nameColony)
 {
     id = MinionSettings::countMiniones;
     worldMap[position.x][position.y].type = minion;
     worldMap[position.x][position.y].minionAsdress = this;
     ++MinionSettings::countMiniones;
+    memmory.resize(myColony->sizeMemmory,0);
 
     
 }
-Minion::Minion(string data) :MyBrain(*(myColony->colonyBrain))
+Minion::Minion(Point spawn_position, Colony* currentColony, NeuralNetwork* parentBrain, double hungerForParent) :position(spawn_position), myColony(currentColony), MyBrain(*parentBrain), hunger(hungerForParent)
+{
+    id = MinionSettings::countMiniones;
+    worldMap[position.x][position.y].type = minion;
+    worldMap[position.x][position.y].minionAsdress = this;
+    ++MinionSettings::countMiniones;
+    memmory.resize(myColony->sizeMemmory, 0);
+}
+Minion::Minion(string data) :MyBrain(
+    { {MinionSettings::minionInputs + myColony->sizeMemmory, myColony->_neuronsCount},
+    {myColony->_neuronsCount, MinionSettings::minionOutputs + myColony->sizeMemmory} }, myColony->nameColony)
 {
     LoadMe(data);
     myColony->minionAddresses.push_back(this);
@@ -17,6 +29,8 @@ Minion::Minion(string data) :MyBrain(*(myColony->colonyBrain))
     worldMap[position.x][position.y].type = minion;
     worldMap[position.x][position.y].minionAsdress = this;
     ++MinionSettings::countMiniones;
+    MyBrain = *myColony->colonyBrain;
+    memmory.resize(myColony->sizeMemmory, 0);
 }
 
 
@@ -98,7 +112,7 @@ double Minion::analyzeMove(infoMove move)
 object tempObj;
 std::vector<double> Minion::inputs()
 {
-    vector<double> input(MinionSettings::minionInputs,{0});
+    vector<double> input(MinionSettings::minionInputs+myColony->sizeMemmory,{0});
 
     for (int y = 0; y < 3; ++y)
     {
@@ -134,6 +148,10 @@ std::vector<double> Minion::inputs()
             }
         }
     }
+    for (size_t i = 0; i < myColony->sizeMemmory; ++i)
+    {
+        input[MinionSettings::minionInputs + i] = memmory[i];
+    }
     return input;
 }
 void Minion::nextMove()
@@ -151,7 +169,10 @@ void Minion::nextMove()
                 answerId = id;
             }
         }
-
+        for (size_t i = 0; i < myColony->sizeMemmory; ++i)
+        {
+            memmory[i] = answers[i + MinionSettings::minionOutputs];
+        }
         switch (answerId)
         {
         case 0:
@@ -276,7 +297,8 @@ infoMove Minion::move(size_t newPosX, size_t newPosY)
 
 void Minion::born(size_t posX, size_t posY)
 {
-    myColony->createMinion({ posX , posY });
+    myColony->createMinion({ posX , posY }, this);
+    getHungry((fat>0)?0.5f:hunger/2);
 }
 
 infoMove Minion::moveUp()
@@ -329,25 +351,21 @@ infoMove Minion::moveLeft()
 infoMove Minion::bornUp()
 {
     born(position.x, position.y - 1);
-    getHungry(1);
     return infoMove::born;
 }
 infoMove Minion::bornDown()
 {
     born(position.x, position.y + 1);
-    getHungry(1);
     return infoMove::born;
 }
 infoMove Minion::bornLeft()
 {
     born(position.x + 1, position.y);
-    getHungry(1);
     return infoMove::born;
 }
 infoMove Minion::bornRight()
 {
     born(position.x - 1, position.y);
-    getHungry(1);
     return infoMove::born;
 }
 

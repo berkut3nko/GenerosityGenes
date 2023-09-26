@@ -45,14 +45,6 @@ Colony::Colony(string name) : nameColony(name)
 std::vector<Minion*> Colony::minionAddresses;
 
 
-void Colony::createMinion(Point coordinate)
-{
-    Minion* newMinion = new Minion(coordinate, this);
-    minionAddresses.push_back(newMinion);
-    colonyAddresses.push_back(newMinion);
-    ++MinionSettings::countMiniones;
-}
-
 //Початок симуляції життя
 void Colony::startLife()
 {
@@ -141,7 +133,28 @@ void Colony::createMinion()
             return;
         }
     }
+}
 
+void Colony::createMinion(Point coordinate)
+{
+    if (worldMap[coordinate.x][coordinate.y].type == Types::air) {
+        Minion* newMinion = new Minion(coordinate, this);
+        minionAddresses.push_back(newMinion);
+        colonyAddresses.push_back(newMinion);
+        ++MinionSettings::countMiniones;
+    }
+}
+
+void Colony::createMinion(Point coordinate, Minion* parent)
+{
+        if (worldMap[coordinate.x][coordinate.y].type == Types::air)
+        {
+            Minion* newMinion = new Minion({ coordinate.x ,coordinate.y }, this, &parent->MyBrain, (parent->fat > 0) ? 0.5f : (parent->hunger / 2));
+            minionAddresses.push_back(newMinion);
+            colonyAddresses.push_back(newMinion);
+            ++MinionSettings::countMiniones;
+            return;
+        }
 }
 void Colony::summonFruit()
 {

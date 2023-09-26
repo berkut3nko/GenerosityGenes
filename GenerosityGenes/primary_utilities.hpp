@@ -36,7 +36,9 @@ class Minion
 {
 public:
     Minion(Point spawn_position, Colony* currentColony);
+    Minion(Point spawn_position, Colony* currentColony, NeuralNetwork* parentBrain, double hungerForParent);
     Minion(string data);
+
     void nextMove();
     string SaveMe();
     void LoadMe(string data);
@@ -52,6 +54,8 @@ public:
     bool IsDead = false;            //Чи я помер
 
     Point position = { 1,1 };       //Моя позиція
+
+    vector<double> memmory;
 
 private:
     void LoadToWorld();
@@ -95,6 +99,7 @@ public:
     Colony(string name);
     void createMinion(Point coordinate);
     void createMinion();
+    void createMinion(Point coordinate, Minion* parent);
     friend class Minion;
     static void startLife();
     static void summonFruit();
@@ -103,7 +108,7 @@ public:
     static void SaveMiniones(string version);
     static void LoadMiniones(string version);
     std::vector<Minion*> colonyAddresses;
-    
+    size_t sizeMemmory = 2;
     double coef_Synthesis;
     double coef_Defending;
     sf::Color colonyColor;

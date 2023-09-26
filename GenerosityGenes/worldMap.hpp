@@ -11,7 +11,7 @@ namespace dC //defaultColors
     static const sf::Color
         air = sf::Color(200,200,50,255),
         fruit = sf::Color::Red,
-        border = sf::Color::Black,
+        border = sf::Color(50, 50, 50, 255),
         dead = sf::Color::Black;
 };
 
