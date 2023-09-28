@@ -26,7 +26,6 @@ sf::Color defaultColor(Types type)
     case air:
         return dC::air;
         break;
-
     default:
         return dC::air;
         break;
@@ -100,166 +99,154 @@ void render()
         window.draw(borderShape[3]);
 
 
-        for (size_t x = 1; x < sizeWorldX - 1; ++x) {
-            for (size_t y = 1; y < sizeWorldY - 1; ++y) {
-                switch (worldMap[x][y].type)
-                {
-                case Types::minion:
-                    tempShapeMinion.setPosition(sf::Vector2f(multiplicator * x, multiplicator * y));
-
-                    if (worldMap[x][y].minionAsdress->IsDead)
-                        tempShapeMinion.setFillColor(dC::dead);
-                    else {
-
-                        tempShapeMinion.setFillColor(worldMap[x][y].minionAsdress->myColony->colonyColor);
-
-                        if (worldMap[x][y].minionAsdress->IsSynthesis)
-                        {
-                            tempShapeMinion.setOutlineColor(sf::Color::Green);
-                        }
-                        else if (worldMap[x][y].minionAsdress->IsProtection)
-                        {
-                            tempShapeMinion.setOutlineColor(sf::Color::Blue);
-                        }
-                        else
-                        {
-                            tempShapeMinion.setOutlineColor(sf::Color::Black);
-                        }
-                    }
-                    break;
-                case Types::air:
-                    break;
-                case Types::spawner:
-                    for (std::pair<Colony*, Spawner*> spawner : allActiveSpawners)
+        for (int x = 1; x < sizeWorldX-1; ++x) {
+            for (int y = 1; y < sizeWorldY-1; ++y) {
+                if (worldMap[x][y].type != Types::air) {
+                    if (worldMap[x][y].type != minion)
                     {
-                        if (spawner.second->spawnerPosition.x == x && spawner.second->spawnerPosition.y == y)
-                        {
-                            tempShape.setFillColor(spawner.first->colonyColor);
-                        }
-                    }
 
-                    tempShape.setPosition(sf::Vector2f(multiplicator * x, multiplicator * y));
-                    window.draw(tempShape);
-                    break;
-                default:
-                    tempShape.setFillColor(defaultColor(worldMap[x][y].type));
-                    tempShape.setPosition(sf::Vector2f(multiplicator * x, multiplicator * y));
-                    window.draw(tempShape);
-                    break;
+                        tempShape.setFillColor(defaultColor(worldMap[x][y].type));
+                        tempShape.setPosition(sf::Vector2f(multiplicator * x, multiplicator * y));
+                        window.draw(tempShape);
+                    }
+                    else
+                    {
+                        tempShapeMinion.setPosition(sf::Vector2f(multiplicator * x, multiplicator * y));
+
+                        if (worldMap[x][y].minionAsdress->IsDead)
+                            tempShapeMinion.setFillColor(dC::dead);
+                        else {
+
+                                tempShapeMinion.setFillColor(worldMap[x][y].minionAsdress->myColony->colonyColor);
+
+                            if (worldMap[x][y].minionAsdress->IsSynthesis)
+                            {
+                                tempShapeMinion.setOutlineColor(sf::Color::Green);
+                            }
+                            else if (worldMap[x][y].minionAsdress->IsProtection)
+                            {
+                                tempShapeMinion.setOutlineColor(sf::Color::Blue);
+                            }
+                            else
+                            {
+                                tempShapeMinion.setOutlineColor(sf::Color::Black);
+                            }
+                        }
+                        window.draw(tempShapeMinion);
+                    }
                 }
             }
         }
 
 
 
-    animationZoomSin = (sin(((double)animationZoom / (double)(animation_smoothness * 2.0)) * PI) * zoomScale) + 1;
-    zoomSize = sf::Vector2f(multiplicator * sizeWorldX / (animationZoomSin),
-        multiplicator * sizeWorldY / (animationZoomSin));
-    if (sf::Mouse::isButtonPressed(sf::Mouse::Left) && window_MinionBrain.isOpen())
-    {
-        mousePos = window.mapPixelToCoords(sf::Mouse::getPosition(window));
-        if ((mousePos.x >= 0 && mousePos.y >= 0) && (mousePos.x <= multiplicator * sizeWorldX && mousePos.y <= multiplicator * sizeWorldY))
+        animationZoomSin = (sin(((double)animationZoom / (double)(animation_smoothness * 2.0)) * PI) * zoomScale) + 1;
+        zoomSize = sf::Vector2f(multiplicator * sizeWorldX / (animationZoomSin),
+                                multiplicator * sizeWorldY / (animationZoomSin));
+        if (sf::Mouse::isButtonPressed(sf::Mouse::Left) && window_MinionBrain.isOpen())
         {
-            if (worldMap[(size_t)mousePos.x / multiplicator][(size_t)mousePos.y / multiplicator].type == minion)
+            mousePos = window.mapPixelToCoords(sf::Mouse::getPosition(window));
+            if ((mousePos.x >= 0 && mousePos.y >= 0) && (mousePos.x <= multiplicator * sizeWorldX && mousePos.y <= multiplicator * sizeWorldY))
             {
-                //демонстрація нейроної мережі
-                window_MinionBrain.setVisible(true);
-                window_MinionBrain.clear();
-                minionToShowBrain = worldMap[(size_t)mousePos.x / multiplicator][(size_t)mousePos.y / multiplicator].minionAsdress;
-                isWindowMinionBrain = true;
-                for (size_t inputIt = 0; inputIt < MinionSettings::minionInputs; ++inputIt)
+                if (worldMap[(size_t)mousePos.x / multiplicator][(size_t)mousePos.y / multiplicator].type == minion)
                 {
-                    neuronShape.setPosition(sf::Vector2f(0.f, 17.f * inputIt));
-                    window_MinionBrain.draw(neuronShape);
-                }
-                for (size_t layersIt = 0; layersIt < minionToShowBrain->MyBrain.layers_.size(); ++layersIt)
-                {
-                    for (size_t outputsIt = 0; outputsIt < minionToShowBrain->MyBrain.layers_[layersIt].output_size_; ++outputsIt)
+                    //демонстрація нейроної мережі
+                    window_MinionBrain.setVisible(true);
+                    window_MinionBrain.clear();
+                    minionToShowBrain = worldMap[(size_t)mousePos.x / multiplicator][(size_t)mousePos.y / multiplicator].minionAsdress;
+                    isWindowMinionBrain = true;
+                    for (size_t inputIt = 0; inputIt < MinionSettings::minionInputs; ++inputIt)
                     {
-                        neuronShape.setPosition(sf::Vector2f((250.f * (layersIt + 1)), ((MinionSettings::minionInputs - minionToShowBrain->MyBrain.layers_[layersIt].output_size_) / 2) * 17.f + 17.f * outputsIt));
-                        for (size_t inputsIt = 0; inputsIt < minionToShowBrain->MyBrain.layers_[layersIt].input_size_; ++inputsIt)
-                        {
-                            weightShape[0] = sf::Vertex(sf::Vector2f(250.f * layersIt + 3.f, ((MinionSettings::minionInputs - minionToShowBrain->MyBrain.layers_[layersIt].input_size_) / 2) * 17.f + 17.f * inputsIt + 3.f),
-                                sf::Color(0, 255 * (1 / (1 + exp(minionToShowBrain->MyBrain.layers_[layersIt].weights()[inputsIt][outputsIt]))), 0, 255));
-                            weightShape[1] = sf::Vertex(sf::Vector2f(neuronShape.getPosition().x + 3.f, neuronShape.getPosition().y + 3.f),
-                                sf::Color(0, 255 * (1 / (1 + exp(minionToShowBrain->MyBrain.layers_[layersIt].weights()[inputsIt][outputsIt]))), 0, 255));
-
-                            window_MinionBrain.draw(weightShape, 3, sf::Lines);
-                        }
+                        neuronShape.setPosition(sf::Vector2f(0.f, 17.f * inputIt));
                         window_MinionBrain.draw(neuronShape);
                     }
+                    for (size_t layersIt = 0; layersIt < minionToShowBrain->MyBrain.layers_.size(); ++layersIt)
+                    {
+                        for (size_t outputsIt = 0; outputsIt < minionToShowBrain->MyBrain.layers_[layersIt].output_size_; ++outputsIt)
+                        {
+                            neuronShape.setPosition(sf::Vector2f((250.f * (layersIt + 1)), ((MinionSettings::minionInputs - minionToShowBrain->MyBrain.layers_[layersIt].output_size_) / 2) * 17.f + 17.f * outputsIt));
+                            for (size_t inputsIt = 0; inputsIt < minionToShowBrain->MyBrain.layers_[layersIt].input_size_; ++inputsIt)
+                            {
+                                weightShape[0] = sf::Vertex(sf::Vector2f(250.f * layersIt +3.f, ((MinionSettings::minionInputs - minionToShowBrain->MyBrain.layers_[layersIt].input_size_ ) / 2) * 17.f + 17.f * inputsIt +3.f),
+                                    sf::Color(0, 255 * (1 / (1 + exp(minionToShowBrain->MyBrain.layers_[layersIt].weights()[inputsIt][outputsIt]))), 0, 255));
+                                weightShape[1] = sf::Vertex(sf::Vector2f(neuronShape.getPosition().x+3.f,neuronShape.getPosition().y+3.f),
+                                    sf::Color(0, 255 * (1 / (1 + exp(minionToShowBrain->MyBrain.layers_[layersIt].weights()[inputsIt][outputsIt]))), 0, 255));
+
+                                window_MinionBrain.draw(weightShape, 3, sf::Lines);
+                            }
+                            window_MinionBrain.draw(neuronShape);
+                        }
+                    }
+                    window_MinionBrain.display();
+
                 }
-                window_MinionBrain.display();
+                else
+                {
+                    isWindowMinionBrain = false;
+                    window_MinionBrain.setVisible(false);
+                }
+            }
+            std::this_thread::sleep_for(std::chrono::milliseconds(50));
+        }
+        if (!window_MinionBrain.isOpen())
+        {
+            isWindowMinionBrain = false;
+        }
+        if(sf::Mouse::isButtonPressed(sf::Mouse::Right))
+        {
+            zoom=!zoom;
+            std::this_thread::sleep_for(std::chrono::milliseconds(100));
+        }
+            if (zoom)
+            {
+                if (animationZoom <= animation_smoothness)
+                {
+                    ++animationZoom;
+                }
+
+                mainCamera.setSize(zoomSize);
+                mousePos = (window.mapPixelToCoords(sf::Mouse::getPosition(window)));
+                //Якщо вийшло за межі квадрата
+
+                    if (abs(mousePosOld.x - mousePos.x) + abs(mousePosOld.y - mousePos.y) > 100.0f && !isWindowMinionBrain)
+                    {
+                        //Повільно рухати до миші
+                        mousePos = sf::Vector2f(
+                            (cameraMoveSpeed * mousePosOld.x) + ((1 - cameraMoveSpeed) * mousePos.x),
+                            (cameraMoveSpeed * mousePosOld.y) + ((1 - cameraMoveSpeed) * mousePos.y));
+                            
+                        if (((mousePos.x >= 0 && mousePos.y >= 0) && (mousePos.x <= multiplicator * sizeWorldX && mousePos.y <= multiplicator * sizeWorldY)))
+                        {
+                            mousePosOld = mousePos;
+                            mainCamera.setCenter(mousePos);
+                        }
+                    }
 
             }
             else
             {
-                isWindowMinionBrain = false;
-                window_MinionBrain.setVisible(false);
+                if (animationZoom > 0) 
+                {   
+                    --animationZoom; 
+                    //Повільне наближення до центру
+                    mainCamera.setCenter(sf::Vector2f(
+                                    (0.9f * mousePosOld.x) + (0.1f * multiplicator * sizeWorldX / 2) ,
+                                    (0.9f * mousePosOld.y) + (0.1f * multiplicator * sizeWorldY / 2) ));
+                    mousePosOld = mainCamera.getCenter();
+                }
+                else
+                {   
+                    mainCamera.setCenter(sf::Vector2f(multiplicator * sizeWorldX / 2, multiplicator * sizeWorldY / 2));
+                }
+                mainCamera.setSize(zoomSize);
             }
-        }
-        std::this_thread::sleep_for(std::chrono::milliseconds(50));
-    }
-    if (!window_MinionBrain.isOpen())
-    {
-        isWindowMinionBrain = false;
-    }
-    if (sf::Mouse::isButtonPressed(sf::Mouse::Right))
-    {
-        zoom = !zoom;
-        std::this_thread::sleep_for(std::chrono::milliseconds(100));
-    }
-    if (zoom)
-    {
-        if (animationZoom <= animation_smoothness)
-        {
-            ++animationZoom;
-        }
 
-        mainCamera.setSize(zoomSize);
-        mousePos = (window.mapPixelToCoords(sf::Mouse::getPosition(window)));
-        //Якщо вийшло за межі квадрата
-
-        if (abs(mousePosOld.x - mousePos.x) + abs(mousePosOld.y - mousePos.y) > 100.0f && !isWindowMinionBrain)
-        {
-            //Повільно рухати до миші
-            mousePos = sf::Vector2f(
-                (cameraMoveSpeed * mousePosOld.x) + ((1 - cameraMoveSpeed) * mousePos.x),
-                (cameraMoveSpeed * mousePosOld.y) + ((1 - cameraMoveSpeed) * mousePos.y));
-
-            if (((mousePos.x >= 0 && mousePos.y >= 0) && (mousePos.x <= multiplicator * sizeWorldX && mousePos.y <= multiplicator * sizeWorldY)))
-            {
-                mousePosOld = mousePos;
-                mainCamera.setCenter(mousePos);
-            }
-        }
-
-    }
-    else
-    {
-        if (animationZoom > 0)
-        {
-            --animationZoom;
-            //Повільне наближення до центру
-            mainCamera.setCenter(sf::Vector2f(
-                (0.9f * mousePosOld.x) + (0.1f * multiplicator * sizeWorldX / 2),
-                (0.9f * mousePosOld.y) + (0.1f * multiplicator * sizeWorldY / 2)));
-            mousePosOld = mainCamera.getCenter();
-        }
-        else
-        {
-            mainCamera.setCenter(sf::Vector2f(multiplicator * sizeWorldX / 2, multiplicator * sizeWorldY / 2));
-        }
-        mainCamera.setSize(zoomSize);
-    }
-
-    window.setView(mainCamera);
-    window.display();
+        window.setView(mainCamera);
+        window.display();
     }
     else
     {
     isMainWindowOpen = false;
     }
-
 }
 

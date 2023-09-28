@@ -2,7 +2,6 @@
 #include "include.hpp"
 class Minion;
 class Colony;
-class Spawner;
 const size_t sizeWorldX = 300;
 const size_t sizeWorldY = 200;
 const float speedSummonFruit = 5.0f;
@@ -21,8 +20,7 @@ enum Types
     minion,
     fruit,
     border,
-    air,
-    spawner
+    air
 };
 
 
@@ -34,4 +32,3 @@ struct object
 
 extern std::vector<std::vector<object>> worldMap;
 extern std::map<std::string, Colony*> allColonys;
-extern std::map<Colony*, Spawner*> allActiveSpawners;

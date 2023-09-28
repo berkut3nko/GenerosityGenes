@@ -1,7 +1,6 @@
 #include "primary_utilities.hpp"
 std::vector<std::vector<object>> worldMap(sizeWorldX, std::vector<object>(sizeWorldY));
 std::map<std::string, Colony*> allColonys;
-std::map<Colony*, Spawner*> allActiveSpawners;
 
 void worldInitialization()
 {
@@ -83,13 +82,6 @@ void Colony::startLife()
         for (Minion* minion : minionAddresses)
         {
             minion->nextMove();
-        }
-        for (std::pair<Colony*, Spawner*> spawner : allActiveSpawners)
-        {
-            if (spawner.first->minionAddresses.size() < spawner.second->populationSize)
-            {
-                spawner.first->createMinion(spawner.second->generateCord());
-            }
         }
         ++count;
         if (count % 5 == 0)   //(dev tip)
@@ -224,14 +216,4 @@ void Colony::LoadMiniones(string version)
     }
 
     file.close();
-}
-Spawner::Spawner(Colony* colony,size_t minPopulation, Point position):summonSample(colony),populationSize(minPopulation),spawnerPosition(position)
-{
-    allActiveSpawners.insert(std::make_pair(summonSample,this));
-    worldMap[spawnerPosition.x][spawnerPosition.y].type = Types::spawner;
-}
-Point Spawner::generateCord()
-{
-    //(dev tip) потім переписати коли зявиться карта колоній спавнити нового на території колонії
-    return { (rand()%2 == 0)? spawnerPosition.x - 1: spawnerPosition.x + 1,(rand() % 2 == 0) ? spawnerPosition.y - 1 : spawnerPosition.y + 1 };
 }
