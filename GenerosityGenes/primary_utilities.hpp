@@ -21,6 +21,7 @@ struct Point
 
 class Colony;
 class Minion;
+class Spawner;
 
 enum infoMove
 {
@@ -58,6 +59,7 @@ public:
     vector<double> memmory;
 
 private:
+    size_t rotting = 0;
     void LoadToWorld();
 
     void setMarkForMove(size_t answerId);
@@ -108,6 +110,7 @@ public:
     static void SaveMiniones(string version);
     static void LoadMiniones(string version);
     std::vector<Minion*> colonyAddresses;
+    size_t sizeColony = 0;
     size_t sizeMemmory = 2;
     double coef_Synthesis;
     double coef_Defending;
@@ -117,4 +120,18 @@ private:
     std::string nameColony;
     NeuralNetwork* colonyBrain;
     static std::vector<Minion*> minionAddresses;
+};
+
+class Spawner
+{
+public:
+    Spawner(Colony* colony, size_t minPopulation, Point position);
+    Spawner(Colony* colony, size_t minPopulation);
+
+    Point spawnerPosition;
+    Colony* summonSample = nullptr;
+private:
+    friend class Colony;
+    Point generateCord();
+    size_t populationSize;
 };

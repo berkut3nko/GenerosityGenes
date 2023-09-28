@@ -1,7 +1,7 @@
 #include "primary_utilities.hpp"
 std::vector<std::vector<object>> worldMap(sizeWorldX, std::vector<object>(sizeWorldY));
 std::map<std::string, Colony*> allColonys;
-
+std::map<Colony*, Spawner*> allActiveSpawners;
 void worldInitialization()
 {
     for (size_t x = 0; x < sizeWorldX; ++x)
@@ -52,12 +52,12 @@ void Colony::startLife()
     size_t maxPoints=0;
     bool leaveOne = false;
     while (true) {
+
+
         for (size_t fruitI = 0; fruitI < static_cast<size_t>(speedSummonFruit / 1.0f); ++fruitI)
         {
             summonFruit();
         }
-
-
 
         for (size_t i = 0; i < 60; ++i)
         {
@@ -83,6 +83,13 @@ void Colony::startLife()
         {
             minion->nextMove();
         }
+        for (std::pair<Colony*, Spawner*> spawner : allActiveSpawners)
+        {
+            if (spawner.first->sizeColony < spawner.second->populationSize)
+            {
+                spawner.first->createMinion(spawner.second->generateCord());
+            }
+        }
         ++count;
         if (count % 5 == 0)   //(dev tip)
         {
@@ -90,7 +97,6 @@ void Colony::startLife()
             {
                 for (const auto minion : item.second->colonyAddresses)
                 {
-                    if (!minion->IsDead) {
                         if (minion->points > maxPoints)
                         {
                             maxPoints = minion->points;
@@ -98,7 +104,6 @@ void Colony::startLife()
                             item.second->colonyBrain = &(minion->MyBrain);
                         }
                         minion->points = 0;
-                    }
                 }
                 if (item.second->colonyBrain != nullptr)
                 {
@@ -149,7 +154,7 @@ void Colony::createMinion(Point coordinate, Minion* parent)
 {
         if (worldMap[coordinate.x][coordinate.y].type == Types::air)
         {
-            Minion* newMinion = new Minion({ coordinate.x ,coordinate.y }, this, &parent->MyBrain, (parent->fat > 0) ? 0.5f : (parent->hunger / 2));
+            Minion* newMinion = new Minion({ coordinate.x ,coordinate.y }, this, &parent->MyBrain, 0.5f);
             minionAddresses.push_back(newMinion);
             colonyAddresses.push_back(newMinion);
             ++MinionSettings::countMiniones;
@@ -216,4 +221,30 @@ void Colony::LoadMiniones(string version)
     }
 
     file.close();
+}
+Spawner::Spawner(Colony* colony, size_t minPopulation, Point position) :summonSample(colony), populationSize(minPopulation), spawnerPosition(position)
+{
+    allActiveSpawners.insert(std::make_pair(summonSample, this));
+    worldMap[spawnerPosition.x][spawnerPosition.y].type = Types::spawner;
+}
+Spawner::Spawner(Colony* colony, size_t minPopulation) :summonSample(colony), populationSize(minPopulation)
+{
+        size_t Xtemp, Ytemp;
+        while (true)
+        {
+            Xtemp = rand() % sizeWorldX;
+            Ytemp = rand() % sizeWorldY;
+            if (worldMap[Xtemp][Ytemp].type == Types::air)
+            {
+                spawnerPosition = { Xtemp ,Ytemp };
+                break;
+            }
+        }
+    allActiveSpawners.insert(std::make_pair(summonSample, this));
+    worldMap[spawnerPosition.x][spawnerPosition.y].type = Types::spawner;
+}
+Point Spawner::generateCord()
+{
+    //(dev tip) потім переписати коли зявиться карта колоній спавнити нового на території колонії
+    return { (rand() % 2 == 0) ? spawnerPosition.x - 1 : spawnerPosition.x + 1,(rand() % 2 == 0) ? spawnerPosition.y - 1 : spawnerPosition.y + 1 };
 }

@@ -8,8 +8,7 @@ MyBrain({ {MinionSettings::minionInputs + myColony->sizeMemmory, myColony->_neur
     worldMap[position.x][position.y].minionAsdress = this;
     ++MinionSettings::countMiniones;
     memmory.resize(myColony->sizeMemmory,0);
-
-    
+    ++myColony->sizeColony;
 }
 Minion::Minion(Point spawn_position, Colony* currentColony, NeuralNetwork* parentBrain, double hungerForParent) :position(spawn_position), myColony(currentColony), MyBrain(*parentBrain), hunger(hungerForParent)
 {
@@ -18,6 +17,7 @@ Minion::Minion(Point spawn_position, Colony* currentColony, NeuralNetwork* paren
     worldMap[position.x][position.y].minionAsdress = this;
     ++MinionSettings::countMiniones;
     memmory.resize(myColony->sizeMemmory, 0);
+    ++myColony->sizeColony;
 }
 Minion::Minion(string data) :MyBrain(
     { {MinionSettings::minionInputs + myColony->sizeMemmory, myColony->_neuronsCount},
@@ -31,6 +31,7 @@ Minion::Minion(string data) :MyBrain(
     ++MinionSettings::countMiniones;
     MyBrain = *myColony->colonyBrain;
     memmory.resize(myColony->sizeMemmory, 0);
+    ++myColony->sizeColony;
 }
 
 
@@ -154,17 +155,36 @@ std::vector<double> Minion::inputs()
     }
     return input;
 }
+
 void Minion::nextMove()
 {
-
+    if (IsDead)
+    {
+        if(rotting<5)
+        ++rotting;
+        else {
+            rotting = 0;
+            worldMap[position.x][position.y].type = air;
+            worldMap[position.x][position.y].minionAsdress = nullptr;
+            for (auto it = myColony->colonyAddresses.begin(); it != myColony->colonyAddresses.end(); ++it)
+                if (*(it) == this)
+                {
+                    myColony->colonyAddresses.erase(it);
+                    return;
+                }
+        }
+        return;
+    }
+    else
+    {
         vector<double> answers = MyBrain.forward(inputs());
 
         //Пошук максимального
         size_t answerId = 0; double maxValue = answers[0];
-        for (size_t id=0;id < MinionSettings::minionOutputs;++id)
+        for (size_t id = 0; id < MinionSettings::minionOutputs; ++id)
         {
-            if (answers.at(id) > maxValue) 
-            { 
+            if (answers.at(id) > maxValue)
+            {
                 maxValue = answers.at(id);
                 answerId = id;
             }
@@ -218,87 +238,87 @@ void Minion::nextMove()
             bornRight();
             break;
         }
-    
-    return;
+
+        return;
+    }
 }
 void Minion::getHungry(double count)
 {
-    if (fat > 0)
-    {
-        if (fat > count)
-        {
-            fat-=count;
-            return;
-        }
-        else
-        {
-            count -= fat;
-            fat = 0;
-        }
-    }
-    hunger -= count;
 
+    hunger = hunger + fat + count;
+    if (hunger > 1)
+    {
+        hunger = 1;
+        fat = hunger + fat + count - 1;
+    }
     if (hunger <= 0) 
     {
         IsDead = true; 
         hunger = 0; 
         --MinionSettings::countMiniones;
-        for(auto it=myColony->minionAddresses.begin();it!=myColony->minionAddresses.end();++it )
-            if (*(it) == this)
-            {
-                myColony->minionAddresses.erase(it);
-                return;
-            }
+        --myColony->sizeColony;
     }
 
 }
 infoMove Minion::move(size_t newPosX, size_t newPosY)
 {
-    if (worldMap[newPosX][newPosY].type != border)
+    switch (worldMap[newPosX][newPosY].type)
     {
-        if (worldMap[newPosX][newPosY].type == minion)
+    case Types::border:
+        getHungry(-.1f);
+        break;
+    case Types::minion:
+        if (worldMap[newPosX][newPosY].minionAsdress->IsDead)
         {
             //Attack();
-            getHungry(.05f);
+            getHungry(-.05f);
             return infoMove::attack;
         }
-        else 
+        else
         {
-                if (worldMap[newPosX][newPosY].type == Types::fruit)
-                {
-                hunger += .75f;
-                if (hunger > 1)
-                {
-                    fat += hunger - 1;
-                    hunger = 1;
-                }
-
-                worldMap[position.x][position.y].type = air;
-                position.x = newPosX;
-                position.y = newPosY;
-                worldMap[position.x][position.y].type = minion;
-                worldMap[position.x][position.y].minionAsdress = this;
-                getHungry(.02f);
-                return infoMove::eat;
-                }
-            else {
-                worldMap[position.x][position.y].type = air;
-                position.x = newPosX;
-                position.y = newPosY;
-                worldMap[position.x][position.y].type = minion;
-                worldMap[position.x][position.y].minionAsdress = this;
-                getHungry(.02f);
-                return infoMove::move;
-            }
+            getHungry(.1f);
+            position.x = newPosX;
+            position.y = newPosY;
+            worldMap[position.x][position.y].type = minion;
+            worldMap[position.x][position.y].minionAsdress = this;
+            return infoMove::eat;
         }
+        break;
+    case Types::fruit:
+        getHungry(.75f);
+        position.x = newPosX;
+        position.y = newPosY;
+        worldMap[position.x][position.y].type = minion;
+        worldMap[position.x][position.y].minionAsdress = this;
+        return infoMove::eat;
+        break;
+
+    case Types::spawner:
+        getHungry(-.1f);
+        break;
+
+    default:
+        position.x = newPosX;
+        position.y = newPosY;
+        worldMap[position.x][position.y].type = minion;
+        worldMap[position.x][position.y].minionAsdress = this;
+        getHungry(-.02f);
+        return infoMove::move;
+        break;
     }
-    getHungry(.1f);
 }
 
 void Minion::born(size_t posX, size_t posY)
 {
-    myColony->createMinion({ posX , posY }, this);
-    getHungry((fat>0)?0.5f:hunger/2);
+    if (worldMap[posX][posY].type == Types::air && hunger > 0.5f)
+    {
+        myColony->createMinion({ posX , posY }, this);
+        getHungry(-0.5f);
+    }
+    else
+    {
+        getHungry(-0.02f);
+    }
 }
 
 infoMove Minion::moveUp()
@@ -373,14 +393,14 @@ infoMove Minion::StartSynthesis()
 {
     stopPhases();
     IsSynthesis = true;
-    getHungry(0.05f);
+    getHungry(-0.05f);
     return infoMove::synthesis;
 }
 infoMove Minion::RaiseProtection()
 {
     stopPhases();
     IsProtection = true;
-    getHungry(0.1f);
+    getHungry(-0.1f);
     return infoMove::protection;
 }
 string Minion::SaveMe()

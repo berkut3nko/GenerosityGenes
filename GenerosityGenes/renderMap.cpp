@@ -61,7 +61,7 @@ sf::Vertex weightShape[2];
 Minion* minionToShowBrain = nullptr;
 void InitializationRender()
 {
-    tempShapeMinion.setOutlineThickness(static_cast<size_t>(multiplicator / 15));
+    tempShapeMinion.setOutlineThickness((float)multiplicator/10);
     airShape.setFillColor(dC::air);
     airShape.setPosition(sf::Vector2f(0, 0));
 
@@ -101,39 +101,53 @@ void render()
 
         for (int x = 1; x < sizeWorldX-1; ++x) {
             for (int y = 1; y < sizeWorldY-1; ++y) {
-                if (worldMap[x][y].type != Types::air) {
-                    if (worldMap[x][y].type != minion)
-                    {
+                switch(worldMap[x][y].type) {
+                case Types::air:
+                    break;
+                case Types::minion:
+                    tempShapeMinion.setPosition(sf::Vector2f(multiplicator * x, multiplicator * y));
 
-                        tempShape.setFillColor(defaultColor(worldMap[x][y].type));
-                        tempShape.setPosition(sf::Vector2f(multiplicator * x, multiplicator * y));
-                        window.draw(tempShape);
-                    }
-                    else
-                    {
-                        tempShapeMinion.setPosition(sf::Vector2f(multiplicator * x, multiplicator * y));
+                    if (worldMap[x][y].minionAsdress->IsDead)
+                        tempShapeMinion.setFillColor(dC::dead);
+                    else {
 
-                        if (worldMap[x][y].minionAsdress->IsDead)
-                            tempShapeMinion.setFillColor(dC::dead);
-                        else {
+                        tempShapeMinion.setFillColor(worldMap[x][y].minionAsdress->myColony->colonyColor);
 
-                                tempShapeMinion.setFillColor(worldMap[x][y].minionAsdress->myColony->colonyColor);
-
-                            if (worldMap[x][y].minionAsdress->IsSynthesis)
-                            {
-                                tempShapeMinion.setOutlineColor(sf::Color::Green);
-                            }
-                            else if (worldMap[x][y].minionAsdress->IsProtection)
-                            {
-                                tempShapeMinion.setOutlineColor(sf::Color::Blue);
-                            }
-                            else
-                            {
-                                tempShapeMinion.setOutlineColor(sf::Color::Black);
-                            }
+                        if (worldMap[x][y].minionAsdress->IsSynthesis)
+                        {
+                            tempShapeMinion.setOutlineColor(sf::Color::Green);
                         }
-                        window.draw(tempShapeMinion);
+                        else if (worldMap[x][y].minionAsdress->IsProtection)
+                        {
+                            tempShapeMinion.setOutlineColor(sf::Color::Blue);
+                        }
+                        else
+                        {
+                            tempShapeMinion.setOutlineColor(sf::Color::Black);
+                        }
                     }
+                    window.draw(tempShapeMinion);
+                    break;
+                case Types::spawner:
+                    for (std::pair<Colony*, Spawner*> spawner : allActiveSpawners)
+                    {
+                        if (spawner.second->spawnerPosition.x == x && spawner.second->spawnerPosition.y == y)
+                        {
+                            tempShape.setFillColor(spawner.first->colonyColor);
+                        }
+                    }
+                    tempShape.setOutlineThickness((float)multiplicator/10);
+                    tempShape.setOutlineColor(dC::dead);
+                    tempShape.setPosition(sf::Vector2f(multiplicator * x, multiplicator * y));
+                    window.draw(tempShape);
+                    tempShape.setOutlineThickness(0);
+                    break;
+                default:
+                    tempShape.setFillColor(defaultColor(worldMap[x][y].type));
+                    tempShape.setPosition(sf::Vector2f(multiplicator * x, multiplicator * y));
+                    window.draw(tempShape);
+                    break;
+
                 }
             }
         }
@@ -195,7 +209,7 @@ void render()
         if(sf::Mouse::isButtonPressed(sf::Mouse::Right))
         {
             zoom=!zoom;
-            std::this_thread::sleep_for(std::chrono::milliseconds(100));
+            std::this_thread::sleep_for(std::chrono::milliseconds(200));
         }
             if (zoom)
             {
