@@ -17,16 +17,18 @@ int main()
     std::srand(static_cast<unsigned int>(time(NULL)));
     worldInitialization();
     InitializationRender();
-
+    
     // ініціалізація колонії
     Colony myFirstColony(/*кількість нейронів у прихованому шарі*/32,/*назва колонії(для збереження)*/ "testColony1");
 
-    myFirstColony.createMinion(/*Кордината створення мінійона*/{2,1});
     myFirstColony.createMinion();
 
     myFirstColony.createMinion();
 
     myFirstColony.createMinion();
+    //Spawner spawner(&myFirstColony, 5, { 4,6 });
+    //myFirstColony.createMinion(/*Кордината створення мінійона*/{2,1});
+
 
 
     Colony mySecondColony(32, "testColony2");
@@ -35,12 +37,13 @@ int main()
 
     mySecondColony.createMinion();
 
+
     //Colony::LoadMiniones(version);
 
     Colony::startLife();
 
 
     //збереження гри
-    //Colony::SaveMiniones(version);
+    Colony::SaveMiniones(version);
     return 0;
 }

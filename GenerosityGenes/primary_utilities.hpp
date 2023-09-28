@@ -21,6 +21,7 @@ struct Point
 
 class Colony;
 class Minion;
+class Spawner;
 
 enum infoMove
 {
@@ -117,4 +118,17 @@ private:
     std::string nameColony;
     NeuralNetwork* colonyBrain;
     static std::vector<Minion*> minionAddresses;
+};
+
+class Spawner
+{
+public:
+    Spawner(Colony* colony, size_t minPopulation, Point position);
+
+    Point spawnerPosition;
+    Colony* summonSample = nullptr;
+private:
+    friend class Colony;
+    Point generateCord();
+    size_t populationSize;
 };

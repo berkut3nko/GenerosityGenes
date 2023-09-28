@@ -254,51 +254,54 @@ void Minion::getHungry(double count)
 }
 infoMove Minion::move(size_t newPosX, size_t newPosY)
 {
-    if (worldMap[newPosX][newPosY].type != border)
+    switch (worldMap[newPosX][newPosY].type)
     {
-        if (worldMap[newPosX][newPosY].type == minion)
+    case Types::border:
+            getHungry(.1f);
+            break;
+    case Types::minion:
+        //Attack();
+        getHungry(.05f);
+        return infoMove::attack;
+            break;
+    case Types::fruit:
+        hunger += .75f;
+        if (hunger > 1)
         {
-            //Attack();
-            getHungry(.05f);
-            return infoMove::attack;
+            fat += hunger - 1;
+            hunger = 1;
         }
-        else 
-        {
-                if (worldMap[newPosX][newPosY].type == Types::fruit)
-                {
-                hunger += .75f;
-                if (hunger > 1)
-                {
-                    fat += hunger - 1;
-                    hunger = 1;
-                }
 
-                worldMap[position.x][position.y].type = air;
-                position.x = newPosX;
-                position.y = newPosY;
-                worldMap[position.x][position.y].type = minion;
-                worldMap[position.x][position.y].minionAsdress = this;
-                getHungry(.02f);
-                return infoMove::eat;
-                }
-            else {
-                worldMap[position.x][position.y].type = air;
-                position.x = newPosX;
-                position.y = newPosY;
-                worldMap[position.x][position.y].type = minion;
-                worldMap[position.x][position.y].minionAsdress = this;
-                getHungry(.02f);
-                return infoMove::move;
-            }
-        }
+        worldMap[position.x][position.y].type = air;
+        position.x = newPosX;
+        position.y = newPosY;
+        worldMap[position.x][position.y].type = minion;
+        worldMap[position.x][position.y].minionAsdress = this;
+        getHungry(.02f);
+        return infoMove::eat;
+            break;
+    case Types::air:
+        worldMap[position.x][position.y].type = air;
+        position.x = newPosX;
+        position.y = newPosY;
+        worldMap[position.x][position.y].type = minion;
+        worldMap[position.x][position.y].minionAsdress = this;
+        getHungry(.02f);
+        return infoMove::move;
+            break;
+    case Types::spawner:
+            getHungry(.1f);
+            break;
+
     }
-    getHungry(.1f);
 }
 
 void Minion::born(size_t posX, size_t posY)
 {
-    myColony->createMinion({ posX , posY }, this);
-    getHungry((fat>0)?0.5f:hunger/2);
+    if (worldMap[posX][posY].type == Types::air) {
+        myColony->createMinion({ posX , posY }, this);
+        getHungry((fat > 0) ? 0.5f : hunger / 2);
+    }
 }
 
 infoMove Minion::moveUp()
