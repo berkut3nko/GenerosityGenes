@@ -20,7 +20,6 @@ int main()
 
     // ініціалізація колонії
     Colony myFirstColony(/*кількість нейронів у прихованому шарі*/32,/*назва колонії(для збереження)*/ "testColony1");
-
     myFirstColony.createMinion(/*Кордината створення мінійона*/{2,1});
     myFirstColony.createMinion();
 
@@ -30,8 +29,6 @@ int main()
 
 
     Colony mySecondColony(32, "testColony2");
-
-    mySecondColony.createMinion();
 
     mySecondColony.createMinion();
 

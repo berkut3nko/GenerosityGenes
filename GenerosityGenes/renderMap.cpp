@@ -48,10 +48,10 @@ sf::RectangleShape tempShape(sf::Vector2f(multiplicator, multiplicator));
 sf::RectangleShape airShape(sf::Vector2f(multiplicator* sizeWorldX, multiplicator* sizeWorldY));
 sf::RectangleShape borderShape[4]=
 {
-    sf::RectangleShape(sf::Vector2f(multiplicator* sizeWorldX, multiplicator)),
-    sf::RectangleShape(sf::Vector2f(multiplicator* sizeWorldX, multiplicator)),
-    sf::RectangleShape(sf::Vector2f(multiplicator, multiplicator* sizeWorldY)),
-    sf::RectangleShape(sf::Vector2f(multiplicator, multiplicator* sizeWorldY))
+    sf::RectangleShape(sf::Vector2f(multiplicator* sizeWorldX, multiplicator*2)),
+    sf::RectangleShape(sf::Vector2f(multiplicator* sizeWorldX, multiplicator*2)),
+    sf::RectangleShape(sf::Vector2f(multiplicator*2, multiplicator* sizeWorldY)),
+    sf::RectangleShape(sf::Vector2f(multiplicator*2, multiplicator* sizeWorldY))
 };
 sf::CircleShape tempShapeMinion(static_cast<float>(multiplicator / 2.5));
 
@@ -68,11 +68,11 @@ void InitializationRender()
     borderShape[0].setFillColor(dC::border);
     borderShape[0].setPosition(sf::Vector2f(0,0));
     borderShape[1].setFillColor(dC::border);
-    borderShape[1].setPosition(sf::Vector2f(0, multiplicator * (sizeWorldY-1)));
+    borderShape[1].setPosition(sf::Vector2f(0, multiplicator * (sizeWorldY-2)));
     borderShape[2].setFillColor(dC::border);
     borderShape[2].setPosition(sf::Vector2f(0, 0));
     borderShape[3].setFillColor(dC::border);
-    borderShape[3].setPosition(sf::Vector2f(multiplicator * (sizeWorldX-1), 0));
+    borderShape[3].setPosition(sf::Vector2f(multiplicator * (sizeWorldX-2), 0));
 
 
     neuronShape.setFillColor(sf::Color::Blue);
@@ -107,17 +107,17 @@ void render()
                 case Types::minion:
                     tempShapeMinion.setPosition(sf::Vector2f(multiplicator * x, multiplicator * y));
 
-                    if (worldMap[x][y].minionAsdress->IsDead)
+                    if (worldMap[x][y].minionAddress->IsDead)
                         tempShapeMinion.setFillColor(dC::dead);
                     else {
 
-                        tempShapeMinion.setFillColor(worldMap[x][y].minionAsdress->myColony->colonyColor);
+                        tempShapeMinion.setFillColor(worldMap[x][y].minionAddress->myColony->colonyColor);
 
-                        if (worldMap[x][y].minionAsdress->IsSynthesis)
+                        if (worldMap[x][y].minionAddress->IsSynthesis)
                         {
                             tempShapeMinion.setOutlineColor(sf::Color::Green);
                         }
-                        else if (worldMap[x][y].minionAsdress->IsProtection)
+                        else if (worldMap[x][y].minionAddress->IsProtection)
                         {
                             tempShapeMinion.setOutlineColor(sf::Color::Blue);
                         }
@@ -167,7 +167,7 @@ void render()
                     //демонстрація нейроної мережі
                     window_MinionBrain.setVisible(true);
                     window_MinionBrain.clear();
-                    minionToShowBrain = worldMap[(size_t)mousePos.x / multiplicator][(size_t)mousePos.y / multiplicator].minionAsdress;
+                    minionToShowBrain = worldMap[(size_t)mousePos.x / multiplicator][(size_t)mousePos.y / multiplicator].minionAddress;
                     isWindowMinionBrain = true;
                     for (size_t inputIt = 0; inputIt < MinionSettings::minionInputs; ++inputIt)
                     {

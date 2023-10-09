@@ -3,12 +3,13 @@
 Layer::Layer(size_t input_size, size_t output_size) : input_size_(input_size), output_size_(output_size) {
     // ініціалізуємо випадкові ваги
     weights_ = std::vector<std::vector<double>>(input_size_, std::vector<double>(output_size_));
+    srand(static_cast<size_t>(time(NULL)));
+
     for (size_t i = 0; i < input_size_; ++i) {
         for (size_t j = 0; j < output_size_; ++j) {
-            weights_[i][j] = (rand() % 20000 * 0.0001)-1;
+            weights_[i][j] = (rand() % 200 * 0.01)-1; // -1.0000 to 1.0000
         }
     }
-
 }
 
 std::vector<double> Layer::forward(const std::vector<double>& input)const {

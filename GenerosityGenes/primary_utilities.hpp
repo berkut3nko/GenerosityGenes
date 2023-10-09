@@ -9,7 +9,7 @@ void worldInitialization();
 sf::Color defaultColor(Types type);
 namespace MinionSettings
 {
-    static const size_t minionInputs = 64;
+    static const size_t minionInputs = 200;
     static const size_t minionOutputs = 14;
     static size_t countMiniones = 0;
 }
@@ -28,7 +28,8 @@ enum infoMove
     synthesis,
     protection,
     born,
-    attack,
+    attackEnemy,
+    attackTeam,
     eat,
     move
 };
@@ -37,7 +38,7 @@ class Minion
 {
 public:
     Minion(Point spawn_position, Colony* currentColony);
-    Minion(Point spawn_position, Colony* currentColony, NeuralNetwork* parentBrain, double hungerForParent);
+    Minion(Point spawn_position, Colony* currentColony, NeuralNetwork* parentBrain, double hungerFromParent);
     Minion(string data);
 
     void nextMove();
@@ -46,7 +47,7 @@ public:
     Colony* myColony = nullptr;
     NeuralNetwork MyBrain;
 
-    double hunger = 1;              //Наскільки голодний 0-помераю 1-накопичую
+    double hunger = 0.3f;              //Наскільки голодний 0-помераю 1-накопичую
     double fat = 0;                 //Скільки їжи накопичено
 
     double points = 0;              //кількість зароблених балів
@@ -64,6 +65,7 @@ private:
 
     void setMarkForMove(size_t answerId);
     double analyzeMove(infoMove move);
+    double analyzePos(infoMove move);
 
     std::vector<double> inputs();
 
@@ -92,16 +94,21 @@ private:
     infoMove bornRight();
     size_t id = 0;
 };
+enum ColonolyCoefPreset
+{
 
+};
 
 class Colony
 {
 public:
     Colony(size_t neuronsCount, string name);
     Colony(string name);
+    void coefInitialization();
+    void coefInitialization(ColonolyCoefPreset preset);
     void createMinion(Point coordinate);
     void createMinion();
-    void createMinion(Point coordinate, Minion* parent);
+    void createMinion(Point coordinate, Minion* parent, double hunger);
     friend class Minion;
     static void startLife();
     static void summonFruit();
@@ -113,7 +120,15 @@ public:
     size_t sizeColony = 0;
     size_t sizeMemmory = 2;
     double coef_Synthesis;
-    double coef_Defending;
+    double coef_Protection;
+    double coef_Born;
+    double coef_AttackEnemy;
+    double coef_Eat;
+    double coef_AttackTeam;
+    double coef_Border;
+    double coef_SpawnerEnemy;
+    double coef_SpawnerTeam;
+
     sf::Color colonyColor;
 private:
     size_t _neuronsCount;

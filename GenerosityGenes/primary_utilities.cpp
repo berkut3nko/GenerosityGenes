@@ -7,12 +7,16 @@ void worldInitialization()
     for (size_t x = 0; x < sizeWorldX; ++x)
     {
         worldMap[x][0].type = border;
+        worldMap[x][1].type = border;
+        worldMap[x][sizeWorldY - 2].type = border;
         worldMap[x][sizeWorldY - 1].type = border;
     }
     for (size_t y = 1; y < sizeWorldY - 1; ++y)
     {
         worldMap[0][y].type = border;
+        worldMap[1][y].type = border;
         worldMap[sizeWorldX - 1][y].type = border;
+        worldMap[sizeWorldX - 2][y].type = border;
     }
 
 }
@@ -28,6 +32,7 @@ Colony::Colony(size_t neuronsCount, std::string name) :
                                      ),
                colonyColor(sf::Color(rand() % 256, rand() % 256, rand() % 128 + 128, 255))
 {
+    coefInitialization();
     allColonys.insert(std::make_pair(nameColony, this));
 }
 //Це завантажувальний конструктор
@@ -36,14 +41,27 @@ Colony::Colony(string name) : nameColony(name)
     colonyColor = sf::Color(rand() % 256, rand() % 256, rand() % 128 + 128, 255);
     colonyBrain->NeuralNetworkWay = name;
     LoadColony();
+    coefInitialization();
     allColonys.insert(std::make_pair(nameColony, this));
 }
 
-//Очищення динамічної пам'яті 
+
 
 //Ініціалізація верктору вказивників на своїх мінійонів
 std::vector<Minion*> Colony::minionAddresses;
 
+void Colony::coefInitialization()
+{
+    coef_Synthesis = (double(rand()%20000) / 10000.0) - 1.0;
+    coef_Protection = (double(rand() % 20000) / 10000.0) - 1.0;
+    coef_Born = (double(rand() % 20000) / 10000.0) - 1.0;
+    coef_AttackEnemy = (double(rand() % 20000) / 10000.0) - 1.0;
+    coef_Eat = (double(rand() % 20000) / 10000.0) - 1.0;
+    coef_AttackTeam = (double(rand() % 20000) / 10000.0) - 1.0;
+    coef_Border = (double(rand() % 20000) / 10000.0) - 1.0;
+    coef_SpawnerEnemy = (double(rand() % 20000) / 10000.0) - 1.0;
+    coef_SpawnerTeam = (double(rand() % 20000) / 10000.0) - 1.0;
+}
 
 //Початок симуляції життя
 void Colony::startLife()
@@ -64,8 +82,10 @@ void Colony::startLife()
             std::this_thread::sleep_for(std::chrono::milliseconds(1));
             render();
         }
+
         if (isMainWindowOpen == false)
         {
+            //Очищення динамічної пам'яті 
             for (auto minion : Colony::minionAddresses)
             {
                 delete minion;
@@ -91,8 +111,9 @@ void Colony::startLife()
             }
         }
         ++count;
-        if (count % 5 == 0)   //(dev tip)
+        if (count == 5)   //(dev tip)
         {
+            count == 0;
             for (auto& item : allColonys)
             {
                 for (const auto minion : item.second->colonyAddresses)
@@ -150,11 +171,11 @@ void Colony::createMinion(Point coordinate)
     }
 }
 
-void Colony::createMinion(Point coordinate, Minion* parent)
+void Colony::createMinion(Point coordinate, Minion* parent, double hunger)
 {
         if (worldMap[coordinate.x][coordinate.y].type == Types::air)
         {
-            Minion* newMinion = new Minion({ coordinate.x ,coordinate.y }, this, &parent->MyBrain, 0.5f);
+            Minion* newMinion = new Minion({ coordinate.x ,coordinate.y }, this, &parent->MyBrain, hunger);
             minionAddresses.push_back(newMinion);
             colonyAddresses.push_back(newMinion);
             ++MinionSettings::countMiniones;

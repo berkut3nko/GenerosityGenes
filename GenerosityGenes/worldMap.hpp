@@ -29,7 +29,7 @@ enum Types
 struct object
 {
     Types type = Types::air;
-    Minion* minionAsdress;
+    Minion* minionAddress;
 };
 
 extern std::vector<std::vector<object>> worldMap;
