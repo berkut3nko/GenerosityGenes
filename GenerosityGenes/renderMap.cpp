@@ -54,8 +54,8 @@ sf::RectangleShape borderShape[4]=
     sf::RectangleShape(sf::Vector2f(multiplicator*2, multiplicator* sizeWorldY))
 };
 sf::CircleShape tempShapeMinion(static_cast<float>(multiplicator / 2.5));
-
-sf::CircleShape neuronShape(5.f);
+sf::Color tempColor;
+sf::CircleShape neuronShape(3.f);
 sf::Vertex weightShape[2];
 
 Minion* minionToShowBrain = nullptr;
@@ -103,8 +103,21 @@ void render()
             for (int y = 1; y < sizeWorldY-1; ++y) {
                 switch(worldMap[x][y].type) {
                 case Types::air:
+                    if (worldMap[x][y].minionAddress != nullptr)
+                    {
+                        tempColor = worldMap[x][y].minionAddress->myColony->colonyColor;
+                        tempColor.a = 100;
+                        tempShape.setFillColor(tempColor);
+                        tempShape.setPosition(sf::Vector2f(multiplicator * x, multiplicator * y));
+                        window.draw(tempShape);
+                    }
                     break;
                 case Types::minion:
+                    tempColor = worldMap[x][y].minionAddress->myColony->colonyColor;
+                    tempColor.a = 100;
+                    tempShape.setFillColor(tempColor);
+                    tempShape.setPosition(sf::Vector2f(multiplicator * x, multiplicator * y));
+                    window.draw(tempShape);
                     tempShapeMinion.setPosition(sf::Vector2f(multiplicator * x, multiplicator * y));
 
                     if (worldMap[x][y].minionAddress->IsDead)
@@ -171,19 +184,19 @@ void render()
                     isWindowMinionBrain = true;
                     for (size_t inputIt = 0; inputIt < MinionSettings::minionInputs; ++inputIt)
                     {
-                        neuronShape.setPosition(sf::Vector2f(0.f, 17.f * inputIt));
+                        neuronShape.setPosition(sf::Vector2f(0.f, 12.f * inputIt));
                         window_MinionBrain.draw(neuronShape);
                     }
                     for (size_t layersIt = 0; layersIt < minionToShowBrain->MyBrain.layers_.size(); ++layersIt)
                     {
                         for (size_t outputsIt = 0; outputsIt < minionToShowBrain->MyBrain.layers_[layersIt].output_size_; ++outputsIt)
                         {
-                            neuronShape.setPosition(sf::Vector2f((250.f * (layersIt + 1)), ((MinionSettings::minionInputs - minionToShowBrain->MyBrain.layers_[layersIt].output_size_) / 2) * 17.f + 17.f * outputsIt));
+                            neuronShape.setPosition(sf::Vector2f((250.f * (layersIt + 1)), ((MinionSettings::minionInputs - minionToShowBrain->MyBrain.layers_[layersIt].output_size_) / 2) * 12.f + 12.f * outputsIt));
                             for (size_t inputsIt = 0; inputsIt < minionToShowBrain->MyBrain.layers_[layersIt].input_size_; ++inputsIt)
                             {
                                 weightShape[0] = sf::Vertex(sf::Vector2f(250.f * layersIt +3.f, ((MinionSettings::minionInputs - minionToShowBrain->MyBrain.layers_[layersIt].input_size_ ) / 2) * 17.f + 17.f * inputsIt +3.f),
                                     sf::Color(0, 255 * (1 / (1 + exp(minionToShowBrain->MyBrain.layers_[layersIt].weights()[inputsIt][outputsIt]))), 0, 255));
-                                weightShape[1] = sf::Vertex(sf::Vector2f(neuronShape.getPosition().x+3.f,neuronShape.getPosition().y+3.f),
+                                weightShape[1] = sf::Vertex(sf::Vector2f(neuronShape.getPosition().x+1.5f,neuronShape.getPosition().y+1.5f),
                                     sf::Color(0, 255 * (1 / (1 + exp(minionToShowBrain->MyBrain.layers_[layersIt].weights()[inputsIt][outputsIt]))), 0, 255));
 
                                 window_MinionBrain.draw(weightShape, 3, sf::Lines);

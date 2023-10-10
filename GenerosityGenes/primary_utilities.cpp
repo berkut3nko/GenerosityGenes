@@ -23,13 +23,9 @@ void worldInitialization()
 
 
 //Це конснтруктор класса Колонія
-Colony::Colony(size_t neuronsCount, std::string name) : 
-               nameColony(name), _neuronsCount(neuronsCount), 
-               colonyBrain(
-                   new NeuralNetwork(
-                   {{MinionSettings::minionInputs,     _neuronsCount},
-                   {_neuronsCount,    MinionSettings::minionOutputs}}, nameColony)
-                                     ),
+Colony::Colony(size_t neuronsCountFirst, size_t neuronsCountSecond, std::string name) :
+               nameColony(name),
+               _neuronsCount({ neuronsCountFirst,neuronsCountSecond }),
                colonyColor(sf::Color(rand() % 256, rand() % 256, rand() % 128 + 128, 255))
 {
     coefInitialization();

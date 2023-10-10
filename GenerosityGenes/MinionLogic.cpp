@@ -1,7 +1,9 @@
 #include "primary_utilities.hpp"
 
 Minion::Minion(Point spawn_position, Colony* currentColony) :position(spawn_position), myColony(currentColony), 
-MyBrain({ {MinionSettings::minionInputs + myColony->sizeMemmory, myColony->_neuronsCount}, {myColony->_neuronsCount, MinionSettings::minionOutputs+myColony->sizeMemmory} }, myColony->nameColony)
+MyBrain({ {MinionSettings::minionInputs + myColony->sizeMemmory, myColony->_neuronsCount.first},
+          {myColony->_neuronsCount.first, myColony->_neuronsCount.second},
+          {myColony->_neuronsCount.second,MinionSettings::minionOutputs + myColony->sizeMemmory} }, myColony->nameColony)
 {
     id = MinionSettings::countMiniones;
     worldMap[position.x][position.y].type = minion;
@@ -20,8 +22,9 @@ Minion::Minion(Point spawn_position, Colony* currentColony, NeuralNetwork* paren
     ++myColony->sizeColony;
 }
 Minion::Minion(string data) :MyBrain(
-    { {MinionSettings::minionInputs + myColony->sizeMemmory, myColony->_neuronsCount},
-    {myColony->_neuronsCount, MinionSettings::minionOutputs + myColony->sizeMemmory} }, myColony->nameColony)
+    { {MinionSettings::minionInputs + myColony->sizeMemmory, myColony->_neuronsCount.first},
+      {myColony->_neuronsCount.first, myColony->_neuronsCount.second},
+      {myColony->_neuronsCount.second,MinionSettings::minionOutputs + myColony->sizeMemmory} }, myColony->nameColony)
 {
     LoadMe(data);
     myColony->minionAddresses.push_back(this);
@@ -193,33 +196,63 @@ std::vector<double> Minion::inputs()
             if (x != 3 || y != 3)
             {
                 tempObj = worldMap[position.x - (x - 2)][position.y - (y - 2)];
-                if (tempObj.type == Types::fruit)
+                //Firstblock
+                switch (tempObj.type)
                 {
-                    input[x + (y * 3)] = 1;
+                case Types::fruit:
+                    input[(x * 3) + (y * 15)] = 1;
+                    break;
+                case Types::border:
+                    input[(x * 3) + (y * 15)] = -1;
+                    break;
+                case Types::spawner:
+                    input[(x * 3) + (y * 15)] = -1;
+                    break;
+                case Types::air:
+                    input[(x * 3) + (y * 15)] = 0;
+                    break;
+                default:
+                    input[(x * 3) + (y * 15)] = 0;
+                    break;
                 }
-                else if (tempObj.type == Types::air)
+                //Second block
+                if (tempObj.type == Types::minion && tempObj.minionAddress != nullptr)
                 {
-                    input[x + (y * 3) + 1] = 1;
+                    if (tempObj.minionAddress->myColony == myColony)
+                    {
+                        input[(x * 3) + (y * 15) + 1] = 1;
+                    }
+                    else
+                    {
+                        input[(x * 3) + (y * 15) + 1] = -1;
+                    }
                 }
-                else if (tempObj.type == Types::border)
+                else
                 {
-                    input[x + (y * 3) + 2] = 1;
+                    input[(x * 3) + (y * 15) + 1] = 0;
                 }
-                else if (tempObj.type == Types::minion)
+                //Trird block
+                if (tempObj.type == Types::minion && tempObj.minionAddress != nullptr)
                 {
-                    if(tempObj.minionAddress->myColony == myColony)
-                        input[x + (y * 3) + 3] = 1;
-                    else 
-                        input[x + (y * 3) + 4] = 1;
-                    if(tempObj.minionAddress->IsDead)
-                        input[x + (y * 3) + 5] = 1;
                     if (tempObj.minionAddress->IsProtection)
-                        input[x + (y * 3) + 6] = 1;
-                    input[x + (y * 3) + 7] = tempObj.minionAddress->fat;
+                    {
+                        input[(x * 3) + (y * 15) + 2] = 1;
+                    }
+                    else
+                        if (tempObj.minionAddress->IsDead)
+                        {
+                            input[(x * 3) + (y * 15) + 2] = -1;
+                        }
+                        else
+                        {
+                            input[(x * 3) + (y * 15) + 2] = 0;
+                        }
                 }
             }
         }
     }
+    input[MinionSettings::minionInputs - 2] = hunger;
+    input[MinionSettings::minionInputs - 1] = fat;
     for (size_t i = 0; i < myColony->sizeMemmory; ++i)
     {
         input[MinionSettings::minionInputs + i] = memmory[i];
@@ -239,7 +272,6 @@ void Minion::nextMove()
         {
             rotting = 6;
             worldMap[position.x][position.y].type = air;
-            worldMap[position.x][position.y].minionAddress = nullptr;
             for (auto it = myColony->colonyAddresses.begin(); it != myColony->colonyAddresses.end(); ++it)
                 if (*(it) == this)
                 {
@@ -334,7 +366,25 @@ void Minion::getHungry(double count)
     }
 
 }
-infoMove Minion::move(size_t newPosX, size_t newPosY)
+void Minion::move(size_t MovePosX, size_t MovePosY)
+{
+    worldMap[position.x][position.y].type = Types::air;
+    position.x = MovePosX;
+    position.y = MovePosY;
+    worldMap[position.x][position.y].type = minion;
+    //3x3 mark area 
+    worldMap[position.x][position.y].minionAddress = this;
+    worldMap[position.x][position.y+1].minionAddress = this;
+    worldMap[position.x][position.y-1].minionAddress = this;
+    worldMap[position.x+1][position.y].minionAddress = this;
+    worldMap[position.x+1][position.y+1].minionAddress = this;
+    worldMap[position.x+1][position.y-1].minionAddress = this;
+    worldMap[position.x-1][position.y].minionAddress = this;
+    worldMap[position.x-1][position.y+1].minionAddress = this;
+    worldMap[position.x-1][position.y-1].minionAddress = this;
+
+}
+infoMove Minion::interact(size_t newPosX, size_t newPosY)
 {
     switch (worldMap[newPosX][newPosY].type)
     {
@@ -358,23 +408,13 @@ infoMove Minion::move(size_t newPosX, size_t newPosY)
         else
         {
             getHungry(.5f);
-            worldMap[position.x][position.y].type = air;
-            worldMap[position.x][position.y].minionAddress = nullptr;
-            position.x = newPosX;
-            position.y = newPosY;
-            worldMap[position.x][position.y].type = minion;
-            worldMap[position.x][position.y].minionAddress = this;
+            move(newPosX, newPosY);
             return infoMove::eat;
         }
         break;
     case Types::fruit:
         getHungry(1.0f);
-        worldMap[position.x][position.y].type = air;
-        worldMap[position.x][position.y].minionAddress = nullptr;
-        position.x = newPosX;
-        position.y = newPosY;
-        worldMap[position.x][position.y].type = minion;
-        worldMap[position.x][position.y].minionAddress = this;
+        move(newPosX, newPosY);
         return infoMove::eat;
         break;
 
@@ -382,13 +422,8 @@ infoMove Minion::move(size_t newPosX, size_t newPosY)
         getHungry(-.02f);
         break;
 
-    default:
-        worldMap[position.x][position.y].type = air;
-        worldMap[position.x][position.y].minionAddress = nullptr;
-        position.x = newPosX;
-        position.y = newPosY;
-        worldMap[position.x][position.y].type = minion;
-        worldMap[position.x][position.y].minionAddress = this;
+    case Types::air:
+        move(newPosX, newPosY);
         getHungry(-.02f);
         return infoMove::move;
         break;
@@ -411,49 +446,49 @@ void Minion::born(size_t posX, size_t posY)
 infoMove Minion::moveUp()
 {
     stopPhases();
-    return move(position.x, position.y - 1);
+    return interact(position.x, position.y - 1);
 }
 
 infoMove Minion::moveUpLeft()
 {
     stopPhases();
-    return move(position.x + 1, position.y - 1);
+    return interact(position.x + 1, position.y - 1);
 }
 
 infoMove Minion::moveUpRight()
 {
     stopPhases();
-    return move(position.x - 1, position.y - 1);
+    return interact(position.x - 1, position.y - 1);
 }
 
 infoMove Minion::moveDown()
 {
     stopPhases();
-    return move(position.x, position.y + 1);
+    return interact(position.x, position.y + 1);
 }
 
 infoMove Minion::moveDownLeft()
 {
     stopPhases();
-    return move(position.x + 1, position.y + 1);
+    return interact(position.x + 1, position.y + 1);
 }
 
 infoMove Minion::moveDownRight()
 {
     stopPhases();
-    return move(position.x - 1, position.y + 1);
+    return interact(position.x - 1, position.y + 1);
 }
 
 infoMove Minion::moveRight()
 {
     stopPhases();
-    return move(position.x + 1, position.y);
+    return interact(position.x + 1, position.y);
 }
 
 infoMove Minion::moveLeft()
 {
     stopPhases();
-    return move(position.x - 1, position.y);
+    return interact(position.x - 1, position.y);
 }
 infoMove Minion::bornUp()
 {

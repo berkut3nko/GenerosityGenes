@@ -9,7 +9,7 @@ void worldInitialization();
 sf::Color defaultColor(Types type);
 namespace MinionSettings
 {
-    static const size_t minionInputs = 200;
+    static const size_t minionInputs = 77;
     static const size_t minionOutputs = 14;
     static size_t countMiniones = 0;
 }
@@ -70,7 +70,8 @@ private:
     std::vector<double> inputs();
 
     //void Attack(); //(dev tip) напиши реалізацію методу 
-    infoMove move(size_t newPosX, size_t newPosY);
+    infoMove interact(size_t newPosX, size_t newPosY);
+    void move(size_t MovePosX, size_t MovePosY);
     void born(size_t posX, size_t posY);
     void getHungry(double count);
     void stopPhases();
@@ -102,7 +103,7 @@ enum ColonolyCoefPreset
 class Colony
 {
 public:
-    Colony(size_t neuronsCount, string name);
+    Colony(size_t neuronsCountFirst, size_t neuronsCountSecond, std::string name);
     Colony(string name);
     void coefInitialization();
     void coefInitialization(ColonolyCoefPreset preset);
@@ -131,7 +132,7 @@ public:
 
     sf::Color colonyColor;
 private:
-    size_t _neuronsCount;
+    std::pair<size_t,size_t> _neuronsCount;
     std::string nameColony;
     NeuralNetwork* colonyBrain;
     static std::vector<Minion*> minionAddresses;
