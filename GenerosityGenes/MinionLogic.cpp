@@ -182,6 +182,7 @@ double Minion::analyzePos(infoMove move)
             }
         }
     }
+    return posMark;
 }
 
 

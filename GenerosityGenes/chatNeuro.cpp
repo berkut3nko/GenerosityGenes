@@ -12,20 +12,6 @@ Layer::Layer(size_t input_size, size_t output_size) : input_size_(input_size), o
     }
 }
 
-std::vector<double> Layer::forward(const std::vector<double>& input)const {
-    std::vector<double> output(output_size_);
-
-    // рахуЇмо вих≥д шару
-    for (size_t j = 0; j < output_size_; ++j) {
-        double sum = 0;
-        for (size_t i = 0; i < input_size_; ++i) {
-            sum += input[i] * weights_[i][j];
-        }
-        output[j] = sum;
-    }
-
-    return output;
-}
 const std::vector<std::vector<double>>& Layer::weights()const {
     return weights_;
 }
@@ -63,12 +49,37 @@ NeuralNetwork::NeuralNetwork(const std::vector<std::pair<size_t, size_t>>& layer
     }
 }
 
-vector<double> NeuralNetwork::forward(const vector<double>& input) const {
-    vector<double> result(input);
-    for (const auto& layer : layers_) {
-        result = layer.forward(result);
+vector<double> NeuralNetwork::forward(vector<double> input) const {
+    std::vector<double> output;
+    double sum;
+    for (size_t l = 0; l < layers_.size(); ++l)
+    {
+        
+        if (l>0) //¬х≥д наступного вих≥д минулого починаючи з 2 шару
+        {
+            input.resize(layers_[l].input_size_);
+            std::copy(output.begin(), output.end(), input.begin());
+        }
+        output.resize(layers_[l].output_size_);
+
+        //ќбрахунки
+        for (size_t j = 0; j < layers_[l].output_size_; ++j) {
+            sum = 0;
+            for (size_t i = 0; i < layers_[l].input_size_; ++i) {
+                // рахуЇмо вих≥д шару // перш≥ 75 з першого слою за формулою sum += cos((input[i]+weights_[i][j])*(PI/2)) ус≥ ≥нш≥ sum += input[i] * layer.weights_[i][j];
+                if (i < 75 && l == 0) {
+                    sum += std::sin((input[i] + layers_[l].weights()[i][j]) * (3.14 / 2));
+                }
+                else
+                {
+                    sum += input[i] * layers_[l].weights_[i][j];
+                }
+            }
+            output[j] = (2.0 / (exp(sum) + 1.0)) - 1.0;
+        }
+        //
     }
-    return result;
+    return output;
 }
 
 

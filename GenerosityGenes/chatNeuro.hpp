@@ -10,7 +10,6 @@ class NeuralNetwork;
 class Layer {
 public:
     Layer(size_t input_size, size_t output_size);
-    vector<double> forward(const vector<double>& input)const;
     const vector<vector<double>>& weights() const;
     void save_weights(const string& filename) const;
     void load_weights(const string& filename);
@@ -29,7 +28,7 @@ class NeuralNetwork {
 public:
     NeuralNetwork(const vector<std::pair<size_t, size_t>>& layer_sizes, string way);
     void mutate();
-    vector<double> forward(const vector<double>& input) const;
+    vector<double> forward(const vector<double> input) const;
     void train(const vector<double>& input, const vector<double>& output, size_t answerId, const double points);
     void SaveAI()const;
     void LoadAI();

@@ -33,7 +33,8 @@ int main()
     mySecondColony.createMinion();
 
     //Colony::LoadMiniones(version);
-    Spawner spawner(&mySecondColony, 5);
+    Spawner spawner1(&mySecondColony, 5);
+    Spawner spawner2(&myFirstColony, 9);
 
     Colony::startLife();
 
