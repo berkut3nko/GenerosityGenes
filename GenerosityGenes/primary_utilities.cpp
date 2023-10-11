@@ -36,7 +36,7 @@ Colony::Colony(size_t neuronsCountFirst, size_t neuronsCountSecond, std::string 
 Colony::Colony(string name) : nameColony(name)
 {
     colonyColor = sf::Color(rand() % 256, rand() % 256, rand() % 128 + 128, 255);
-    colonyBrain->NeuralNetworkWay = name;
+    bestMinionBrain->NeuralNetworkWay = name;
     LoadColony();
     coefInitialization();
     allColonys.insert(std::make_pair(nameColony, this));
@@ -49,15 +49,15 @@ std::vector<Minion*> Colony::minionAddresses;
 
 void Colony::coefInitialization()
 {
-    coef_Synthesis = (double(rand()%20000) / 10000.0) - 1.0;
-    coef_Protection = (double(rand() % 20000) / 10000.0) - 1.0;
-    coef_Born = (double(rand() % 20000) / 10000.0) - 1.0;
-    coef_AttackEnemy = (double(rand() % 20000) / 10000.0) - 1.0;
-    coef_Eat = (double(rand() % 20000) / 10000.0) - 1.0;
-    coef_AttackTeam = (double(rand() % 20000) / 10000.0) - 1.0;
-    coef_Border = (double(rand() % 20000) / 10000.0) - 1.0;
-    coef_SpawnerEnemy = (double(rand() % 20000) / 10000.0) - 1.0;
-    coef_SpawnerTeam = (double(rand() % 20000) / 10000.0) - 1.0;
+    coef_Synthesis = (double(rand()%200) / 100.0) - 1.0;
+    coef_Protection = (double(rand() % 200) / 100.0) - 1.0;
+    coef_Born = (double(rand() % 200) / 100.0) - 1.0;
+    coef_AttackEnemy = (double(rand() % 200) / 100.0) - 1.0;
+    coef_Eat = (double(rand() % 200) / 100.0) - 1.0;
+    coef_AttackTeam = (double(rand() % 200) / 100.0) - 1.0;
+    coef_Border = (double(rand() % 200) / 100.0) - 1.0;
+    coef_SpawnerEnemy = (double(rand() % 200) / 100.0) - 1.0;
+    coef_SpawnerTeam = (double(rand() % 200) / 100.0) - 1.0;
     srand(static_cast<unsigned int>(time(NULL)));
 }
 
@@ -90,7 +90,7 @@ void Colony::startLife()
             }
             for (const auto colony : allColonys)
             {
-                delete colony.second->colonyBrain;
+                delete colony.second->bestMinionBrain;
             }
 
             return;
@@ -119,16 +119,16 @@ void Colony::startLife()
                         if (minion->points > maxPoints)
                         {
                             maxPoints = minion->points;
-                            delete item.second->colonyBrain;
-                            item.second->colonyBrain = &(minion->MyBrain);
+                            delete item.second->bestMinionBrain;
+                            item.second->bestMinionBrain = &(minion->MyBrain);
                         }
                         minion->points = 0;
                 }
-                if (item.second->colonyBrain != nullptr)
+                if (item.second->bestMinionBrain != nullptr)
                 {
                     for (const auto minion : item.second->colonyAddresses)
                     {
-                        minion->MyBrain = *(item.second->colonyBrain);
+                        minion->MyBrain = *(item.second->bestMinionBrain);
                         if (leaveOne)
                         {
                             minion->MyBrain.mutate();
@@ -200,12 +200,12 @@ void Colony::summonFruit()
 //Save - Load модуль
 void Colony::SaveColony()
 {
-    colonyBrain->SaveAI();
+    bestMinionBrain->SaveAI();
 }
 
 void Colony::LoadColony()
 {
-    colonyBrain->LoadAI();
+    bestMinionBrain->LoadAI();
 }
 
 void Colony::SaveMiniones(string version)

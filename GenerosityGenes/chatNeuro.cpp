@@ -49,7 +49,7 @@ NeuralNetwork::NeuralNetwork(const std::vector<std::pair<size_t, size_t>>& layer
     }
 }
 
-vector<double> NeuralNetwork::forward(vector<double> input) const {
+vector<double> NeuralNetwork::forward_minion(vector<double> input) const {
     std::vector<double> output;
     double sum;
     for (size_t l = 0; l < layers_.size(); ++l)
@@ -74,6 +74,32 @@ vector<double> NeuralNetwork::forward(vector<double> input) const {
                 {
                     sum += input[i] * layers_[l].weights_[i][j];
                 }
+            }
+            output[j] = (2.0 / (exp(sum) + 1.0)) - 1.0;
+        }
+        //
+    }
+    return output;
+}
+vector<double> NeuralNetwork::forward_colony(vector<double> input) const {
+    std::vector<double> output;
+    double sum;
+    for (size_t l = 0; l < layers_.size(); ++l)
+    {
+
+        if (l > 0) //¬х≥д наступного вих≥д минулого починаючи з 2 шару
+        {
+            input.resize(layers_[l].input_size_);
+            std::copy(output.begin(), output.end(), input.begin());
+        }
+        output.resize(layers_[l].output_size_);
+
+        //ќбрахунки
+        for (size_t j = 0; j < layers_[l].output_size_; ++j) {
+            sum = 0;
+            for (size_t i = 0; i < layers_[l].input_size_; ++i) 
+            {
+                sum += input[i] * layers_[l].weights_[i][j];
             }
             output[j] = (2.0 / (exp(sum) + 1.0)) - 1.0;
         }

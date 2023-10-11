@@ -117,7 +117,11 @@ void render()
 
                     tempShapeMinion.setFillColor(minion->myColony->colonyColor);
 
-                    if (minion->IsSynthesis)
+                    if (minion->IsDead)
+                    {
+                        tempShapeMinion.setOutlineColor(sf::Color::Black);
+                    }
+                    else if (minion->IsSynthesis)
                     {
                         tempShapeMinion.setOutlineColor(sf::Color::Green);
                     }

@@ -34,7 +34,7 @@ Minion::Minion(string data) :MyBrain(
     worldMap[position.x][position.y].type = minion;
     worldMap[position.x][position.y].minionAddress = this;
     ++MinionSettings::countMiniones;
-    MyBrain = *myColony->colonyBrain;
+    MyBrain = *myColony->bestMinionBrain;
     memmory.resize(myColony->sizeMemmory, 0);
     ++myColony->sizeColony;
     allocateArea();
@@ -287,7 +287,7 @@ void Minion::nextMove()
     }
     else
     {
-        vector<double> answers = MyBrain.forward(inputs());
+        vector<double> answers = MyBrain.forward_minion(inputs());
 
         //Пошук максимального
         size_t answerId = 0; double maxValue = answers[0];

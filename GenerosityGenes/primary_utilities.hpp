@@ -135,8 +135,8 @@ public:
 private:
     std::pair<size_t,size_t> _neuronsCount;
     std::string nameColony;
-    NeuralNetwork* colonyBrain;
-
+    NeuralNetwork* bestMinionBrain;
+    //NeuralNetwork colonyBrain;
 };
 
 class Spawner
