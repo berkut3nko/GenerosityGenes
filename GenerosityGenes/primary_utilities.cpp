@@ -2,6 +2,8 @@
 std::vector<std::vector<object>> worldMap(sizeWorldX, std::vector<object>(sizeWorldY));
 std::map<std::string, Colony*> allColonys;
 std::map<Colony*, Spawner*> allActiveSpawners;
+std::set<Point,Comp> poolOfFruits;
+std::map<Point, sf::Color, Comp> colonyArea;
 void worldInitialization()
 {
     for (size_t x = 0; x < sizeWorldX; ++x)
@@ -18,7 +20,6 @@ void worldInitialization()
         worldMap[sizeWorldX - 1][y].type = border;
         worldMap[sizeWorldX - 2][y].type = border;
     }
-
 }
 
 
@@ -57,16 +58,17 @@ void Colony::coefInitialization()
     coef_Border = (double(rand() % 20000) / 10000.0) - 1.0;
     coef_SpawnerEnemy = (double(rand() % 20000) / 10000.0) - 1.0;
     coef_SpawnerTeam = (double(rand() % 20000) / 10000.0) - 1.0;
+    srand(static_cast<unsigned int>(time(NULL)));
 }
 
 //Початок симуляції життя
 void Colony::startLife()
 {
     size_t count = 0;
-    size_t maxPoints=0;
+    double maxPoints;
     bool leaveOne = false;
     while (true) {
-
+        maxPoints = 0;
 
         for (size_t fruitI = 0; fruitI < static_cast<size_t>(speedSummonFruit / 1.0f); ++fruitI)
         {
@@ -188,6 +190,7 @@ void Colony::summonFruit()
         if (worldMap[Xtemp][Ytemp].type == Types::air)
         {
             worldMap[Xtemp][Ytemp].type  = Types::fruit; 
+            poolOfFruits.insert(Point{ Xtemp,Ytemp });
             return;
         }
     }

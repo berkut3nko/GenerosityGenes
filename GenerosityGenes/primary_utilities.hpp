@@ -14,10 +14,7 @@ namespace MinionSettings
     static size_t countMiniones = 0;
 }
 
-struct Point
-{
-    size_t x, y;
-};
+
 
 class Colony;
 class Minion;
@@ -31,7 +28,8 @@ enum infoMove
     attackEnemy,
     attackTeam,
     eat,
-    move
+    move,
+    moveToBorder
 };
 
 class Minion
@@ -72,7 +70,8 @@ private:
     //void Attack(); //(dev tip) напиши реалізацію методу 
     infoMove interact(size_t newPosX, size_t newPosY);
     void move(size_t MovePosX, size_t MovePosY);
-    void born(size_t posX, size_t posY);
+    void allocateArea();
+    infoMove born(size_t posX, size_t posY);
     void getHungry(double count);
     void stopPhases();
     infoMove moveUp();
@@ -117,7 +116,9 @@ public:
     void SaveColony();
     static void SaveMiniones(string version);
     static void LoadMiniones(string version);
+    static std::vector<Minion*> minionAddresses;
     std::vector<Minion*> colonyAddresses;
+    
     size_t sizeColony = 0;
     size_t sizeMemmory = 2;
     double coef_Synthesis;
@@ -135,7 +136,7 @@ private:
     std::pair<size_t,size_t> _neuronsCount;
     std::string nameColony;
     NeuralNetwork* colonyBrain;
-    static std::vector<Minion*> minionAddresses;
+
 };
 
 class Spawner

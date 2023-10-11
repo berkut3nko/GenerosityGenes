@@ -93,83 +93,76 @@ void render()
         window.clear();
         //Фон Карти
         window.draw(airShape);
+
+
+        tempShape.setOutlineThickness(0);
+        for (const auto area : colonyArea)
+        {
+            tempColor = area.second;
+            tempColor.a = 100;
+            tempShape.setFillColor(tempColor);
+            tempShape.setPosition(sf::Vector2f(multiplicator * area.first.x, multiplicator * area.first.y));
+            window.draw(tempShape);
+        }
+        for (const auto colony : allColonys)
+        {
+
+            for (const auto minion : colony.second->colonyAddresses)
+            {
+                tempShapeMinion.setPosition(sf::Vector2f(multiplicator * minion->position.x, multiplicator * minion->position.y));
+
+                if (minion->IsDead)
+                    tempShapeMinion.setFillColor(dC::dead);
+                else {
+
+                    tempShapeMinion.setFillColor(minion->myColony->colonyColor);
+
+                    if (minion->IsSynthesis)
+                    {
+                        tempShapeMinion.setOutlineColor(sf::Color::Green);
+                    }
+                    else if (minion->IsProtection)
+                    {
+                        tempShapeMinion.setOutlineColor(sf::Color::Blue);
+                    }
+                    else
+                    {
+                        tempShapeMinion.setOutlineColor(sf::Color::Black);
+                    }
+                }
+                window.draw(tempShapeMinion);
+            }
+        }
+
+        for (const auto fruit : poolOfFruits)
+        {
+
+            tempShape.setFillColor(dC::fruit);
+            tempShape.setPosition(sf::Vector2f(multiplicator * fruit.x, multiplicator * fruit.y));
+            window.draw(tempShape);
+        }
+
+        tempShape.setOutlineThickness((float)multiplicator / 10);
+        tempShape.setOutlineColor(dC::dead);
+
+        for (std::pair<Colony*, Spawner*> spawner : allActiveSpawners)
+        {
+            tempShape.setFillColor(spawner.first->colonyColor);
+            tempShape.setPosition(sf::Vector2f(multiplicator * spawner.second->spawnerPosition.x, multiplicator * spawner.second->spawnerPosition.y));
+            window.draw(tempShape);
+
+        }
+
         window.draw(borderShape[0]);
         window.draw(borderShape[1]);
         window.draw(borderShape[2]);
         window.draw(borderShape[3]);
 
 
-        for (int x = 1; x < sizeWorldX-1; ++x) {
-            for (int y = 1; y < sizeWorldY-1; ++y) {
-                switch(worldMap[x][y].type) {
-                case Types::air:
-                    if (worldMap[x][y].minionAddress != nullptr)
-                    {
-                        tempColor = worldMap[x][y].minionAddress->myColony->colonyColor;
-                        tempColor.a = 100;
-                        tempShape.setFillColor(tempColor);
-                        tempShape.setPosition(sf::Vector2f(multiplicator * x, multiplicator * y));
-                        window.draw(tempShape);
-                    }
-                    break;
-                case Types::minion:
-                    tempColor = worldMap[x][y].minionAddress->myColony->colonyColor;
-                    tempColor.a = 100;
-                    tempShape.setFillColor(tempColor);
-                    tempShape.setPosition(sf::Vector2f(multiplicator * x, multiplicator * y));
-                    window.draw(tempShape);
-                    tempShapeMinion.setPosition(sf::Vector2f(multiplicator * x, multiplicator * y));
-
-                    if (worldMap[x][y].minionAddress->IsDead)
-                        tempShapeMinion.setFillColor(dC::dead);
-                    else {
-
-                        tempShapeMinion.setFillColor(worldMap[x][y].minionAddress->myColony->colonyColor);
-
-                        if (worldMap[x][y].minionAddress->IsSynthesis)
-                        {
-                            tempShapeMinion.setOutlineColor(sf::Color::Green);
-                        }
-                        else if (worldMap[x][y].minionAddress->IsProtection)
-                        {
-                            tempShapeMinion.setOutlineColor(sf::Color::Blue);
-                        }
-                        else
-                        {
-                            tempShapeMinion.setOutlineColor(sf::Color::Black);
-                        }
-                    }
-                    window.draw(tempShapeMinion);
-                    break;
-                case Types::spawner:
-                    for (std::pair<Colony*, Spawner*> spawner : allActiveSpawners)
-                    {
-                        if (spawner.second->spawnerPosition.x == x && spawner.second->spawnerPosition.y == y)
-                        {
-                            tempShape.setFillColor(spawner.first->colonyColor);
-                        }
-                    }
-                    tempShape.setOutlineThickness((float)multiplicator/10);
-                    tempShape.setOutlineColor(dC::dead);
-                    tempShape.setPosition(sf::Vector2f(multiplicator * x, multiplicator * y));
-                    window.draw(tempShape);
-                    tempShape.setOutlineThickness(0);
-                    break;
-                default:
-                    tempShape.setFillColor(defaultColor(worldMap[x][y].type));
-                    tempShape.setPosition(sf::Vector2f(multiplicator * x, multiplicator * y));
-                    window.draw(tempShape);
-                    break;
-
-                }
-            }
-        }
-
-
-
         animationZoomSin = (sin(((double)animationZoom / (double)(animation_smoothness * 2.0)) * PI) * zoomScale) + 1;
         zoomSize = sf::Vector2f(multiplicator * sizeWorldX / (animationZoomSin),
                                 multiplicator * sizeWorldY / (animationZoomSin));
+
         if (sf::Mouse::isButtonPressed(sf::Mouse::Left) && window_MinionBrain.isOpen())
         {
             mousePos = window.mapPixelToCoords(sf::Mouse::getPosition(window));

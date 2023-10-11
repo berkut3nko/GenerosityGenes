@@ -15,6 +15,18 @@ namespace dC //defaultColors
         border = sf::Color(50, 50, 50, 255),
         dead = sf::Color::Black;
 };
+struct Point
+{
+    size_t x, y;
+};
+struct Comp
+{
+    bool operator() (const Point& lhs, const Point& rhs) const
+    {
+        return std::tie(lhs.x, lhs.y) < std::tie(rhs.x, rhs.y);
+    }
+
+};
 
 enum Types
 {
@@ -35,3 +47,5 @@ struct object
 extern std::vector<std::vector<object>> worldMap;
 extern std::map<std::string, Colony*> allColonys;
 extern std::map<Colony*, Spawner*> allActiveSpawners;
+extern std::set<Point,Comp> poolOfFruits;
+extern std::map<Point, sf::Color, Comp> colonyArea;

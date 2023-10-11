@@ -11,6 +11,7 @@ MyBrain({ {MinionSettings::minionInputs + myColony->sizeMemmory, myColony->_neur
     ++MinionSettings::countMiniones;
     memmory.resize(myColony->sizeMemmory,0);
     ++myColony->sizeColony;
+    allocateArea();
 }
 Minion::Minion(Point spawn_position, Colony* currentColony, NeuralNetwork* parentBrain, double hungerFromParent) :position(spawn_position), myColony(currentColony), MyBrain(*parentBrain), hunger(hungerFromParent)
 {
@@ -20,6 +21,7 @@ Minion::Minion(Point spawn_position, Colony* currentColony, NeuralNetwork* paren
     ++MinionSettings::countMiniones;
     memmory.resize(myColony->sizeMemmory, 0);
     ++myColony->sizeColony;
+    allocateArea();
 }
 Minion::Minion(string data) :MyBrain(
     { {MinionSettings::minionInputs + myColony->sizeMemmory, myColony->_neuronsCount.first},
@@ -35,6 +37,7 @@ Minion::Minion(string data) :MyBrain(
     MyBrain = *myColony->colonyBrain;
     memmory.resize(myColony->sizeMemmory, 0);
     ++myColony->sizeColony;
+    allocateArea();
 }
 
 
@@ -194,7 +197,7 @@ std::vector<double> Minion::inputs()
     {
         for (int x = 0; x < 5; ++x)
         {
-            if (x != 3 || y != 3)
+            if (x != 2 || y != 2)
             {
                 tempObj = worldMap[position.x - (x - 2)][position.y - (y - 2)];
                 //Firstblock
@@ -367,6 +370,22 @@ void Minion::getHungry(double count)
     }
 
 }
+void Minion::allocateArea()
+{
+    colonyArea[Point{ position.x ,position.y }] = myColony->colonyColor;
+
+
+    colonyArea[(Point{ position.x ,position.y+1 })] = myColony->colonyColor;
+    colonyArea[(Point{ position.x ,position.y-1 })] = myColony->colonyColor;
+
+    colonyArea[(Point{ position.x+1 ,position.y })] = myColony->colonyColor;
+    colonyArea[(Point{ position.x+1 ,position.y+1 })] = myColony->colonyColor;
+    colonyArea[(Point{ position.x+1 ,position.y-1 })] = myColony->colonyColor;
+
+    colonyArea[(Point{ position.x-1 ,position.y })] = myColony->colonyColor;
+    colonyArea[(Point{ position.x-1 ,position.y+1 })] = myColony->colonyColor;
+    colonyArea[(Point{ position.x-1 ,position.y-1 })] = myColony->colonyColor;
+}
 void Minion::move(size_t MovePosX, size_t MovePosY)
 {
     worldMap[position.x][position.y].type = Types::air;
@@ -375,14 +394,7 @@ void Minion::move(size_t MovePosX, size_t MovePosY)
     worldMap[position.x][position.y].type = minion;
     //3x3 mark area 
     worldMap[position.x][position.y].minionAddress = this;
-    worldMap[position.x][position.y+1].minionAddress = this;
-    worldMap[position.x][position.y-1].minionAddress = this;
-    worldMap[position.x+1][position.y].minionAddress = this;
-    worldMap[position.x+1][position.y+1].minionAddress = this;
-    worldMap[position.x+1][position.y-1].minionAddress = this;
-    worldMap[position.x-1][position.y].minionAddress = this;
-    worldMap[position.x-1][position.y+1].minionAddress = this;
-    worldMap[position.x-1][position.y-1].minionAddress = this;
+    allocateArea();
 
 }
 infoMove Minion::interact(size_t newPosX, size_t newPosY)
@@ -391,6 +403,7 @@ infoMove Minion::interact(size_t newPosX, size_t newPosY)
     {
     case Types::border:
         getHungry(-.02f);
+        return infoMove::moveToBorder;
         break;
     case Types::minion:
         if (worldMap[newPosX][newPosY].minionAddress->IsDead)
@@ -409,6 +422,7 @@ infoMove Minion::interact(size_t newPosX, size_t newPosY)
         else
         {
             getHungry(.5f);
+            poolOfFruits.erase(Point{ newPosX, newPosY });
             move(newPosX, newPosY);
             return infoMove::eat;
         }
@@ -431,16 +445,17 @@ infoMove Minion::interact(size_t newPosX, size_t newPosY)
     }
 }
 
-void Minion::born(size_t posX, size_t posY)
+infoMove Minion::born(size_t posX, size_t posY)
 {
     if (worldMap[posX][posY].type == Types::air && hunger > 0.5f)
     {
         myColony->createMinion({ posX , posY }, this, 0.5f);
         getHungry(-0.5f);
+        return infoMove::born;
     }
     else
     {
-        getHungry(-0.02f);
+        return interact(posX, posY);
     }
 }
 
@@ -498,18 +513,15 @@ infoMove Minion::bornUp()
 }
 infoMove Minion::bornDown()
 {
-    born(position.x, position.y + 1);
-    return infoMove::born;
+    return born(position.x, position.y + 1);
 }
 infoMove Minion::bornLeft()
 {
-    born(position.x + 1, position.y);
-    return infoMove::born;
+    return born(position.x + 1, position.y);
 }
 infoMove Minion::bornRight()
-{
-    born(position.x - 1, position.y);
-    return infoMove::born;
+{   
+    return born(position.x - 1, position.y);
 }
 
 infoMove Minion::StartSynthesis()
