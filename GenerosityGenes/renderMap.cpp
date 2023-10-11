@@ -32,7 +32,7 @@ sf::Color defaultColor(Types type)
     }
 }
 
-sf::RenderWindow window_MinionBrain(sf::VideoMode(550, 980), "Minion brain");
+sf::RenderWindow window_MinionBrain(sf::VideoMode(980, 980), "Minion brain");
 bool isWindowMinionBrain = false;
 
 sf::View mainCamera;
@@ -175,7 +175,7 @@ void render()
                     window_MinionBrain.clear();
                     minionToShowBrain = worldMap[(size_t)mousePos.x / multiplicator][(size_t)mousePos.y / multiplicator].minionAddress;
                     isWindowMinionBrain = true;
-                    for (size_t inputIt = 0; inputIt < MinionSettings::minionInputs; ++inputIt)
+                    for (size_t inputIt = 0; inputIt < MinionSettings::minionInputs + minionToShowBrain->myColony->sizeMemmory; ++inputIt)
                     {
                         neuronShape.setPosition(sf::Vector2f(0.f, 12.f * inputIt));
                         window_MinionBrain.draw(neuronShape);
@@ -187,10 +187,11 @@ void render()
                             neuronShape.setPosition(sf::Vector2f((250.f * (layersIt + 1)), ((MinionSettings::minionInputs - minionToShowBrain->MyBrain.layers_[layersIt].output_size_) / 2) * 12.f + 12.f * outputsIt));
                             for (size_t inputsIt = 0; inputsIt < minionToShowBrain->MyBrain.layers_[layersIt].input_size_; ++inputsIt)
                             {
-                                weightShape[0] = sf::Vertex(sf::Vector2f(250.f * layersIt +3.f, ((MinionSettings::minionInputs - minionToShowBrain->MyBrain.layers_[layersIt].input_size_ ) / 2) * 17.f + 17.f * inputsIt +3.f),
-                                    sf::Color(0, 255 * (1 / (1 + exp(minionToShowBrain->MyBrain.layers_[layersIt].weights()[inputsIt][outputsIt]))), 0, 255));
+                                weightShape[0] = sf::Vertex(sf::Vector2f(250.f * layersIt + 1.5f, (((MinionSettings::minionInputs + minionToShowBrain->myColony->sizeMemmory) - minionToShowBrain->MyBrain.layers_[layersIt].input_size_ ) / 2) * 12.f + 12.f * inputsIt + 1.5f ),
+                                    sf::Color(0, 255.0 * (1.0 / (1.0 + exp(minionToShowBrain->MyBrain.layers_[layersIt].weights()[inputsIt][outputsIt]))), 0, 255 * (1 - (1 / (1 + exp(minionToShowBrain->MyBrain.layers_[layersIt].weights()[inputsIt][outputsIt]))))));
+                                weightShape[0].position.y += (layersIt != 0) ? -12.0f : 0.0f;
                                 weightShape[1] = sf::Vertex(sf::Vector2f(neuronShape.getPosition().x+1.5f,neuronShape.getPosition().y+1.5f),
-                                    sf::Color(0, 255 * (1 / (1 + exp(minionToShowBrain->MyBrain.layers_[layersIt].weights()[inputsIt][outputsIt]))), 0, 255));
+                                                                                                                       weightShape[0].color);
 
                                 window_MinionBrain.draw(weightShape, 3, sf::Lines);
                             }

@@ -266,7 +266,7 @@ std::vector<double> Minion::inputs()
 
 void Minion::nextMove()
 {
-    if (IsDead)
+    if (IsDead == true)
     {
         if (rotting < 5) {
             ++rotting;
@@ -364,6 +364,7 @@ void Minion::getHungry(double count)
     if (hunger <= 0) 
     {
         IsDead = true; 
+        stopPhases();
         hunger = 0; 
         --MinionSettings::countMiniones;
         --myColony->sizeColony;
