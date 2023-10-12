@@ -34,7 +34,7 @@ Minion::Minion(string data) :MyBrain(
     worldMap[position.x][position.y].type = minion;
     worldMap[position.x][position.y].minionAddress = this;
     ++MinionSettings::countMiniones;
-    MyBrain = *myColony->bestMinionBrain;
+    MyBrain = myColony->bestMinionBrain;
     memmory.resize(myColony->sizeMemmory, 0);
     ++myColony->sizeColony;
     allocateArea();
@@ -303,52 +303,53 @@ void Minion::nextMove()
         {
             memmory[i] = answers[i + MinionSettings::minionOutputs];
         }
+        infoMove currentMove;
         switch (answerId)
         {
         case 0:
-            moveUp();
+            currentMove = moveUp();
             break;
         case 1:
-            moveDown();
+            currentMove = moveDown();
             break;
         case 2:
-            moveRight();
+            currentMove = moveRight();
             break;
         case 3:
-            moveLeft();
+            currentMove = moveLeft();
             break;
         case 4:
-            moveUpLeft();
+            currentMove = moveUpLeft();
             break;
         case 5:
-            moveUpRight();
+            currentMove = moveUpRight();
             break;
         case 6:
-            moveDownLeft();
+            currentMove = moveDownLeft();
             break;
         case 7:
-            moveDownRight();
+            currentMove = moveDownRight();
             break;
         case 8:
-            StartSynthesis();
+            currentMove = StartSynthesis();
             break;
         case 9:
-            RaiseProtection();
+            currentMove = RaiseProtection();
             break;
         case 10:
-            bornUp();
+            currentMove = bornUp();
             break;
         case 11:
-            bornDown();
+            currentMove = bornDown();
             break;
         case 12:
-            bornLeft();
+            currentMove = bornLeft();
             break;
         case 13:
-            bornRight();
+            currentMove = bornRight();
             break;
         }
-
+        points+=analyzeMove(currentMove);
         return;
     }
 }
@@ -361,7 +362,7 @@ void Minion::getHungry(double count)
         hunger = 1;
         fat = hunger + fat + count - 1;
     }
-    if (hunger <= 0) 
+    if (hunger <= 0 || health <= 0) 
     {
         IsDead = true; 
         stopPhases();
@@ -403,14 +404,14 @@ infoMove Minion::interact(size_t newPosX, size_t newPosY)
     switch (worldMap[newPosX][newPosY].type)
     {
     case Types::border:
-        getHungry(-.02f);
+        getHungry(-.02);
         return infoMove::moveToBorder;
         break;
     case Types::minion:
-        if (worldMap[newPosX][newPosY].minionAddress->IsDead)
+        if (!worldMap[newPosX][newPosY].minionAddress->IsDead)
         {
-            //Attack();
-            getHungry(-.05f);
+            Attack(worldMap[newPosX][newPosY].minionAddress);
+            getHungry(-.05);
             if (worldMap[newPosX][newPosY].minionAddress->myColony == myColony)
             {
                 return infoMove::attackTeam;
@@ -422,36 +423,62 @@ infoMove Minion::interact(size_t newPosX, size_t newPosY)
         }
         else
         {
-            getHungry(.5f);
-            poolOfFruits.erase(Point{ newPosX, newPosY });
+            getHungry(.5);
+            for (auto it = myColony->colonyAddresses.begin(); it != myColony->colonyAddresses.end(); ++it)
+            {
+                if ((*it) == worldMap[newPosX][newPosY].minionAddress)
+                {
+                    myColony->colonyAddresses.erase(it);
+                    break;
+                }
+            }
             move(newPosX, newPosY);
             return infoMove::eat;
         }
         break;
     case Types::fruit:
-        getHungry(1.0f);
+        getHungry(1.0);
+        poolOfFruits.erase(Point{ newPosX,newPosY });
         move(newPosX, newPosY);
         return infoMove::eat;
         break;
 
     case Types::spawner:
-        getHungry(-.02f);
+        getHungry(-.02);
         break;
 
     case Types::air:
         move(newPosX, newPosY);
-        getHungry(-.02f);
+        getHungry(-.02);
         return infoMove::move;
         break;
     }
 }
+void Minion::Attack(Minion* minion)
+{
+    if (minion->IsProtection)
+    {
+        minion->health -= 0.25;
+    }
+    else
+        if (minion->IsSynthesis)
+        {
+            minion->health -= 1.00;
+        }
+        else
+            {
+                minion->health -= 0.5;
+            }
 
+    minion->getHungry(0.0);
+    return;
+}
 infoMove Minion::born(size_t posX, size_t posY)
 {
     if (worldMap[posX][posY].type == Types::air && hunger > 0.5f)
     {
-        myColony->createMinion({ posX , posY }, this, 0.5f);
-        getHungry(-0.5f);
+        myColony->createMinion({ posX , posY }, this, 0.5);
+        getHungry(-0.5);
         return infoMove::born;
     }
     else
@@ -529,14 +556,14 @@ infoMove Minion::StartSynthesis()
 {
     stopPhases();
     IsSynthesis = true;
-    getHungry(-0.05f);
+    getHungry(-0.01);
     return infoMove::synthesis;
 }
 infoMove Minion::RaiseProtection()
 {
     stopPhases();
     IsProtection = true;
-    getHungry(-0.1f);
+    getHungry(-0.05);
     return infoMove::protection;
 }
 string Minion::SaveMe()

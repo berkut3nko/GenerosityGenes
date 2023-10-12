@@ -4,6 +4,7 @@ std::map<std::string, Colony*> allColonys;
 std::map<Colony*, Spawner*> allActiveSpawners;
 std::set<Point,Comp> poolOfFruits;
 std::map<Point, sf::Color, Comp> colonyArea;
+double Colony::AVRGpoints = 1.0;
 void worldInitialization()
 {
     for (size_t x = 0; x < sizeWorldX; ++x)
@@ -27,16 +28,22 @@ void worldInitialization()
 Colony::Colony(size_t neuronsCountFirst, size_t neuronsCountSecond, std::string name) :
                nameColony(name),
                _neuronsCount({ neuronsCountFirst,neuronsCountSecond }),
-               colonyColor(sf::Color(rand() % 256, rand() % 256, rand() % 128 + 128, 255))
+               colonyColor(sf::Color(rand() % 256, rand() % 256, rand() % 128 + 128, 255)),
+    bestMinionBrain({ {MinionSettings::minionInputs + sizeMemmory, _neuronsCount.first},
+          {_neuronsCount.first, _neuronsCount.second},
+          {_neuronsCount.second,MinionSettings::minionOutputs + sizeMemmory} }, nameColony)
 {
     coefInitialization();
     allColonys.insert(std::make_pair(nameColony, this));
 }
 //Це завантажувальний конструктор
-Colony::Colony(string name) : nameColony(name)
+Colony::Colony(string name) : nameColony(name),
+bestMinionBrain({ {MinionSettings::minionInputs + sizeMemmory, _neuronsCount.first},
+      {_neuronsCount.first, _neuronsCount.second},
+      {_neuronsCount.second,MinionSettings::minionOutputs + sizeMemmory} }, nameColony)
 {
     colonyColor = sf::Color(rand() % 256, rand() % 256, rand() % 128 + 128, 255);
-    bestMinionBrain->NeuralNetworkWay = name;
+    bestMinionBrain.NeuralNetworkWay = name;
     LoadColony();
     coefInitialization();
     allColonys.insert(std::make_pair(nameColony, this));
@@ -49,7 +56,7 @@ std::vector<Minion*> Colony::minionAddresses;
 
 void Colony::coefInitialization()
 {
-    coef_Synthesis = (double(rand()%200) / 100.0) - 1.0;
+    /*coef_Synthesis = (double(rand()%200) / 100.0) - 1.0;
     coef_Protection = (double(rand() % 200) / 100.0) - 1.0;
     coef_Born = (double(rand() % 200) / 100.0) - 1.0;
     coef_AttackEnemy = (double(rand() % 200) / 100.0) - 1.0;
@@ -58,23 +65,33 @@ void Colony::coefInitialization()
     coef_Border = (double(rand() % 200) / 100.0) - 1.0;
     coef_SpawnerEnemy = (double(rand() % 200) / 100.0) - 1.0;
     coef_SpawnerTeam = (double(rand() % 200) / 100.0) - 1.0;
-    srand(static_cast<unsigned int>(time(NULL)));
+    srand(static_cast<unsigned int>(time(NULL)));*/
+    coef_Synthesis = 0.1;
+    coef_Protection = 0.1;
+    coef_Born = 0.6;
+    coef_AttackEnemy = 0.7;
+    coef_Eat = 1.0;
+    coef_AttackTeam = -0.3;
+    coef_Border = -1.0;
+    coef_SpawnerEnemy = 0.5;
+    coef_SpawnerTeam = -1.0;
 }
 
 //Початок симуляції життя
 void Colony::startLife()
 {
+    bool newColonyBrain;
     size_t count = 0;
     double maxPoints;
     bool leaveOne = false;
     while (true) {
         maxPoints = 0;
-
-        for (size_t fruitI = 0; fruitI < static_cast<size_t>(speedSummonFruit / 1.0f); ++fruitI)
-        {
-            summonFruit();
+        if (poolOfFruits.size() < ((sizeWorldX * sizeWorldY) / 5)) {
+            for (size_t fruitI = 0; fruitI < static_cast<size_t>(speedSummonFruit / 1.0f); ++fruitI)
+            {
+                summonFruit();
+            }
         }
-
         for (size_t i = 0; i < 60; ++i)
         {
             std::this_thread::sleep_for(std::chrono::milliseconds(1));
@@ -88,18 +105,16 @@ void Colony::startLife()
             {
                 delete minion;
             }
-            for (const auto colony : allColonys)
-            {
-                delete colony.second->bestMinionBrain;
-            }
 
             return;
         }
 
-
-        for (Minion* minion : minionAddresses)
+        for (auto colony : allColonys)
         {
-            minion->nextMove();
+            for (Minion* minion : colony.second->colonyAddresses)
+            {
+                minion->nextMove();
+            }
         }
         for (std::pair<Colony*, Spawner*> spawner : allActiveSpawners)
         {
@@ -109,26 +124,28 @@ void Colony::startLife()
             }
         }
         ++count;
-        if (count == 5)   //(dev tip)
+        if (count == (5 * Colony::AVRGpoints))   //(dev tip)
         {
-            count == 0;
+            count = 0;
             for (auto& item : allColonys)
             {
                 for (const auto minion : item.second->colonyAddresses)
                 {
-                        if (minion->points > maxPoints)
+                        if (minion->points >= maxPoints)
                         {
                             maxPoints = minion->points;
-                            delete item.second->bestMinionBrain;
-                            item.second->bestMinionBrain = &(minion->MyBrain);
+                            item.second->bestMinionBrain = (minion->MyBrain);
+                            newColonyBrain = true;
                         }
                         minion->points = 0;
                 }
-                if (item.second->bestMinionBrain != nullptr)
+                if(maxPoints>0.5)
+                Colony::AVRGpoints = (AVRGpoints + maxPoints) / 2;
+                if (newColonyBrain)
                 {
                     for (const auto minion : item.second->colonyAddresses)
                     {
-                        minion->MyBrain = *(item.second->bestMinionBrain);
+                        minion->MyBrain = (item.second->bestMinionBrain);
                         if (leaveOne)
                         {
                             minion->MyBrain.mutate();
@@ -200,12 +217,12 @@ void Colony::summonFruit()
 //Save - Load модуль
 void Colony::SaveColony()
 {
-    bestMinionBrain->SaveAI();
+    bestMinionBrain.SaveAI();
 }
 
 void Colony::LoadColony()
 {
-    bestMinionBrain->LoadAI();
+    bestMinionBrain.LoadAI();
 }
 
 void Colony::SaveMiniones(string version)

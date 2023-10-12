@@ -45,8 +45,9 @@ public:
     Colony* myColony = nullptr;
     NeuralNetwork MyBrain;
 
-    double hunger = 0.3f;              //Наскільки голодний 0-помераю 1-накопичую
-    double fat = 0;                 //Скільки їжи накопичено
+    double hunger = 0.3;              //Наскільки голодний 0-помераю 1-накопичую
+    double fat = .0;                  //Скільки їжи накопичено
+    double health = 1.0;
 
     double points = 0;              //кількість зароблених балів
     bool IsSynthesis = false;       //Фаза синтезу
@@ -67,7 +68,7 @@ private:
 
     std::vector<double> inputs();
 
-    //void Attack(); //(dev tip) напиши реалізацію методу 
+    void Attack(Minion* minion);
     infoMove interact(size_t newPosX, size_t newPosY);
     void move(size_t MovePosX, size_t MovePosY);
     void allocateArea();
@@ -117,6 +118,7 @@ public:
     static void SaveMiniones(string version);
     static void LoadMiniones(string version);
     static std::vector<Minion*> minionAddresses;
+    static double AVRGpoints;
     std::vector<Minion*> colonyAddresses;
     
     size_t sizeColony = 0;
@@ -135,7 +137,7 @@ public:
 private:
     std::pair<size_t,size_t> _neuronsCount;
     std::string nameColony;
-    NeuralNetwork* bestMinionBrain;
+    NeuralNetwork bestMinionBrain;
     //NeuralNetwork colonyBrain;
 };
 

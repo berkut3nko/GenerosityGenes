@@ -19,8 +19,8 @@ int main()
     InitializationRender();
 
     // ініціалізація колонії
-    Colony myFirstColony(/*кількість нейронів у прихованому шарі для першого і другого*/32, 24,/*назва колонії(для збереження)*/ "testColony1");
-    myFirstColony.createMinion(/*Кордината створення мінійона*/{2,1});
+    Colony myFirstColony(50, 36, "testColony1");
+    myFirstColony.createMinion(/*Кордината створення мінійона*/{ 2,1 });
     myFirstColony.createMinion();
 
     myFirstColony.createMinion();
@@ -28,17 +28,17 @@ int main()
     myFirstColony.createMinion();
 
 
-    Colony mySecondColony(32, 24, "testColony2");
+    //Colony mySecondColony(32, 24, "testColony2");
 
-    mySecondColony.createMinion();
+    //mySecondColony.createMinion();
 
-    //Colony::LoadMiniones(version);
-    Spawner spawner1(&mySecondColony, 5);
+    ////Colony::LoadMiniones(version);
+    //Spawner spawner1(&mySecondColony, 5);
     Spawner spawner2(&myFirstColony, 9);
 
     Colony::startLife();
 
-
+    myFirstColony.SaveColony();
     //збереження гри
     //Colony::SaveMiniones(version);
     return 0;

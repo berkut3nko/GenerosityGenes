@@ -41,6 +41,7 @@ sf::Vector2f mousePosOld = sf::Vector2f(multiplicator * sizeWorldX / 2, multipli
 bool zoom = false;
 sf::Vector2f mousePos;
 double animationZoomSin;
+double cosHealth;
 
 
 sf::Vector2f zoomSize;
@@ -131,7 +132,8 @@ void render()
                     }
                     else
                     {
-                        tempShapeMinion.setOutlineColor(sf::Color::Black);
+                        cosHealth = cos(minion->health * PI/2);
+                        tempShapeMinion.setOutlineColor(sf::Color(255 * cosHealth, 0 , 0, 255));
                     }
                 }
                 window.draw(tempShapeMinion);

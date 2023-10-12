@@ -146,8 +146,8 @@ void NeuralNetwork::SaveAI()const
 }
 void NeuralNetwork::LoadAI()
 {
-    for (int i = 0; i < layers_.size(); ++i)
+    for (int h = 0; h < layers_.size(); ++h)
     {
-        layers_[i].load_weights(NeuralNetworkWay + '_' + std::to_string(i));
+        layers_[h].load_weights(NeuralNetworkWay + '_' + std::to_string(h));
     }
 }

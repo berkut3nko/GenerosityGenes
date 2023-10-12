@@ -18,6 +18,10 @@ namespace dC //defaultColors
 struct Point
 {
     size_t x, y;
+    bool operator==(const Point& exmp)
+    {
+        return (x == exmp.x && y == exmp.y) ? true : false;
+    }
 };
 struct Comp
 {
