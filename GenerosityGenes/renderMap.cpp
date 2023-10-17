@@ -130,7 +130,7 @@ void render()
                     {
                         tempShapeMinion.setOutlineColor(sf::Color::Blue);
                     }
-                    else
+                    else if(!minion->IsDead)
                     {
                         cosHealth = cos(minion->health * PI/2);
                         tempShapeMinion.setOutlineColor(sf::Color(255 * cosHealth, 0 , 0, 255));

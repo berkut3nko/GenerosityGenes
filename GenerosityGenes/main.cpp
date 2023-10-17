@@ -19,7 +19,7 @@ int main()
     InitializationRender();
 
     // ініціалізація колонії
-    Colony myFirstColony(50, 36, "testColony1");
+    Colony myFirstColony("testColony1");
     myFirstColony.createMinion(/*Кордината створення мінійона*/{ 2,1 });
     myFirstColony.createMinion();
 
