@@ -7,6 +7,7 @@ extern bool isMainWindowOpen;
 void InitializationRender();
 void worldInitialization();
 sf::Color defaultColor(Types type);
+extern unsigned int multiplicator;
 namespace MinionSettings
 {
     static const size_t minionInputs = 77;

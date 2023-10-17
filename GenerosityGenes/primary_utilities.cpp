@@ -3,7 +3,7 @@ std::vector<std::vector<object>> worldMap(sizeWorldX, std::vector<object>(sizeWo
 std::map<std::string, Colony*> allColonys;
 std::map<Colony*, Spawner*> allActiveSpawners;
 std::set<Point,Comp> poolOfFruits;
-std::map<Point, sf::Color, Comp> colonyArea;
+std::map<Point, sf::VertexArray, Comp> colonyArea;
 double Colony::AVRGpoints = 1.0;
 void worldInitialization()
 {

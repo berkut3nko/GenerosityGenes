@@ -374,19 +374,27 @@ void Minion::getHungry(double count)
 }
 void Minion::allocateArea()
 {
-    colonyArea[Point{ position.x ,position.y }] = myColony->colonyColor;
+    colonyArea.erase(Point{position.x ,position.y});
 
 
-    colonyArea[(Point{ position.x ,position.y+1 })] = myColony->colonyColor;
-    colonyArea[(Point{ position.x ,position.y-1 })] = myColony->colonyColor;
+    colonyArea.erase((Point{ position.x ,position.y+1 }));
+    colonyArea.erase((Point{ position.x ,position.y-1 }));
+    colonyArea.erase((Point{ position.x - 1 ,position.y }));
+    colonyArea.erase((Point{ position.x + 1 ,position.y }));
 
-    colonyArea[(Point{ position.x+1 ,position.y })] = myColony->colonyColor;
-    colonyArea[(Point{ position.x+1 ,position.y+1 })] = myColony->colonyColor;
-    colonyArea[(Point{ position.x+1 ,position.y-1 })] = myColony->colonyColor;
 
-    colonyArea[(Point{ position.x-1 ,position.y })] = myColony->colonyColor;
-    colonyArea[(Point{ position.x-1 ,position.y+1 })] = myColony->colonyColor;
-    colonyArea[(Point{ position.x-1 ,position.y-1 })] = myColony->colonyColor;
+    colonyArea[(Point{ position.x+1 ,position.y+1 })].append(sf::Vertex(sf::Vector2f((position.x + 1) * multiplicator, (position.y + 1) * multiplicator),myColony->colonyColor));
+    colonyArea[(Point{ position.x+1 ,position.y+1 })].append(sf::Vertex(sf::Vector2f((position.x + 1) * multiplicator, (position.y + 1) * multiplicator),myColony->colonyColor));
+
+
+    colonyArea[(Point{ position.x-1 ,position.y+1 })].append(sf::Vertex(sf::Vector2f((position.x - 1) * multiplicator, (position.y + 1) * multiplicator), myColony->colonyColor));
+    colonyArea[(Point{ position.x-1 ,position.y-1 })].append(sf::Vertex(sf::Vector2f((position.x - 1) * multiplicator, (position.y - 1) * multiplicator), myColony->colonyColor));
+
+    colonyArea[(Point{ position.x + 1 ,position.y + 1 })].setPrimitiveType(sf::TriangleFan);
+    colonyArea[(Point{ position.x + 1 ,position.y + 1 })].setPrimitiveType(sf::TriangleFan);
+
+    colonyArea[(Point{ position.x - 1 ,position.y + 1 })].setPrimitiveType(sf::TriangleFan);
+    colonyArea[(Point{ position.x - 1 ,position.y - 1 })].setPrimitiveType(sf::TriangleFan);
 }
 void Minion::move(size_t MovePosX, size_t MovePosY)
 {
