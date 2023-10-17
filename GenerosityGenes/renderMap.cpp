@@ -59,6 +59,8 @@ sf::Color tempColor;
 sf::CircleShape neuronShape(3.f);
 sf::Vertex weightShape[2];
 
+
+
 Minion* minionToShowBrain = nullptr;
 void InitializationRender()
 {
@@ -99,11 +101,7 @@ void render()
         tempShape.setOutlineThickness(0);
         for (const auto area : colonyArea)
         {
-            tempColor = area.second;
-            tempColor.a = 100;
-            tempShape.setFillColor(tempColor);
-            tempShape.setPosition(sf::Vector2f(multiplicator * area.first.x, multiplicator * area.first.y));
-            window.draw(tempShape);
+            window.draw(area.second);
         }
         for (const auto colony : allColonys)
         {
