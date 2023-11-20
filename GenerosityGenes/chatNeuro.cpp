@@ -3,8 +3,6 @@
 Layer::Layer(size_t input_size, size_t output_size) : input_size_(input_size), output_size_(output_size) {
     // ініціалізуємо випадкові ваги
     weights_ = std::vector<std::vector<double>>(input_size_, std::vector<double>(output_size_));
-    srand(static_cast<unsigned int>(time(NULL)));
-
     for (size_t i = 0; i < input_size_; ++i) {
         for (size_t j = 0; j < output_size_; ++j) {
             weights_[i][j] = (rand() % 200 * 0.01)-1; // -1.0000 to 1.0000
@@ -68,11 +66,11 @@ vector<double> NeuralNetwork::forward_minion(vector<double> input) const {
             for (size_t i = 0; i < layers_[l].input_size_; ++i) {
                 // рахуємо вихід шару // перші 75 з першого слою за формулою sum += cos((input[i]+weights_[i][j])*(PI/2)) усі інші sum += input[i] * layer.weights_[i][j];
                 if (i < 75 && l == 0) {
-                    sum += std::sin((input[i] + layers_[l].weights()[i][j]) * (3.14 / 2));
+                    sum += std::sin((input[i] + layers_[l].weights()[i][j]) * (3.14 / 2));//sin((input *  weight)*pi/2)
                 }
                 else
                 {
-                    sum += input[i] * layers_[l].weights_[i][j];
+                    sum += input[i] * layers_[l].weights_[i][j]; //input *  weight
                 }
             }
             output[j] = (2.0 / (exp(sum) + 1.0)) - 1.0;

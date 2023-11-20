@@ -14,12 +14,13 @@ string version = "v0.0.1";
 
 int main()
 {
-    std::srand(static_cast<unsigned int>(time(NULL)));
+    srand(static_cast<unsigned int>(time(NULL)));
     worldInitialization();
     InitializationRender();
+    //imGuiInit();
 
     // ініціалізація колонії
-    Colony myFirstColony("testColony1");
+    Colony myFirstColony(32, 24, "testColony1");
     myFirstColony.createMinion(/*Кордината створення мінійона*/{ 2,1 });
     myFirstColony.createMinion();
 
@@ -27,18 +28,17 @@ int main()
 
     myFirstColony.createMinion();
 
+    Colony mySecondColony(32, 24, "testColony2");
 
-    //Colony mySecondColony(32, 24, "testColony2");
+    mySecondColony.createMinion();
 
-    //mySecondColony.createMinion();
-
-    ////Colony::LoadMiniones(version);
-    //Spawner spawner1(&mySecondColony, 5);
-    Spawner spawner2(&myFirstColony, 9);
+    //Colony::LoadMiniones(version);
+    /*Spawner spawner1(&mySecondColony, 5);
+    Spawner spawner2(&myFirstColony, 9);*/
 
     Colony::startLife();
 
-    myFirstColony.SaveColony();
+    //myFirstColony.SaveColony();
     //збереження гри
     //Colony::SaveMiniones(version);
     return 0;

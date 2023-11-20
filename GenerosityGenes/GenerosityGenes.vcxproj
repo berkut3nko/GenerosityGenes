@@ -75,7 +75,7 @@
     <LibraryPath>C:\Users\berkut3nko\Documents\C++ code\GenerosityGenes\SFML-2.6.0\lib;$(LibraryPath)</LibraryPath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
-    <IncludePath>C:\Users\berkut3nko\Desktop\SFML-2.6.0\lib</IncludePath>
+    <IncludePath>C:\Users\berkut3nko\Desktop\SFML-2.6.0\lib;C:\Users\dell\Desktop\GenerosityGenes\GenerosityGenes\GenerosityGenes\imgui-master;C:\Users\dell\Desktop\GenerosityGenes\GenerosityGenes\GenerosityGenes\imgui-master\backends</IncludePath>
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <ClCompile>
@@ -138,11 +138,18 @@
       <OptimizeReferences>true</OptimizeReferences>
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <AdditionalLibraryDirectories>$(ProjectDir)\SFML-2.6.0\lib;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
-      <AdditionalDependencies>sfml-graphics.lib;sfml-audio.lib;sfml-main.lib;sfml-network.lib;sfml-system.lib;sfml-window.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>sfml-graphics.lib;sfml-audio.lib;sfml-main.lib;sfml-network.lib;sfml-system.lib;sfml-window.lib;d3d9.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="chatNeuro.cpp" />
+    <ClCompile Include="imgui-master\backends\imgui_impl_dx9.cpp" />
+    <ClCompile Include="imgui-master\backends\imgui_impl_win32.cpp" />
+    <ClCompile Include="imgui-master\imgui.cpp" />
+    <ClCompile Include="imgui-master\imgui_demo.cpp" />
+    <ClCompile Include="imgui-master\imgui_draw.cpp" />
+    <ClCompile Include="imgui-master\imgui_tables.cpp" />
+    <ClCompile Include="imgui-master\imgui_widgets.cpp" />
     <ClCompile Include="main.cpp" />
     <ClCompile Include="MinionLogic.cpp" />
     <ClCompile Include="primary_utilities.cpp" />
@@ -150,6 +157,14 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="chatNeuro.hpp" />
+    <ClInclude Include="imgui-master\backends\imgui_impl_dx9.h" />
+    <ClInclude Include="imgui-master\backends\imgui_impl_win32.h" />
+    <ClInclude Include="imgui-master\imconfig.h" />
+    <ClInclude Include="imgui-master\imgui.h" />
+    <ClInclude Include="imgui-master\imgui_internal.h" />
+    <ClInclude Include="imgui-master\imstb_rectpack.h" />
+    <ClInclude Include="imgui-master\imstb_textedit.h" />
+    <ClInclude Include="imgui-master\imstb_truetype.h" />
     <ClInclude Include="settings.hpp" />
     <ClInclude Include="include.hpp" />
     <ClInclude Include="primary_utilities.hpp" />

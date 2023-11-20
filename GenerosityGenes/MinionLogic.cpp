@@ -374,27 +374,18 @@ void Minion::getHungry(double count)
 }
 void Minion::allocateArea()
 {
-    colonyArea.erase(Point{position.x ,position.y});
+    colonyArea.insert(Point{position.x ,position.y});
 
+    colonyArea.insert((Point{ position.x ,position.y + 1 }));
+    colonyArea.insert((Point{ position.x ,position.y - 1 }));
+    colonyArea.insert((Point{ position.x - 1 ,position.y }));
+    colonyArea.insert((Point{ position.x + 1 ,position.y }));
 
-    colonyArea.erase((Point{ position.x ,position.y+1 }));
-    colonyArea.erase((Point{ position.x ,position.y-1 }));
-    colonyArea.erase((Point{ position.x - 1 ,position.y }));
-    colonyArea.erase((Point{ position.x + 1 ,position.y }));
+    colonyArea.insert((Point{ position.x + 1 ,position.y + 1 }));
+    colonyArea.insert((Point{ position.x + 1 ,position.y - 1 }));
+    colonyArea.insert((Point{ position.x - 1 ,position.y + 1 }));
+    colonyArea.insert((Point{ position.x - 1 ,position.y - 1 }));
 
-
-    colonyArea[(Point{ position.x+1 ,position.y+1 })].append(sf::Vertex(sf::Vector2f((position.x + 1) * multiplicator, (position.y + 1) * multiplicator),myColony->colonyColor));
-    colonyArea[(Point{ position.x+1 ,position.y+1 })].append(sf::Vertex(sf::Vector2f((position.x + 1) * multiplicator, (position.y + 1) * multiplicator),myColony->colonyColor));
-
-
-    colonyArea[(Point{ position.x-1 ,position.y+1 })].append(sf::Vertex(sf::Vector2f((position.x - 1) * multiplicator, (position.y + 1) * multiplicator), myColony->colonyColor));
-    colonyArea[(Point{ position.x-1 ,position.y-1 })].append(sf::Vertex(sf::Vector2f((position.x - 1) * multiplicator, (position.y - 1) * multiplicator), myColony->colonyColor));
-
-    colonyArea[(Point{ position.x + 1 ,position.y + 1 })].setPrimitiveType(sf::TriangleFan);
-    colonyArea[(Point{ position.x + 1 ,position.y + 1 })].setPrimitiveType(sf::TriangleFan);
-
-    colonyArea[(Point{ position.x - 1 ,position.y + 1 })].setPrimitiveType(sf::TriangleFan);
-    colonyArea[(Point{ position.x - 1 ,position.y - 1 })].setPrimitiveType(sf::TriangleFan);
 }
 void Minion::move(size_t MovePosX, size_t MovePosY)
 {
