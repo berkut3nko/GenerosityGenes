@@ -9,6 +9,7 @@ MyBrain({ {MinionSettings::minionInputs + myColony->sizeMemmory, myColony->_neur
     worldMap[position.x][position.y].type = minion;
     worldMap[position.x][position.y].minionAddress = this;
     ++MinionSettings::countMiniones;
+    Colony::minionAddresses.push_back(this);
     memmory.resize(myColony->sizeMemmory,0);
     ++myColony->sizeColony;
     allocateArea();
@@ -19,21 +20,22 @@ Minion::Minion(Point spawn_position, Colony* currentColony, NeuralNetwork* paren
     worldMap[position.x][position.y].type = minion;
     worldMap[position.x][position.y].minionAddress = this;
     ++MinionSettings::countMiniones;
+    Colony::minionAddresses.push_back(this);
     memmory.resize(myColony->sizeMemmory, 0);
     ++myColony->sizeColony;
     allocateArea();
 }
-Minion::Minion(string data) :MyBrain(
-    { {MinionSettings::minionInputs + myColony->sizeMemmory, myColony->_neuronsCount.first},
-      {myColony->_neuronsCount.first, myColony->_neuronsCount.second},
-      {myColony->_neuronsCount.second,MinionSettings::minionOutputs + myColony->sizeMemmory} }, myColony->nameColony)
+Minion::Minion(Colony* _myColony, Point _position,double _fat,double _hunger):myColony(_myColony),MyBrain(_myColony->bestMinionBrain), position(_position),fat(_fat),hunger(_hunger)
 {
-    LoadMe(data);
-    myColony->minionAddresses.push_back(this);
+
     id = MinionSettings::countMiniones;
+    ++MinionSettings::countMiniones;
+
     worldMap[position.x][position.y].type = minion;
     worldMap[position.x][position.y].minionAddress = this;
-    ++MinionSettings::countMiniones;
+
+    Colony::minionAddresses.push_back(this);
+    myColony->colonyAddresses.push_back(this);
     MyBrain = myColony->bestMinionBrain;
     memmory.resize(myColony->sizeMemmory, 0);
     ++myColony->sizeColony;
@@ -266,6 +268,7 @@ std::vector<double> Minion::inputs()
 
 void Minion::nextMove()
 {
+    if(this)
     if (IsDead == true)
     {
         if (rotting < 5) {
@@ -571,39 +574,6 @@ string Minion::SaveMe()
         + std::to_string(position.x) + ' '
         + std::to_string(position.y) + ' '
         + std::to_string(hunger) + ' '
-        + std::to_string(fat) + ' '
-        + (IsDead ? "true" : "false");
+        + std::to_string(fat);
     return data;
-}
-
-void Minion::LoadMe(string data)
-{
-    std::istringstream iss(data);
-    string value_str;
-
-    std::getline(iss, value_str, ' ');
-    if (allColonys.count(value_str) > 0) {
-        myColony = allColonys[value_str];
-    }
-    else {
-        if (allColonys.size() > 0)
-            myColony = allColonys.begin()->second;
-        else
-            return; // call default constructor (dev tip)
-    }
-
-    std::getline(iss, value_str, ' ');
-    this->position.x = stoull(value_str);
-
-    std::getline(iss, value_str, ' ');
-    this->position.y = stoull(value_str);
-
-    std::getline(iss, value_str, ' ');
-    hunger = stod(value_str);
-
-    std::getline(iss, value_str, ' ');
-    fat = stod(value_str);
-
-    std::getline(iss, value_str, ' ');
-    IsDead = (value_str == "true");
 }

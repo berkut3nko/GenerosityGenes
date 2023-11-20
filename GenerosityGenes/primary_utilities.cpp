@@ -1,5 +1,5 @@
 #include "primary_utilities.hpp"
-std::vector<std::vector<object>> worldMap(sizeWorldX, std::vector<object>(sizeWorldY));
+
 std::map<std::string, Colony*> allColonys;
 std::map<Colony*, Spawner*> allActiveSpawners;
 std::set<Point,Comp> poolOfFruits;
@@ -14,7 +14,7 @@ void worldInitialization()
         worldMap[x][sizeWorldY - 2].type = border;
         worldMap[x][sizeWorldY - 1].type = border;
     }
-    for (size_t y = 1; y < sizeWorldY - 1; ++y)
+    for (size_t y = 2; y < sizeWorldY - 2; ++y)
     {
         worldMap[0][y].type = border;
         worldMap[1][y].type = border;
@@ -43,8 +43,6 @@ bestMinionBrain({ {MinionSettings::minionInputs + sizeMemmory, _neuronsCount.fir
       {_neuronsCount.second,MinionSettings::minionOutputs + sizeMemmory} }, nameColony)
 {
     colonyColor = sf::Color(rand() % 256, rand() % 256, rand() % 128 + 128, 255);
-    bestMinionBrain.NeuralNetworkWay = name;
-    LoadColony();
     coefInitialization();
     allColonys.insert(std::make_pair(nameColony, this));
 }
@@ -80,10 +78,10 @@ void Colony::coefInitialization()
 //Початок симуляції життя
 void Colony::startLife()
 {
-    bool newColonyBrain;
+    bool newColonyBrain = false;
     size_t count = 0;
     double maxPoints;
-    bool leaveOne = false;
+    bool leaveOne;
     while (true) {
         maxPoints = 0;
         if (poolOfFruits.size() < ((sizeWorldX * sizeWorldY) / 5)) {
@@ -100,12 +98,6 @@ void Colony::startLife()
 
         if (isMainWindowOpen == false)
         {
-            //Очищення динамічної пам'яті 
-            for (auto minion : Colony::minionAddresses)
-            {
-                delete minion;
-            }
-
             return;
         }
 
@@ -126,9 +118,12 @@ void Colony::startLife()
         ++count;
         if (count == (5 * Colony::AVRGpoints))   //(dev tip)
         {
+            newColonyBrain = false;
+
             count = 0;
             for (auto& item : allColonys)
             {
+                leaveOne = false;
                 for (const auto minion : item.second->colonyAddresses)
                 {
                         if (minion->points >= maxPoints)
@@ -168,9 +163,8 @@ void Colony::createMinion()
         if (worldMap[Xtemp][Ytemp].type == Types::air)
         {
             Minion* newMinion = new Minion({ Xtemp ,Ytemp }, this);
-            minionAddresses.push_back(newMinion);
+            
             colonyAddresses.push_back(newMinion);
-            ++MinionSettings::countMiniones;
             return;
         }
     }
@@ -180,9 +174,8 @@ void Colony::createMinion(Point coordinate)
 {
     if (worldMap[coordinate.x][coordinate.y].type == Types::air) {
         Minion* newMinion = new Minion(coordinate, this);
-        minionAddresses.push_back(newMinion);
+
         colonyAddresses.push_back(newMinion);
-        ++MinionSettings::countMiniones;
     }
 }
 
@@ -191,9 +184,7 @@ void Colony::createMinion(Point coordinate, Minion* parent, double hunger)
         if (worldMap[coordinate.x][coordinate.y].type == Types::air)
         {
             Minion* newMinion = new Minion({ coordinate.x ,coordinate.y }, this, &parent->MyBrain, hunger);
-            minionAddresses.push_back(newMinion);
             colonyAddresses.push_back(newMinion);
-            ++MinionSettings::countMiniones;
             return;
         }
 }
@@ -232,8 +223,8 @@ void Colony::SaveMiniones(string version)
 
         return;
     }
-
-    for (const auto& minion : minionAddresses)
+    for(const auto& colony : allColonys)
+    for (const auto& minion : colony.second->colonyAddresses)
     {
         file << minion->SaveMe() << '\n';
     }
@@ -250,10 +241,38 @@ void Colony::LoadMiniones(string version)
     }
 
     string dataMinion;
-    Minion* temp;
+    Colony* colonyAddress;
+    Point pos;
+    double fat, hunger;
     while (std::getline(file, dataMinion))
     {
-        temp = new Minion(dataMinion);
+        std::istringstream iss(dataMinion);
+        string value_str;
+
+        std::getline(iss, value_str, ' ');
+        if (allColonys.count(value_str) > 0) {
+            colonyAddress = allColonys[value_str];
+        }
+        else {
+            if (allColonys.size() > 0)
+                colonyAddress = allColonys.begin()->second;
+            else
+                return; // call default constructor (dev tip)
+        }
+
+        std::getline(iss, value_str, ' ');
+        pos.x = stoull(value_str);
+
+        std::getline(iss, value_str, ' ');
+        pos.y = stoull(value_str);
+
+        std::getline(iss, value_str, ' ');
+        hunger = stod(value_str);
+
+        std::getline(iss, value_str, ' ');
+        fat = stod(value_str);
+
+        Minion* temp = new Minion(colonyAddress, pos, fat, hunger);
         minionAddresses.push_back(temp);
     }
 

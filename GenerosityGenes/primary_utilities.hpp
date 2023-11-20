@@ -38,7 +38,7 @@ class Minion
 public:
     Minion(Point spawn_position, Colony* currentColony);
     Minion(Point spawn_position, Colony* currentColony, NeuralNetwork* parentBrain, double hungerFromParent);
-    Minion(string data);
+    Minion(Colony* _myColony, Point _position, double _fat, double _hunger);
 
     void nextMove();
     string SaveMe();
