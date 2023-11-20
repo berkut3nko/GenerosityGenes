@@ -1,5 +1,5 @@
 #include "primary_utilities.hpp"
-
+#include "settings.hpp"
 std::map<std::string, Colony*> allColonys;
 std::map<Colony*, Spawner*> allActiveSpawners;
 std::set<Point,Comp> poolOfFruits;
@@ -92,7 +92,7 @@ void Colony::startLife()
         }
         for (size_t i = 0; i < 60; ++i)
         {
-            std::this_thread::sleep_for(std::chrono::milliseconds(1));
+            std::this_thread::sleep_for(std::chrono::microseconds(100));
             render();
         }
 

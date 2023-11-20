@@ -23,8 +23,8 @@ int main()
     // ініціалізація колонії
     Colony myFirstColony(32,24,"highBrain");
     myFirstColony.LoadColony();
-    Colony::LoadMiniones(version);
-    //myFirstColony.createMinion();
+    //Colony::LoadMiniones(version);
+    myFirstColony.createMinion();
     //myFirstColony.createMinion();
     //myFirstColony.createMinion();
 

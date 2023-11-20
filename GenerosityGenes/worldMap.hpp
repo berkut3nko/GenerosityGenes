@@ -5,7 +5,6 @@ class Colony;
 class Spawner;
 const size_t sizeWorldX = 300;
 const size_t sizeWorldY = 200;
-const float speedSummonFruit = 5.0f;
 
 namespace dC //defaultColors
 {

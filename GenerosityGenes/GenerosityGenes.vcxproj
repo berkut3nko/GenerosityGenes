@@ -112,13 +112,13 @@
       <PreprocessorDefinitions>_DEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
       <LanguageStandard>stdcpp20</LanguageStandard>
-      <AdditionalIncludeDirectories>C:\Users\dell\Desktop\GenerosityGenes\GenerosityGenes\GenerosityGenes\SFML-2.6.0\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(ProjectDir)\imGui;$(ProjectDir)\SFML-2.6.0\include;$(ProjectDir)\imGui;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <AdditionalLibraryDirectories>C:\Users\dell\Desktop\GenerosityGenes\GenerosityGenes\GenerosityGenes\SFML-2.6.0\lib;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
-      <AdditionalDependencies>sfml-graphics-d.lib;sfml-audio-d.lib;sfml-main-d.lib;sfml-network-d.lib;sfml-system-d.lib;sfml-window-d.lib;d3d9.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>opengl32.lib;sfml-graphics-d.lib;sfml-audio-d.lib;sfml-main-d.lib;sfml-network-d.lib;sfml-system-d.lib;sfml-window-d.lib;d3d9.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <EntryPointSymbol>mainCRTStartup</EntryPointSymbol>
     </Link>
   </ItemDefinitionGroup>
@@ -130,7 +130,7 @@
       <SDLCheck>true</SDLCheck>
       <PreprocessorDefinitions>NDEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
-      <AdditionalIncludeDirectories>$(ProjectDir)\SFML-2.6.0\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(ProjectDir)\imGui;$(ProjectDir)\SFML-2.6.0\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
@@ -138,18 +138,16 @@
       <OptimizeReferences>true</OptimizeReferences>
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <AdditionalLibraryDirectories>$(ProjectDir)\SFML-2.6.0\lib;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
-      <AdditionalDependencies>sfml-graphics.lib;sfml-audio.lib;sfml-main.lib;sfml-network.lib;sfml-system.lib;sfml-window.lib;d3d9.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>opengl32.lib;sfml-graphics.lib;sfml-audio.lib;sfml-main.lib;sfml-network.lib;sfml-system.lib;sfml-window.lib;d3d9.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="chatNeuro.cpp" />
-    <ClCompile Include="imgui-master\backends\imgui_impl_dx9.cpp" />
-    <ClCompile Include="imgui-master\backends\imgui_impl_win32.cpp" />
-    <ClCompile Include="imgui-master\imgui.cpp" />
-    <ClCompile Include="imgui-master\imgui_demo.cpp" />
-    <ClCompile Include="imgui-master\imgui_draw.cpp" />
-    <ClCompile Include="imgui-master\imgui_tables.cpp" />
-    <ClCompile Include="imgui-master\imgui_widgets.cpp" />
+    <ClCompile Include="imGui\imgui-SFML.cpp" />
+    <ClCompile Include="imGui\imgui.cpp" />
+    <ClCompile Include="imGui\imgui_draw.cpp" />
+    <ClCompile Include="imGui\imgui_tables.cpp" />
+    <ClCompile Include="imGui\imgui_widgets.cpp" />
     <ClCompile Include="main.cpp" />
     <ClCompile Include="MinionLogic.cpp" />
     <ClCompile Include="primary_utilities.cpp" />
@@ -157,14 +155,15 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="chatNeuro.hpp" />
-    <ClInclude Include="imgui-master\backends\imgui_impl_dx9.h" />
-    <ClInclude Include="imgui-master\backends\imgui_impl_win32.h" />
-    <ClInclude Include="imgui-master\imconfig.h" />
-    <ClInclude Include="imgui-master\imgui.h" />
-    <ClInclude Include="imgui-master\imgui_internal.h" />
-    <ClInclude Include="imgui-master\imstb_rectpack.h" />
-    <ClInclude Include="imgui-master\imstb_textedit.h" />
-    <ClInclude Include="imgui-master\imstb_truetype.h" />
+    <ClInclude Include="imGui\imconfig-SFML.h" />
+    <ClInclude Include="imGui\imconfig.h" />
+    <ClInclude Include="imGui\imgui-SFML.h" />
+    <ClInclude Include="imGui\imgui-SFML_export.h" />
+    <ClInclude Include="imGui\imgui.h" />
+    <ClInclude Include="imGui\imgui_internal.h" />
+    <ClInclude Include="imGui\imstb_rectpack.h" />
+    <ClInclude Include="imGui\imstb_textedit.h" />
+    <ClInclude Include="imGui\imstb_truetype.h" />
     <ClInclude Include="settings.hpp" />
     <ClInclude Include="include.hpp" />
     <ClInclude Include="primary_utilities.hpp" />

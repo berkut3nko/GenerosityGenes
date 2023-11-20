@@ -16,6 +16,9 @@
     <Filter Include="Source Files\imguiLibs">
       <UniqueIdentifier>{198d8cd4-2263-40d8-b116-9dddd7de6501}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Header Files\imGui">
+      <UniqueIdentifier>{1a564c39-dc30-4606-89ce-a66c69b0e67c}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="chatNeuro.cpp">
@@ -33,25 +36,19 @@
     <ClCompile Include="renderMap.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="imgui-master\imgui.cpp">
+    <ClCompile Include="imGui\imgui.cpp">
       <Filter>Source Files\imguiLibs</Filter>
     </ClCompile>
-    <ClCompile Include="imgui-master\imgui_demo.cpp">
+    <ClCompile Include="imGui\imgui_draw.cpp">
       <Filter>Source Files\imguiLibs</Filter>
     </ClCompile>
-    <ClCompile Include="imgui-master\imgui_draw.cpp">
+    <ClCompile Include="imGui\imgui_tables.cpp">
       <Filter>Source Files\imguiLibs</Filter>
     </ClCompile>
-    <ClCompile Include="imgui-master\backends\imgui_impl_dx9.cpp">
+    <ClCompile Include="imGui\imgui_widgets.cpp">
       <Filter>Source Files\imguiLibs</Filter>
     </ClCompile>
-    <ClCompile Include="imgui-master\backends\imgui_impl_win32.cpp">
-      <Filter>Source Files\imguiLibs</Filter>
-    </ClCompile>
-    <ClCompile Include="imgui-master\imgui_tables.cpp">
-      <Filter>Source Files\imguiLibs</Filter>
-    </ClCompile>
-    <ClCompile Include="imgui-master\imgui_widgets.cpp">
+    <ClCompile Include="imGui\imgui-SFML.cpp">
       <Filter>Source Files\imguiLibs</Filter>
     </ClCompile>
   </ItemGroup>
@@ -71,29 +68,32 @@
     <ClInclude Include="settings.hpp">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="imgui-master\imgui.h">
-      <Filter>Header Files</Filter>
+    <ClInclude Include="imGui\imconfig.h">
+      <Filter>Header Files\imGui</Filter>
     </ClInclude>
-    <ClInclude Include="imgui-master\imgui_internal.h">
-      <Filter>Header Files</Filter>
+    <ClInclude Include="imGui\imconfig-SFML.h">
+      <Filter>Header Files\imGui</Filter>
     </ClInclude>
-    <ClInclude Include="imgui-master\imstb_rectpack.h">
-      <Filter>Header Files</Filter>
+    <ClInclude Include="imGui\imgui.h">
+      <Filter>Header Files\imGui</Filter>
     </ClInclude>
-    <ClInclude Include="imgui-master\imstb_textedit.h">
-      <Filter>Header Files</Filter>
+    <ClInclude Include="imGui\imgui_internal.h">
+      <Filter>Header Files\imGui</Filter>
     </ClInclude>
-    <ClInclude Include="imgui-master\imstb_truetype.h">
-      <Filter>Header Files</Filter>
+    <ClInclude Include="imGui\imgui-SFML.h">
+      <Filter>Header Files\imGui</Filter>
     </ClInclude>
-    <ClInclude Include="imgui-master\imconfig.h">
-      <Filter>Header Files</Filter>
+    <ClInclude Include="imGui\imgui-SFML_export.h">
+      <Filter>Header Files\imGui</Filter>
     </ClInclude>
-    <ClInclude Include="imgui-master\backends\imgui_impl_dx9.h">
-      <Filter>Header Files</Filter>
+    <ClInclude Include="imGui\imstb_rectpack.h">
+      <Filter>Header Files\imGui</Filter>
     </ClInclude>
-    <ClInclude Include="imgui-master\backends\imgui_impl_win32.h">
-      <Filter>Header Files</Filter>
+    <ClInclude Include="imGui\imstb_textedit.h">
+      <Filter>Header Files\imGui</Filter>
+    </ClInclude>
+    <ClInclude Include="imGui\imstb_truetype.h">
+      <Filter>Header Files\imGui</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
