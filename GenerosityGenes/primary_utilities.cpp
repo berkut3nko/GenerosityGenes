@@ -1,6 +1,6 @@
 #include "primary_utilities.hpp"
 #include "settings.hpp"
-std::map<std::string, Colony*> allColonys;
+std::map<std::string, Colony*> allColonies;
 std::map<Colony*, Spawner*> allActiveSpawners;
 std::set<Point,Comp> poolOfFruits;
 std::set<Point, Comp> colonyArea;
@@ -34,7 +34,7 @@ Colony::Colony(size_t neuronsCountFirst, size_t neuronsCountSecond, std::string 
           {_neuronsCount.second,MinionSettings::minionOutputs + sizeMemmory} }, nameColony)
 {
     coefInitialization();
-    allColonys.insert(std::make_pair(nameColony, this));
+    allColonies.insert(std::make_pair(nameColony, this));
 }
 //Це завантажувальний конструктор
 Colony::Colony(string name) : nameColony(name),
@@ -44,7 +44,7 @@ bestMinionBrain({ {MinionSettings::minionInputs + sizeMemmory, _neuronsCount.fir
 {
     colonyColor = sf::Color(rand() % 256, rand() % 256, rand() % 128 + 128, 255);
     coefInitialization();
-    allColonys.insert(std::make_pair(nameColony, this));
+    allColonies.insert(std::make_pair(nameColony, this));
 }
 
 
@@ -101,7 +101,7 @@ void Colony::startLife()
             return;
         }
 
-        for (auto colony : allColonys)
+        for (auto colony : allColonies)
         {
             for (Minion* minion : colony.second->colonyAddresses)
             {
@@ -121,7 +121,7 @@ void Colony::startLife()
             newColonyBrain = false;
 
             count = 0;
-            for (auto& item : allColonys)
+            for (auto& item : allColonies)
             {
                 leaveOne = false;
                 for (const auto minion : item.second->colonyAddresses)
@@ -223,7 +223,7 @@ void Colony::SaveMiniones(string version)
 
         return;
     }
-    for(const auto& colony : allColonys)
+    for(const auto& colony : allColonies)
     for (const auto& minion : colony.second->colonyAddresses)
     {
         file << minion->SaveMe() << '\n';
@@ -250,12 +250,12 @@ void Colony::LoadMiniones(string version)
         string value_str;
 
         std::getline(iss, value_str, ' ');
-        if (allColonys.count(value_str) > 0) {
-            colonyAddress = allColonys[value_str];
+        if (allColonies.count(value_str) > 0) {
+            colonyAddress = allColonies[value_str];
         }
         else {
-            if (allColonys.size() > 0)
-                colonyAddress = allColonys.begin()->second;
+            if (allColonies.size() > 0)
+                colonyAddress = allColonies.begin()->second;
             else
                 return; // call default constructor (dev tip)
         }

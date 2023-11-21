@@ -86,6 +86,12 @@ void InitializationRender()
 }
 sf::Clock deltaClock;
 
+
+//ImGUI 
+char addColonyName[64];
+int firstLayer;
+int secondLayer;
+
 void render()
 {
     if (window.isOpen())
@@ -99,15 +105,45 @@ void render()
             }
         }
         ImGui::SFML::Update(window,deltaClock.restart());
-        ImGui::Begin("Window title");
+        ImGui::Begin("Game control");
 
-        ImGui::Text("Hello world!");
-        ImGui::SetNextItemWidth(150.f);
-        ImGui::DragFloat("camera zoom scale", &zoomScale, 0.1f, 1.0f, 50.0f, "%.2f");
-        ImGui::SetNextItemWidth(150.f);
-        ImGui::DragFloat("camera move speed", &cameraMoveSpeed, 0.01f, 0.1f, 1.0f, "%.2f");
-        ImGui::SetNextItemWidth(150.f);
-        ImGui::DragFloat("zoom animation quality", &animation_smoothness, 1.0f, 10.0f, 100.0f, "%.0f");
+        ImGui::BeginTabBar("Controler"); {
+            if(ImGui::BeginTabItem("Setting"))
+            {
+                ImGui::SetNextItemWidth(150.f);
+                ImGui::DragFloat("camera zoom scale", &zoomScale, 0.1f, 1.0f, 50.0f, "%.2f");
+                ImGui::SetNextItemWidth(150.f);
+                ImGui::DragFloat("camera move speed", &cameraMoveSpeed, 0.01f, 0.1f, 1.0f, "%.2f");
+                ImGui::SetNextItemWidth(150.f);
+                ImGui::DragFloat("zoom animation quality", &animation_smoothness, 1.0f, 10.0f, 100.0f, "%.0f");
+
+                ImGui::EndTabItem();
+            }
+            if(ImGui::BeginTabItem("Colony control"))
+            {
+                if (ImGui::Button("Create new colony")) {
+                    allColonies.insert({ addColonyName,new Colony(firstLayer,secondLayer,addColonyName) });
+                    allColonies[addColonyName]->createMinion();
+                }
+                ImGui::SetNextItemWidth(200.f);
+                ImGui::InputText("colony name", addColonyName, 64);
+                ImGui::SetNextItemWidth(150.f);
+                ImGui::DragInt("first layer size", &firstLayer, 1, 10, 50, "%d");
+                ImGui::SetNextItemWidth(150.f);
+                ImGui::DragInt("second layer size", &secondLayer, 1, 10, 50, "%d");
+                string colonyNames;
+                for (auto colony : allColonies)
+                {
+                    colonyNames += colony.first + '\0';
+                }
+                int selectedColony;
+                ImGui::Combo("All colonies",&selectedColony,colonyNames.c_str());
+                ImGui::SetItemDefaultFocus();
+
+                ImGui::EndTabItem();
+            }
+        };
+        ImGui::EndTabBar();
         ImGui::End();
         window.clear();
 
@@ -125,7 +161,7 @@ void render()
             tempAreaShape.setFillColor(tempColor);
             window.draw(tempAreaShape);
         }
-        for (const auto colony : allColonys)
+        for (const auto colony : allColonies)
         {
 
             for (const auto minion : colony.second->colonyAddresses)

@@ -49,7 +49,7 @@ struct object
 
 extern std::vector<std::vector<object>> worldMap;
 
-extern std::map<std::string, Colony*> allColonys;
+extern std::map<std::string, Colony*> allColonies;
 extern std::map<Colony*, Spawner*> allActiveSpawners;
 extern std::set<Point,Comp> poolOfFruits;
 
