@@ -161,8 +161,12 @@ double Minion::analyzePos(infoMove move)
                 {
                     if(tempObj.minionAddress->myColony == myColony)
                         posMark += myColony->coef_AttackTeam;
-                    else
+                    else {
                         posMark += myColony->coef_AttackEnemy;
+                        if (move == infoMove::protection)
+                            posMark += (myColony->coef_AttackEnemy + myColony->coef_Protection) * 2;
+
+                    }
                     continue;
                 }
                 if (tempObj.type == Types::border)
@@ -283,6 +287,8 @@ void Minion::nextMove()
                 if (*(it) == this)
                 {
                     myColony->colonyAddresses.erase(it);
+                    --MinionSettings::countMiniones;
+                    --myColony->sizeColony;
                     return;
                 }
         }
@@ -370,24 +376,30 @@ void Minion::getHungry(double count)
         IsDead = true; 
         stopPhases();
         hunger = 0; 
-        --MinionSettings::countMiniones;
-        --myColony->sizeColony;
     }
 
 }
 void Minion::allocateArea()
 {
     colonyArea.insert(Point{position.x ,position.y});
-
+    colonyArea.insert((Point{ position.x + 1 ,position.y + 1 }));
+    colonyArea.insert((Point{ position.x + 1 ,position.y - 1 }));
+    colonyArea.insert((Point{ position.x - 1 ,position.y + 1 }));
+    colonyArea.insert((Point{ position.x - 1 ,position.y - 1 }));
     colonyArea.insert((Point{ position.x ,position.y + 1 }));
     colonyArea.insert((Point{ position.x ,position.y - 1 }));
     colonyArea.insert((Point{ position.x - 1 ,position.y }));
     colonyArea.insert((Point{ position.x + 1 ,position.y }));
 
-    colonyArea.insert((Point{ position.x + 1 ,position.y + 1 }));
-    colonyArea.insert((Point{ position.x + 1 ,position.y - 1 }));
-    colonyArea.insert((Point{ position.x - 1 ,position.y + 1 }));
-    colonyArea.insert((Point{ position.x - 1 ,position.y - 1 }));
+    worldMap[position.x+1][position.y-1].minionAddress = this;
+    worldMap[position.x+1][position.y-1].minionAddress = this;
+    worldMap[position.x-1][position.y+1].minionAddress = this;
+    worldMap[position.x-1][position.y-1].minionAddress = this;
+
+    worldMap[position.x+1][position.y].minionAddress = this;
+    worldMap[position.x-1][position.y].minionAddress = this;
+    worldMap[position.x][position.y+1].minionAddress = this;
+    worldMap[position.x][position.y-1].minionAddress = this;
 
 }
 void Minion::move(size_t MovePosX, size_t MovePosY)

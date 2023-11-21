@@ -71,11 +71,11 @@
   </ImportGroup>
   <PropertyGroup Label="UserMacros" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
-    <IncludePath>$(ProjectDir)\SFML-2.6.0\include;$(ProjectDir)\imgui-master\backends;$(ProjectDir)\imgui-master</IncludePath>
+    <IncludePath>$(ProjectDir)\SFML-2.6.0\include</IncludePath>
     <LibraryPath>C:\Users\berkut3nko\Documents\C++ code\GenerosityGenes\SFML-2.6.0\lib;$(LibraryPath)</LibraryPath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
-    <IncludePath>$(ProjectDir)\SFML-2.6.0\lib;$(ProjectDir)\imgui-master;$(ProjectDir)\imgui-master\backends</IncludePath>
+    <IncludePath>$(ProjectDir)\SFML-2.6.0\lib</IncludePath>
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <ClCompile>

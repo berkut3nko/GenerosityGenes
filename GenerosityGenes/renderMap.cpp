@@ -91,7 +91,9 @@ sf::Clock deltaClock;
 char addColonyName[64];
 int firstLayer;
 int secondLayer;
-
+string colonyNames;
+int spawnerSize = 3;
+std::stringstream  ss;
 void render()
 {
     if (window.isOpen())
@@ -121,6 +123,7 @@ void render()
             }
             if(ImGui::BeginTabItem("Colony control"))
             {
+                ImGui::BeginGroup();
                 if (ImGui::Button("Create new colony")) {
                     allColonies.insert({ addColonyName,new Colony(firstLayer,secondLayer,addColonyName) });
                     allColonies[addColonyName]->createMinion();
@@ -131,15 +134,44 @@ void render()
                 ImGui::DragInt("first layer size", &firstLayer, 1, 10, 50, "%d");
                 ImGui::SetNextItemWidth(150.f);
                 ImGui::DragInt("second layer size", &secondLayer, 1, 10, 50, "%d");
-                string colonyNames;
+                ss.str("");
+                ss << Colony::minionAddresses.size();
+                ImGui::Text(string("Population size:" + ss.str()).c_str());
+                ImGui::EndGroup();
+                ImGui::BeginGroup();
                 for (auto colony : allColonies)
                 {
                     colonyNames += colony.first + '\0';
                 }
-                int selectedColony;
-                ImGui::Combo("All colonies",&selectedColony,colonyNames.c_str());
-                ImGui::SetItemDefaultFocus();
-
+                static int selectedColony = 0;
+                ImGui::Combo("All colonies",&selectedColony,colonyNames.c_str(), allColonies.size());
+                ss.str("");
+                ss << next(allColonies.begin(), selectedColony)->second->sizeColony;
+                ImGui::Text( string("Colony size:" + ss.str()).c_str());
+                if(ImGui::Button("Create minion", ImVec2(140, 30)))
+                {
+                    next(allColonies.begin(), selectedColony)->second->createMinion();
+                }
+                ImGui::Text("Neural network coefficients:");
+                ImGui::SetNextItemWidth(200.f);
+                ImGui::DragFloat("coef_AttackEnemy", &(*next(allColonies.begin(), selectedColony)->second).coef_AttackEnemy,0.05,-1,1,"%.2f");
+                ImGui::SetNextItemWidth(200.f);
+                ImGui::DragFloat("coef_AttackTeam", &(*next(allColonies.begin(), selectedColony)->second).coef_AttackTeam,0.05,-1,1,"%.2f");
+                ImGui::SetNextItemWidth(200.f);
+                ImGui::DragFloat("coef_Border", &(*next(allColonies.begin(), selectedColony)->second).coef_Border,0.05,-1,1,"%.2f");
+                ImGui::SetNextItemWidth(200.f);
+                ImGui::DragFloat("coef_Born", &(*next(allColonies.begin(), selectedColony)->second).coef_Born,0.05,-1,1,"%.2f");
+                ImGui::SetNextItemWidth(200.f);
+                ImGui::DragFloat("coef_Eat", &(*next(allColonies.begin(), selectedColony)->second).coef_Eat,0.05,-1,1,"%.2f");
+                ImGui::SetNextItemWidth(200.f);
+                ImGui::DragFloat("coef_Protection", &(*next(allColonies.begin(), selectedColony)->second).coef_Protection,0.05,-1,1,"%.2f");
+                ImGui::SetNextItemWidth(200.f);
+                ImGui::DragFloat("coef_SpawnerEnemy", &(*next(allColonies.begin(), selectedColony)->second).coef_SpawnerEnemy,0.05,-1,1,"%.2f");
+                ImGui::SetNextItemWidth(200.f);
+                ImGui::DragFloat("coef_SpawnerTeam", &(*next(allColonies.begin(), selectedColony)->second).coef_SpawnerTeam,0.05,-1,1,"%.2f");
+                ImGui::SetNextItemWidth(200.f);
+                ImGui::DragFloat("coef_Synthesis", &(*next(allColonies.begin(), selectedColony)->second).coef_Synthesis,0.05,-1,1,"%.2f");
+                ImGui::EndGroup();
                 ImGui::EndTabItem();
             }
         };
@@ -168,8 +200,9 @@ void render()
             {
                 tempShapeMinion.setPosition(sf::Vector2f(multiplicator * minion->position.x, multiplicator * minion->position.y));
 
-                if (minion->IsDead)
+                if (minion->IsDead) {
                     tempShapeMinion.setFillColor(dC::dead);
+                }
                 else {
 
                     tempShapeMinion.setFillColor(minion->myColony->colonyColor);

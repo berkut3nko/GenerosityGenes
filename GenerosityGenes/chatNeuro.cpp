@@ -42,7 +42,6 @@ void Layer::load_weights(const string& filename) {
 }
 
 NeuralNetwork::NeuralNetwork(const std::vector<std::pair<size_t, size_t>>& layer_sizes, string way) :NeuralNetworkWay(way) {
-    srand(static_cast<unsigned int>(time(NULL)));
     for (const auto& layer_size : layer_sizes) {
         layers_.emplace_back(layer_size.first, layer_size.second);
     }

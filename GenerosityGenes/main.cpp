@@ -19,26 +19,63 @@ int main()
     worldInitialization();
     InitializationRender();
     //imGuiInit();
+        // ініціалізація колоній
+    std::ifstream LoadAllColoniesFile("SaveColonies_" + version + ".save");
+    string name;
+    std::getline(LoadAllColoniesFile, name);
+    std::istringstream iss(name);
+    string value_str;
+    Colony* temp;
+    while (std::getline(iss, value_str, '\t')) {
+        temp = new Colony(value_str);
+        temp->LoadColony();
+    }
+    LoadAllColoniesFile.close();
 
-    // ініціалізація колонії
-    Colony myFirstColony(32,24,"highBrain");
-    myFirstColony.LoadColony();
-    //Colony::LoadMiniones(version);
-    myFirstColony.createMinion();
-    //myFirstColony.createMinion();
-    //myFirstColony.createMinion();
 
-    //Colony mySecondColony(16, 12, "Brainless");
-    //mySecondColony.createMinion();
-    //Colony::LoadMiniones(version);
+
     //Spawner spawner2(&mySecondColony, 5);
-    Spawner spawner1(&myFirstColony, 9);
+
+    Spawner spawner1(allColonies["highBrain"], 9);
+    Spawner spawner2(allColonies["newBorn"], 4);
     std::this_thread::sleep_for(std::chrono::milliseconds(50));
     Colony::startLife();
-
-    myFirstColony.SaveColony();
+    std::ofstream allColoniesFile("SaveColonies_" + version + ".save");
+    for (auto colony : allColonies)
+    {
+        colony.second->SaveColony();
+        allColoniesFile << colony.first << "\t";
+        colony.second->~Colony();
+    }
 
     //збереження гри
     Colony::SaveMiniones(version);
+    allColoniesFile.close();
+
     return 0;
 }
+/*
+std::ofstream file(filename);
+    for (const auto& row : weights_) {
+        for (const auto& value : row) {
+            file << value << ",";
+        }
+        file << "\n";
+    }
+    file.close();
+    
+    
+    std::ifstream file(filename);
+    string line;
+    weights_.clear();
+    while (std::getline(file, line)) {
+        std::istringstream iss(line);
+        string value_str;
+        std::vector<double> row;
+        while (std::getline(iss, value_str, ',')) {
+            row.push_back(std::stod(value_str));
+        }
+        weights_.push_back(row);
+    }
+    file.close();
+*/

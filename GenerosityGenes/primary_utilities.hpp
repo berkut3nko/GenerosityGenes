@@ -106,6 +106,7 @@ class Colony
 public:
     Colony(size_t neuronsCountFirst, size_t neuronsCountSecond, std::string name);
     Colony(string name);
+    ~Colony();
     void coefInitialization();
     void coefInitialization(ColonolyCoefPreset preset);
     void createMinion(Point coordinate);
@@ -124,16 +125,15 @@ public:
     
     size_t sizeColony = 0;
     size_t sizeMemmory = 2;
-    double coef_Synthesis;
-    double coef_Protection;
-    double coef_Born;
-    double coef_AttackEnemy;
-    double coef_Eat;
-    double coef_AttackTeam;
-    double coef_Border;
-    double coef_SpawnerEnemy;
-    double coef_SpawnerTeam;
-
+    float coef_Synthesis;
+    float coef_Protection;
+    float coef_Born;
+    float coef_AttackEnemy;
+    float coef_Eat;
+    float coef_AttackTeam;
+    float coef_Border;
+    float coef_SpawnerEnemy;
+    float coef_SpawnerTeam;
     sf::Color colonyColor;
 private:
     std::pair<size_t,size_t> _neuronsCount;

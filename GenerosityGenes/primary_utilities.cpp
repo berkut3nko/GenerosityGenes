@@ -42,12 +42,16 @@ bestMinionBrain({ {MinionSettings::minionInputs + sizeMemmory, _neuronsCount.fir
       {_neuronsCount.first, _neuronsCount.second},
       {_neuronsCount.second,MinionSettings::minionOutputs + sizeMemmory} }, nameColony)
 {
-    colonyColor = sf::Color(rand() % 256, rand() % 256, rand() % 128 + 128, 255);
+    colonyColor = sf::Color(rand() % 256, rand() % 256, rand() % 256, 255);
     coefInitialization();
     allColonies.insert(std::make_pair(nameColony, this));
 }
 
-
+Colony::~Colony()
+{
+    for (auto minion : colonyAddresses)
+        delete minion;
+}
 
 //Ініціалізація верктору вказивників на своїх мінійонів
 std::vector<Minion*> Colony::minionAddresses;
@@ -163,7 +167,7 @@ void Colony::createMinion()
         if (worldMap[Xtemp][Ytemp].type == Types::air)
         {
             Minion* newMinion = new Minion({ Xtemp ,Ytemp }, this);
-            
+            newMinion->MyBrain.mutate();
             colonyAddresses.push_back(newMinion);
             return;
         }
