@@ -256,7 +256,7 @@ std::vector<double> Minion::inputs()
                 {
                     for (auto spawner : allActiveSpawners)
                     {
-                        if (spawner.second->spawnerPosition == Point(position.x - (x - 2), position.y - (y - 2)))
+                        if (spawner.second->spawnerPosition == Point({ position.x - (x - 2), position.y - (y - 2) }))
                         {
                             if (spawner.first == myColony)
                             {

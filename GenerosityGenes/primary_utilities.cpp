@@ -34,7 +34,7 @@ Colony::Colony(size_t neuronsCountFirst, size_t neuronsCountSecond, std::string 
           {_neuronsCount.second,MinionSettings::minionOutputs + sizeMemmory} }, nameColony)
 {
     coefInitialization();
-    allColonies.insert(std::make_pair(nameColony, this));
+    allColonies.insert(std::make_pair(nameColony, &(*this)));
 }
 //Це завантажувальний конструктор
 Colony::Colony(string name) : nameColony(name),
@@ -229,7 +229,76 @@ void Colony::summonFruit()
     }
 }
 
+void Colony::SaveColonies(string version)
+{
+    std::ofstream allColoniesFile("SaveColonies_" + version + ".save");
+    if (allColoniesFile.is_open()) {
+        for (auto colony : allColonies)
+        {
+            colony.second->SaveColony();
+            allColoniesFile << colony.first << "\t";
+            allColoniesFile << colony.second->coef_AttackEnemy << '\t' << colony.second->coef_AttackTeam << '\t'
+                << colony.second->coef_Border << '\t' << colony.second->coef_Born << '\t'
+                << colony.second->coef_Eat << '\t' << colony.second->coef_EatClose << '\t'
+                << colony.second->coef_EnemyClose << '\t' << colony.second->coef_EnemySpawnerClose << '\t'
+                << colony.second->coef_Protection << '\t' << '\t' << colony.second->coef_SpawnerEnemy << '\t'
+                << colony.second->coef_SpawnerTeam << '\t' << '\t' << colony.second->coef_Synthesis << '\t'
+                << colony.second->coef_TeamClose << '\t' << colony.second->coef_TeamSpawnerClose << '\n';
+            colony.second->~Colony();
+        }
+        allColoniesFile.close();
+    }
+}
+void Colony::LoadColonies(string version)
+{
+    std::ifstream LoadAllColoniesFile("SaveColonies_" + version + ".save");
+    if (LoadAllColoniesFile.is_open()) {
+        string name;
+        std::getline(LoadAllColoniesFile, name);
 
+
+        Colony* temp;
+        while (std::getline(LoadAllColoniesFile, name)) {
+            std::istringstream iss(name);
+            string value_str;
+            std::getline(iss, value_str, '\t');
+            temp = new Colony(value_str);
+            temp->LoadColony();
+            std::getline(iss, value_str, '\t');
+            temp->coef_AttackEnemy = std::stof(value_str);
+            std::getline(iss, value_str, '\t');
+            temp->coef_AttackTeam = std::stof(value_str);
+            std::getline(iss, value_str, '\t');
+            temp->coef_Border = std::stof(value_str);
+            std::getline(iss, value_str, '\t');
+            temp->coef_Born = std::stof(value_str);
+            std::getline(iss, value_str, '\t');
+            temp->coef_Eat = std::stof(value_str);
+            std::getline(iss, value_str, '\t');
+            temp->coef_EatClose = std::stof(value_str);
+            std::getline(iss, value_str, '\t');
+            temp->coef_EnemyClose = std::stof(value_str);
+            std::getline(iss, value_str, '\t');
+            temp->coef_EnemySpawnerClose = std::stof(value_str);
+            std::getline(iss, value_str, '\t');
+            temp->coef_Protection = std::stof(value_str);
+            std::getline(iss, value_str, '\t');
+            temp->coef_SpawnerEnemy = std::stof(value_str);
+            std::getline(iss, value_str, '\t');
+            temp->coef_SpawnerTeam = std::stof(value_str);
+            std::getline(iss, value_str, '\t');
+            temp->coef_AttackEnemy = std::stof(value_str);
+            std::getline(iss, value_str, '\t');
+            temp->coef_Synthesis = std::stof(value_str);
+            std::getline(iss, value_str, '\t');
+            temp->coef_TeamClose = std::stof(value_str);
+            std::getline(iss, value_str, '\t');
+            temp->coef_TeamSpawnerClose = std::stof(value_str);
+
+        }
+        LoadAllColoniesFile.close();
+    }
+}
 //Save - Load модуль
 void Colony::SaveColony()
 {

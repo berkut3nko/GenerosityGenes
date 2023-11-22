@@ -117,6 +117,8 @@ public:
     friend class Minion;
     static void startLife();
     static void summonFruit();
+    static void SaveColonies(string version);
+    static void LoadColonies(string version);
     void LoadColony();
     void SaveColony();
     static void SaveMiniones(string version);

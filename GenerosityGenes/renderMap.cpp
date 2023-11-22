@@ -171,6 +171,16 @@ void render()
                 ImGui::DragFloat("coef_SpawnerTeam", &(*next(allColonies.begin(), selectedColony)->second).coef_SpawnerTeam,0.05,-1,1,"%.2f");
                 ImGui::SetNextItemWidth(200.f);
                 ImGui::DragFloat("coef_Synthesis", &(*next(allColonies.begin(), selectedColony)->second).coef_Synthesis,0.05,-1,1,"%.2f");
+                ImGui::SetNextItemWidth(200.f);
+                ImGui::DragFloat("coef_TeamClose", &(*next(allColonies.begin(), selectedColony)->second).coef_TeamClose,0.05,-1,1,"%.2f");
+                ImGui::SetNextItemWidth(200.f);
+                ImGui::DragFloat("coef_EnemyClose", &(*next(allColonies.begin(), selectedColony)->second).coef_EnemyClose,0.05,-1,1,"%.2f");
+                ImGui::SetNextItemWidth(200.f);
+                ImGui::DragFloat("coef_TeamSpawnerClose", &(*next(allColonies.begin(), selectedColony)->second).coef_TeamSpawnerClose,0.05,-1,1,"%.2f");
+                ImGui::SetNextItemWidth(200.f);
+                ImGui::DragFloat("coef_EnemySpawnerClose", &(*next(allColonies.begin(), selectedColony)->second).coef_EnemySpawnerClose,0.05,-1,1,"%.2f");
+                ImGui::SetNextItemWidth(200.f);
+                ImGui::DragFloat("coef_EatClose", &(*next(allColonies.begin(), selectedColony)->second).coef_EatClose,0.05,-1,1,"%.2f");
                 ImGui::EndGroup();
                 ImGui::EndTabItem();
             }
