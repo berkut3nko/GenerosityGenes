@@ -149,3 +149,16 @@ void NeuralNetwork::LoadAI()
         layers_[h].load_weights(NeuralNetworkWay + '_' + std::to_string(h));
     }
 }
+NeuralNetwork NeuralNetwork::operator=(const NeuralNetwork& ptr)
+{
+    layers_.clear();
+
+    for (const Layer& layer : ptr.layers_) {
+        Layer newLayer(layer.input_size_, layer.output_size_);
+        newLayer.weights_ = layer.weights_;
+        layers_.push_back(newLayer);
+    }
+    NeuralNetworkWay = ptr.NeuralNetworkWay;
+
+    return *this;
+}

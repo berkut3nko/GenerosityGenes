@@ -105,8 +105,10 @@ void Minion::setMarkForMove(size_t answerId)
         pointsForMove[currentMoveAnalize] = analyzeMove(currentInfoMove);
         std::copy(localMap.begin(), localMap.end(), worldMap.begin());
     }
-
-
+    if (*std::max(pointsForMove.begin(), pointsForMove.end()) == pointsForMove[answerId])
+        points += pointsForMove[answerId] * 2.01634623;//buff if best move
+    else
+        points += pointsForMove[answerId];
 }
 double Minion::analyzeMove(infoMove move)
 {
@@ -116,22 +118,35 @@ double Minion::analyzeMove(infoMove move)
     case infoMove::synthesis:
         markMove += myColony->coef_Synthesis + (analyzePos(move)/8.0);
         break;
+
     case infoMove::protection:
         markMove += myColony->coef_Protection + (analyzePos(move) / 8.0);
         break;
+
     case infoMove::born:
         markMove += myColony->coef_Born + (analyzePos(move) / 8.0);
         break;
+
     case infoMove::attackEnemy:
         markMove += myColony->coef_AttackEnemy + (analyzePos(move) / 8.0);
         break;
+
     case infoMove::attackTeam:
         markMove += myColony->coef_AttackTeam + (analyzePos(move) / 8.0);
         break;
+
     case infoMove::eat:
         markMove += myColony->coef_Eat + (analyzePos(move) / 8.0);
-
         break;
+
+    case infoMove::eatTeammate:
+        markMove += myColony->coef_Eat + myColony->coef_AttackTeam + (analyzePos(move) / 8.0);
+        break;
+
+    case infoMove::eatEnemy:
+        markMove += myColony->coef_Eat + myColony->coef_AttackEnemy + (analyzePos(move) / 8.0);
+        break;
+
     case infoMove::move:
         markMove += (analyzePos(move) / 8.0);
         break;
@@ -145,26 +160,26 @@ object tempObj;
 double Minion::analyzePos(infoMove move)
 {
     double posMark = 0;
-    for (int y = 0; y < 3; ++y)
+    for (int y = 0; y < 5; ++y)
     {
-        for (int x = 0; x < 3; ++x)
+        for (int x = 0; x < 5; ++x)
         {
             if (x != 1 || y != 1)
             {
-                tempObj = worldMap[position.x - (x - 1)][position.y - (y - 1)];
+                tempObj = worldMap[position.x - (x - 2)][position.y - (y - 2)];
                 if (tempObj.type == Types::fruit)
                 {
-                    posMark += myColony->coef_Eat;
+                    posMark += myColony->coef_EatClose;
                     continue;
                 }
                 if (tempObj.type == Types::minion)
                 {
                     if(tempObj.minionAddress->myColony == myColony)
-                        posMark += myColony->coef_AttackTeam;
+                        posMark += myColony->coef_TeamClose;
                     else {
-                        posMark += myColony->coef_AttackEnemy;
+                        posMark += myColony->coef_EnemyClose;
                         if (move == infoMove::protection)
-                            posMark += (myColony->coef_AttackEnemy + myColony->coef_Protection) * 2;
+                            posMark += (myColony->coef_EnemyClose + myColony->coef_Protection) * 2;
 
                     }
                     continue;
@@ -181,9 +196,9 @@ double Minion::analyzePos(infoMove move)
                         if (spawner.second->spawnerPosition.x == position.x - (x - 1) && spawner.second->spawnerPosition.y == position.y - (y - 1))
                         {
                             if (spawner.first = myColony)
-                                posMark += myColony->coef_SpawnerTeam;
+                                posMark += myColony->coef_TeamSpawnerClose;
                             else
-                                posMark += myColony->coef_SpawnerEnemy;
+                                posMark += myColony->coef_EnemySpawnerClose;
                         }
                     }
                     continue;
@@ -226,7 +241,7 @@ std::vector<double> Minion::inputs()
                     break;
                 }
                 //Second block
-                if (tempObj.type == Types::minion && tempObj.minionAddress != nullptr)
+                if ((tempObj.type == Types::minion) && tempObj.minionAddress != nullptr)
                 {
                     if (tempObj.minionAddress->myColony == myColony)
                     {
@@ -237,10 +252,28 @@ std::vector<double> Minion::inputs()
                         input[(x * 3) + (y * 15) + 1] = -1;
                     }
                 }
+                else if (tempObj.type == Types::spawner)
+                {
+                    for (auto spawner : allActiveSpawners)
+                    {
+                        if (spawner.second->spawnerPosition == Point(position.x - (x - 2), position.y - (y - 2)))
+                        {
+                            if (spawner.first == myColony)
+                            {
+                                input[(x * 3) + (y * 15) + 1] = 1;
+                            }
+                            else
+                            {
+                                input[(x * 3) + (y * 15) + 1] = -1;
+                            }
+                        }
+                    }
+                }
                 else
                 {
                     input[(x * 3) + (y * 15) + 1] = 0;
                 }
+
                 //Trird block
                 if (tempObj.type == Types::minion && tempObj.minionAddress != nullptr)
                 {
@@ -313,6 +346,7 @@ void Minion::nextMove()
             memmory[i] = answers[i + MinionSettings::minionOutputs];
         }
         infoMove currentMove;
+        //setMarkForMove(answerId);
         switch (answerId)
         {
         case 0:
@@ -358,7 +392,7 @@ void Minion::nextMove()
             currentMove = bornRight();
             break;
         }
-        points+=analyzeMove(currentMove);
+        points += analyzeMove(currentMove);
         return;
     }
 }
@@ -447,7 +481,10 @@ infoMove Minion::interact(size_t newPosX, size_t newPosY)
                 }
             }
             move(newPosX, newPosY);
-            return infoMove::eat;
+            if(worldMap[newPosX][newPosY].minionAddress->myColony == myColony)
+                return infoMove::eatTeammate;
+            else 
+                return infoMove::eatEnemy;
         }
         break;
     case Types::fruit:

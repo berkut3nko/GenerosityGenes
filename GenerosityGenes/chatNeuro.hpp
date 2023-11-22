@@ -35,4 +35,5 @@ public:
     void LoadAI();
     string NeuralNetworkWay;
     vector<Layer> layers_;
+    NeuralNetwork operator=(const NeuralNetwork& ptr);
 };

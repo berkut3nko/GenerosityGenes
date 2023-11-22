@@ -29,6 +29,8 @@ enum infoMove
     attackEnemy,
     attackTeam,
     eat,
+    eatTeammate,
+    eatEnemy,
     move,
     moveToBorder
 };
@@ -134,6 +136,13 @@ public:
     float coef_Border;
     float coef_SpawnerEnemy;
     float coef_SpawnerTeam;
+
+    float coef_TeamClose;
+    float coef_EnemyClose;
+    float coef_TeamSpawnerClose;
+    float coef_EnemySpawnerClose;
+    float coef_EatClose;
+
     sf::Color colonyColor;
 private:
     std::pair<size_t,size_t> _neuronsCount;

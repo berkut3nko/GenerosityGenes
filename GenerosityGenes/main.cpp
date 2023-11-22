@@ -21,26 +21,29 @@ int main()
     //imGuiInit();
         // ³í³ö³àë³çàö³ÿ êîëîí³é
     std::ifstream LoadAllColoniesFile("SaveColonies_" + version + ".save");
-    string name;
-    std::getline(LoadAllColoniesFile, name);
-    std::istringstream iss(name);
-    string value_str;
-    Colony* temp;
-    while (std::getline(iss, value_str, '\t')) {
-        temp = new Colony(value_str);
-        temp->LoadColony();
+    if (LoadAllColoniesFile.is_open()) {
+        string name;
+        std::getline(LoadAllColoniesFile, name);
+        std::istringstream iss(name);
+        string value_str;
+        Colony* temp;
+        while (std::getline(iss, value_str, '\t')) {
+            temp = new Colony(value_str);
+            temp->LoadColony();
+        }
+        LoadAllColoniesFile.close();
     }
-    LoadAllColoniesFile.close();
 
-
+    Colony first(32, 24, "highBrain");
 
     //Spawner spawner2(&mySecondColony, 5);
 
     Spawner spawner1(allColonies["highBrain"], 9);
-    Spawner spawner2(allColonies["newBorn"], 4);
+    //Spawner spawner2(allColonies["newBorn"], 4);
     std::this_thread::sleep_for(std::chrono::milliseconds(50));
     Colony::startLife();
     std::ofstream allColoniesFile("SaveColonies_" + version + ".save");
+    if(allColoniesFile.is_open())
     for (auto colony : allColonies)
     {
         colony.second->SaveColony();

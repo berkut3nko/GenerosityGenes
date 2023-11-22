@@ -4,7 +4,7 @@ std::map<std::string, Colony*> allColonies;
 std::map<Colony*, Spawner*> allActiveSpawners;
 std::set<Point,Comp> poolOfFruits;
 std::set<Point, Comp> colonyArea;
-double Colony::AVRGpoints = 1.0;
+double Colony::AVRGpoints = 0.5;
 void worldInitialization()
 {
     for (size_t x = 0; x < sizeWorldX; ++x)
@@ -77,6 +77,11 @@ void Colony::coefInitialization()
     coef_Border = -1.0;
     coef_SpawnerEnemy = 0.5;
     coef_SpawnerTeam = -1.0;
+    coef_TeamClose = 0.3;
+    coef_EnemyClose = 0.5;
+    coef_TeamSpawnerClose = -0.1;
+    coef_EnemySpawnerClose = 0.4;
+    coef_EatClose = 0.6;
 }
 
 //Початок симуляції життя
@@ -102,6 +107,20 @@ void Colony::startLife()
 
         if (isMainWindowOpen == false)
         {
+            for (auto& item : allColonies)
+            {
+                leaveOne = false;
+                for (const auto minion : item.second->colonyAddresses)
+                {
+                    if (minion->points > maxPoints)
+                    {
+                        maxPoints = minion->points;
+                        item.second->bestMinionBrain = (minion->MyBrain);
+                    }
+                    minion->points = 0;
+                }
+                maxPoints = 0;
+            }
             return;
         }
 
@@ -120,17 +139,17 @@ void Colony::startLife()
             }
         }
         ++count;
-        if (count == (5 * Colony::AVRGpoints))   //(dev tip)
+        if (count == size_t(20 * Colony::AVRGpoints))   //(dev tip)
         {
             newColonyBrain = false;
 
-            count = 0;
+ 
             for (auto& item : allColonies)
             {
                 leaveOne = false;
                 for (const auto minion : item.second->colonyAddresses)
                 {
-                        if (minion->points >= maxPoints)
+                        if (minion->points > maxPoints)
                         {
                             maxPoints = minion->points;
                             item.second->bestMinionBrain = (minion->MyBrain);
@@ -138,8 +157,8 @@ void Colony::startLife()
                         }
                         minion->points = 0;
                 }
-                if(maxPoints>0.5)
-                Colony::AVRGpoints = (AVRGpoints + maxPoints) / 2;
+                if(maxPoints>0.2)
+                    Colony::AVRGpoints = (AVRGpoints + (maxPoints/(count/4))) / 2;
                 if (newColonyBrain)
                 {
                     for (const auto minion : item.second->colonyAddresses)
@@ -152,7 +171,9 @@ void Colony::startLife()
                         else leaveOne = true;
                     }
                 }
+                maxPoints = 0;
             }
+            count = 0;
         }
     }
 }
@@ -286,6 +307,7 @@ Spawner::Spawner(Colony* colony, size_t minPopulation, Point position) :summonSa
 {
     allActiveSpawners.insert(std::make_pair(summonSample, this));
     worldMap[spawnerPosition.x][spawnerPosition.y].type = Types::spawner;
+
 }
 Spawner::Spawner(Colony* colony, size_t minPopulation) :summonSample(colony), populationSize(minPopulation)
 {
