@@ -89,11 +89,11 @@ void Colony::startLife()
 {
     bool newColonyBrain = false;
     size_t count = 0;
-    double maxPoints;
+    double maxPoints = -1;
     bool leaveOne;
     while (true) {
-        maxPoints = 0;
-        if (poolOfFruits.size() < ((sizeWorldX * sizeWorldY) / 5)) {
+        maxPoints = -1;
+        if (poolOfFruits.size() < ((sizeWorldX * sizeWorldY) / 20)) {
             for (size_t fruitI = 0; fruitI < static_cast<size_t>(speedSummonFruit / 1.0f); ++fruitI)
             {
                 summonFruit();
@@ -117,7 +117,7 @@ void Colony::startLife()
                         maxPoints = minion->points;
                         item.second->bestMinionBrain = (minion->MyBrain);
                     }
-                    minion->points = 0;
+                    minion->points = -1;
                 }
                 maxPoints = 0;
             }
@@ -235,14 +235,15 @@ void Colony::SaveColonies(string version)
     if (allColoniesFile.is_open()) {
         for (auto colony : allColonies)
         {
+            colony.second->bestMinionBrain.NeuralNetworkWay = colony.first;
             colony.second->SaveColony();
-            allColoniesFile << colony.first << "\t";
-            allColoniesFile << colony.second->coef_AttackEnemy << '\t' << colony.second->coef_AttackTeam << '\t'
+            allColoniesFile << colony.first << "\t" << colony.second->_neuronsCount.first << "\t" << colony.second->_neuronsCount.second << "\t"
+                << colony.second->coef_AttackEnemy << '\t' << colony.second->coef_AttackTeam << '\t'
                 << colony.second->coef_Border << '\t' << colony.second->coef_Born << '\t'
                 << colony.second->coef_Eat << '\t' << colony.second->coef_EatClose << '\t'
                 << colony.second->coef_EnemyClose << '\t' << colony.second->coef_EnemySpawnerClose << '\t'
-                << colony.second->coef_Protection << '\t' << '\t' << colony.second->coef_SpawnerEnemy << '\t'
-                << colony.second->coef_SpawnerTeam << '\t' << '\t' << colony.second->coef_Synthesis << '\t'
+                << colony.second->coef_Protection << '\t' << colony.second->coef_SpawnerEnemy << '\t'
+                << colony.second->coef_SpawnerTeam << '\t' << colony.second->coef_Synthesis << '\t'
                 << colony.second->coef_TeamClose << '\t' << colony.second->coef_TeamSpawnerClose << '\n';
             colony.second->~Colony();
         }
@@ -253,16 +254,21 @@ void Colony::LoadColonies(string version)
 {
     std::ifstream LoadAllColoniesFile("SaveColonies_" + version + ".save");
     if (LoadAllColoniesFile.is_open()) {
-        string name;
-        std::getline(LoadAllColoniesFile, name);
-
+        string name,colonyName;
+        std::pair<int, int> neuronsCount{32,28};
+        
 
         Colony* temp;
         while (std::getline(LoadAllColoniesFile, name)) {
             std::istringstream iss(name);
             string value_str;
             std::getline(iss, value_str, '\t');
-            temp = new Colony(value_str);
+            colonyName = value_str;
+            std::getline(iss, value_str, '\t');
+            neuronsCount.first = stoi(value_str);
+            std::getline(iss, value_str, '\t');
+            neuronsCount.second = stoi(value_str);
+            temp = new Colony(neuronsCount.first, neuronsCount.second, colonyName);
             temp->LoadColony();
             std::getline(iss, value_str, '\t');
             temp->coef_AttackEnemy = std::stof(value_str);
@@ -286,8 +292,6 @@ void Colony::LoadColonies(string version)
             temp->coef_SpawnerEnemy = std::stof(value_str);
             std::getline(iss, value_str, '\t');
             temp->coef_SpawnerTeam = std::stof(value_str);
-            std::getline(iss, value_str, '\t');
-            temp->coef_AttackEnemy = std::stof(value_str);
             std::getline(iss, value_str, '\t');
             temp->coef_Synthesis = std::stof(value_str);
             std::getline(iss, value_str, '\t');

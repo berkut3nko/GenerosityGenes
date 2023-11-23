@@ -60,11 +60,12 @@ sf::Color tempColor;
 sf::CircleShape neuronShape(3.f);
 sf::Vertex weightShape[2];
 
-
+void ColonyListUpdate();
 
 Minion* minionToShowBrain = nullptr;
 void InitializationRender()
 {
+    ColonyListUpdate();
     ImGui::SFML::Init(window);
     tempShapeMinion.setOutlineThickness((float)multiplicator/10);
     airShape.setFillColor(dC::air);
@@ -94,11 +95,18 @@ int secondLayer;
 string colonyNames;
 int spawnerSize = 3;
 std::stringstream  ss;
+void ColonyListUpdate()
+{
+    colonyNames = "";
+    for (auto colony : allColonies)
+    {
+        colonyNames += colony.first + '\0';
+    }
+}
 void render()
 {
     if (window.isOpen())
     {
-
         while (window.pollEvent(event))
         {
             ImGui::SFML::ProcessEvent(event);
@@ -125,8 +133,9 @@ void render()
             {
                 ImGui::BeginGroup();
                 if (ImGui::Button("Create new colony")) {
-                    allColonies.insert({ addColonyName,new Colony(firstLayer,secondLayer,addColonyName) });
+                    new Colony(firstLayer,secondLayer,addColonyName);
                     allColonies[addColonyName]->createMinion();
+                    ColonyListUpdate();
                 }
                 ImGui::SetNextItemWidth(200.f);
                 ImGui::InputText("colony name", addColonyName, 64);
@@ -139,10 +148,7 @@ void render()
                 ImGui::Text(string("Population size:" + ss.str()).c_str());
                 ImGui::EndGroup();
                 ImGui::BeginGroup();
-                for (auto colony : allColonies)
-                {
-                    colonyNames += colony.first + '\0';
-                }
+
                 static int selectedColony = 0;
                 ImGui::Combo("All colonies",&selectedColony,colonyNames.c_str(), allColonies.size());
                 ss.str("");

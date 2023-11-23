@@ -17,19 +17,20 @@ int main()
 {
     srand(static_cast<unsigned int>(time(NULL)));
     worldInitialization();
-    InitializationRender();
     //imGuiInit();
         // ініціалізація колоній
     Colony::LoadColonies(version);
 
-    if(allColonies.find("highBrain") == allColonies.end())Colony first(32, 24, "highBrain");
-    if(allColonies.find("newBorn") == allColonies.end())Colony first(50, 28, "newBorn");
+    //if(allColonies.find("highBrain") == allColonies.end())Colony first(32, 24, "highBrain");
+    //if(allColonies.find("newBorn") == allColonies.end())Colony second(50, 28, "newBorn");
 
     //Spawner spawner2(&mySecondColony, 5);
 
     Spawner spawner1(allColonies["highBrain"], 9);
     Spawner spawner2(allColonies["newBorn"], 4);
     std::this_thread::sleep_for(std::chrono::milliseconds(50));
+
+    InitializationRender();
     Colony::startLife();
     Colony::SaveColonies(version);
 
