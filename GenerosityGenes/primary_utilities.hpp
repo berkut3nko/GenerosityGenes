@@ -145,6 +145,9 @@ public:
     float coef_EnemySpawnerClose;
     float coef_EatClose;
 
+    bool hasSpawner = false;
+    size_t colonyMinSize = 0;
+
     sf::Color colonyColor;
 private:
     std::pair<size_t,size_t> _neuronsCount;

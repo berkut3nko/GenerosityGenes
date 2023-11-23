@@ -138,6 +138,15 @@ void Colony::startLife()
                 spawner.first->createMinion(spawner.second->generateCord());
             }
         }
+
+        if (Colony::minionAddresses.size() > MinionSettings::countMiniones)
+        {
+            bool toErase=
+            for (auto& minion : Colony::minionAddresses)
+            {
+                
+            }
+        }
         ++count;
         if (count == size_t(20 * Colony::AVRGpoints))   //(dev tip)
         {
@@ -237,7 +246,10 @@ void Colony::SaveColonies(string version)
         {
             colony.second->bestMinionBrain.NeuralNetworkWay = colony.first;
             colony.second->SaveColony();
-            allColoniesFile << colony.first << "\t" << colony.second->_neuronsCount.first << "\t" << colony.second->_neuronsCount.second << "\t"
+            allColoniesFile << colony.first << "\t";
+            (colony.second->hasSpawner) ? allColoniesFile << "true" : allColoniesFile << "false";
+                allColoniesFile << "\t" << colony.second->colonyMinSize << '\t'
+                << colony.second->_neuronsCount.first << "\t" << colony.second->_neuronsCount.second << "\t"
                 << colony.second->coef_AttackEnemy << '\t' << colony.second->coef_AttackTeam << '\t'
                 << colony.second->coef_Border << '\t' << colony.second->coef_Born << '\t'
                 << colony.second->coef_Eat << '\t' << colony.second->coef_EatClose << '\t'
@@ -270,6 +282,11 @@ void Colony::LoadColonies(string version)
             neuronsCount.second = stoi(value_str);
             temp = new Colony(neuronsCount.first, neuronsCount.second, colonyName);
             temp->LoadColony();
+            std::getline(iss, value_str, '\t');
+            temp->hasSpawner = value_str=="true"?true:false;
+            new Spawner(temp, 8);
+            std::getline(iss, value_str, '\t');
+            temp->colonyMinSize = std::stoi(value_str);
             std::getline(iss, value_str, '\t');
             temp->coef_AttackEnemy = std::stof(value_str);
             std::getline(iss, value_str, '\t');
@@ -378,12 +395,18 @@ void Colony::LoadMiniones(string version)
 }
 Spawner::Spawner(Colony* colony, size_t minPopulation, Point position) :summonSample(colony), populationSize(minPopulation), spawnerPosition(position)
 {
-    allActiveSpawners.insert(std::make_pair(summonSample, this));
-    worldMap[spawnerPosition.x][spawnerPosition.y].type = Types::spawner;
+    if (colony->hasSpawner == false) {
+        allActiveSpawners.insert(std::make_pair(summonSample, this));
+        worldMap[spawnerPosition.x][spawnerPosition.y].type = Types::spawner;
+        colony->hasSpawner = true;
+        colony->colonyMinSize = minPopulation;
+    }
+    return;
 
 }
 Spawner::Spawner(Colony* colony, size_t minPopulation) :summonSample(colony), populationSize(minPopulation)
 {
+    if (colony->hasSpawner == false) {
         size_t Xtemp, Ytemp;
         while (true)
         {
@@ -395,8 +418,13 @@ Spawner::Spawner(Colony* colony, size_t minPopulation) :summonSample(colony), po
                 break;
             }
         }
-    allActiveSpawners.insert(std::make_pair(summonSample, this));
-    worldMap[spawnerPosition.x][spawnerPosition.y].type = Types::spawner;
+        allActiveSpawners.insert(std::make_pair(summonSample, this));
+        worldMap[spawnerPosition.x][spawnerPosition.y].type = Types::spawner;
+        colony->hasSpawner = true;
+        colony->colonyMinSize = minPopulation;
+
+    }
+    return;
 }
 Point Spawner::generateCord()
 {

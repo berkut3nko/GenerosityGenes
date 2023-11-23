@@ -21,8 +21,8 @@ int main()
         // ініціалізація колоній
     Colony::LoadColonies(version);
 
-    //if(allColonies.find("highBrain") == allColonies.end())Colony first(32, 24, "highBrain");
-    //if(allColonies.find("newBorn") == allColonies.end())Colony second(50, 28, "newBorn");
+    if(allColonies.find("highBrain") == allColonies.end())Colony first(32, 24, "highBrain");
+    if(allColonies.find("newBorn") == allColonies.end())Colony second(50, 28, "newBorn");
 
     //Spawner spawner2(&mySecondColony, 5);
 
