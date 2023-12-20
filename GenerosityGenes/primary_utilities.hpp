@@ -8,11 +8,15 @@ void InitializationRender();
 void worldInitialization();
 sf::Color defaultColor(Types type);
 extern unsigned int multiplicator;
+
+extern bool isStoped;
+
 namespace MinionSettings
 {
     static const size_t minionInputs = 77;
     static const size_t minionOutputs = 14;
     static size_t countMiniones = 0;
+    static float eat_cost = 1.0f;
 }
 
 
@@ -126,6 +130,7 @@ public:
     static std::vector<Minion*> minionAddresses;
     static double AVRGpoints;
     std::vector<Minion*> colonyAddresses;
+    std::map<Colony*, float> colonyRelations;
     
     size_t sizeColony = 0;
     size_t sizeMemmory = 2;

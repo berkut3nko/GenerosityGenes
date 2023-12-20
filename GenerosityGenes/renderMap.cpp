@@ -45,7 +45,8 @@ double cosHealth;
 
 
 sf::Vector2f zoomSize;
-sf::RectangleShape tempShape(sf::Vector2f(multiplicator, multiplicator));
+sf::RectangleShape spawnerShape(sf::Vector2f(multiplicator, multiplicator));
+sf::CircleShape fruitShape(static_cast<float>(multiplicator / 2.5));
 sf::RectangleShape tempAreaShape(sf::Vector2f(multiplicator, multiplicator));
 sf::RectangleShape airShape(sf::Vector2f(multiplicator* sizeWorldX, multiplicator* sizeWorldY));
 sf::RectangleShape borderShape[4]=
@@ -67,7 +68,15 @@ void InitializationRender()
 {
     ColonyListUpdate();
     ImGui::SFML::Init(window);
+
     tempShapeMinion.setOutlineThickness((float)multiplicator/10);
+
+    spawnerShape.setOutlineThickness((float)multiplicator / 10);
+    spawnerShape.setOutlineColor(dC::dead);
+
+    fruitShape.setFillColor(dC::fruit);
+    fruitShape.setOutlineThickness(0);
+
     airShape.setFillColor(dC::air);
     airShape.setPosition(sf::Vector2f(0, 0));
 
@@ -93,6 +102,7 @@ char addColonyName[64];
 int firstLayer;
 int secondLayer;
 string colonyNames;
+string isGameStoped;
 int spawnerSize = 3;
 std::stringstream  ss;
 void ColonyListUpdate()
@@ -126,7 +136,15 @@ void render()
                 ImGui::DragFloat("camera move speed", &cameraMoveSpeed, 0.01f, 0.1f, 1.0f, "%.2f");
                 ImGui::SetNextItemWidth(150.f);
                 ImGui::DragFloat("zoom animation quality", &animation_smoothness, 1.0f, 10.0f, 100.0f, "%.0f");
-
+                if (ImGui::Button("Stop game", ImVec2(140, 30)))
+                {
+                    isStoped = !isStoped;
+                }
+                isGameStoped = "Game is stoped: "; 
+                if (isStoped) 
+                     isGameStoped += "true";
+                else isGameStoped += "false";
+                ImGui::Text(isGameStoped.c_str());
                 ImGui::EndTabItem();
             }
             if(ImGui::BeginTabItem("Colony control"))
@@ -149,44 +167,65 @@ void render()
                 ImGui::EndGroup();
                 ImGui::BeginGroup();
 
-                static int selectedColony = 0;
+                static int selectedColony = -1;
                 ImGui::Combo("All colonies",&selectedColony,colonyNames.c_str(), allColonies.size());
                 ss.str("");
-                ss << next(allColonies.begin(), selectedColony)->second->sizeColony;
-                ImGui::Text( string("Colony size:" + ss.str()).c_str());
-                if(ImGui::Button("Create minion", ImVec2(140, 30)))
-                {
-                    next(allColonies.begin(), selectedColony)->second->createMinion();
+                if (selectedColony != -1) {
+                    ss << next(allColonies.begin(), selectedColony)->second->sizeColony;
+                    ImGui::Text(string("Colony size:" + ss.str()).c_str());
+                    if (ImGui::Button("Create minion", ImVec2(140, 30)))
+                    {
+                        next(allColonies.begin(), selectedColony)->second->createMinion();
+                    }
+
+                    ImGui::Text("Neural network coefficients:");
+                    ImGui::SetNextItemWidth(200.f);
+                    ImGui::DragFloat("coef_AttackEnemy", &(*next(allColonies.begin(), selectedColony)->second).coef_AttackEnemy, 0.05, -1, 1, "%.2f");
+                    ImGui::SetNextItemWidth(200.f);
+                    ImGui::DragFloat("coef_AttackTeam", &(*next(allColonies.begin(), selectedColony)->second).coef_AttackTeam, 0.05, -1, 1, "%.2f");
+                    ImGui::SetNextItemWidth(200.f);
+                    ImGui::DragFloat("coef_Border", &(*next(allColonies.begin(), selectedColony)->second).coef_Border, 0.05, -1, 1, "%.2f");
+                    ImGui::SetNextItemWidth(200.f);
+                    ImGui::DragFloat("coef_Born", &(*next(allColonies.begin(), selectedColony)->second).coef_Born, 0.05, -1, 1, "%.2f");
+                    ImGui::SetNextItemWidth(200.f);
+                    ImGui::DragFloat("coef_Eat", &(*next(allColonies.begin(), selectedColony)->second).coef_Eat, 0.05, -1, 1, "%.2f");
+                    ImGui::SetNextItemWidth(200.f);
+                    ImGui::DragFloat("coef_Protection", &(*next(allColonies.begin(), selectedColony)->second).coef_Protection, 0.05, -1, 1, "%.2f");
+                    ImGui::SetNextItemWidth(200.f);
+                    ImGui::DragFloat("coef_SpawnerEnemy", &(*next(allColonies.begin(), selectedColony)->second).coef_SpawnerEnemy, 0.05, -1, 1, "%.2f");
+                    ImGui::SetNextItemWidth(200.f);
+                    ImGui::DragFloat("coef_SpawnerTeam", &(*next(allColonies.begin(), selectedColony)->second).coef_SpawnerTeam, 0.05, -1, 1, "%.2f");
+                    ImGui::SetNextItemWidth(200.f);
+                    ImGui::DragFloat("coef_Synthesis", &(*next(allColonies.begin(), selectedColony)->second).coef_Synthesis, 0.05, -1, 1, "%.2f");
+                    ImGui::SetNextItemWidth(200.f);
+                    ImGui::DragFloat("coef_TeamClose", &(*next(allColonies.begin(), selectedColony)->second).coef_TeamClose, 0.05, -1, 1, "%.2f");
+                    ImGui::SetNextItemWidth(200.f);
+                    ImGui::DragFloat("coef_EnemyClose", &(*next(allColonies.begin(), selectedColony)->second).coef_EnemyClose, 0.05, -1, 1, "%.2f");
+                    ImGui::SetNextItemWidth(200.f);
+                    ImGui::DragFloat("coef_TeamSpawnerClose", &(*next(allColonies.begin(), selectedColony)->second).coef_TeamSpawnerClose, 0.05, -1, 1, "%.2f");
+                    ImGui::SetNextItemWidth(200.f);
+                    ImGui::DragFloat("coef_EnemySpawnerClose", &(*next(allColonies.begin(), selectedColony)->second).coef_EnemySpawnerClose, 0.05, -1, 1, "%.2f");
+                    ImGui::SetNextItemWidth(200.f);
+                    ImGui::DragFloat("coef_EatClose", &(*next(allColonies.begin(), selectedColony)->second).coef_EatClose, 0.05, -1, 1, "%.2f");
+                    if (ImGui::Button("Delete colony")) 
+                    {
+                        for (const auto area : colonyArea)
+                        {
+                            if (worldMap[area.x][area.y].minionAddress != nullptr)
+                            if(worldMap[area.x][area.y].minionAddress->myColony == next(allColonies.begin(), selectedColony)->second)
+                            {
+                                colonyArea.erase(area);
+                            }
+                        }
+                        for (auto minion : next(allColonies.begin(), selectedColony)->second->colonyAddresses)
+                        {
+                            delete minion;
+                        }
+                            allColonies.erase(next(allColonies.begin(), selectedColony)->first);
+                            ColonyListUpdate();
+                            selectedColony = -1;
+                    }
                 }
-                ImGui::Text("Neural network coefficients:");
-                ImGui::SetNextItemWidth(200.f);
-                ImGui::DragFloat("coef_AttackEnemy", &(*next(allColonies.begin(), selectedColony)->second).coef_AttackEnemy,0.05,-1,1,"%.2f");
-                ImGui::SetNextItemWidth(200.f);
-                ImGui::DragFloat("coef_AttackTeam", &(*next(allColonies.begin(), selectedColony)->second).coef_AttackTeam,0.05,-1,1,"%.2f");
-                ImGui::SetNextItemWidth(200.f);
-                ImGui::DragFloat("coef_Border", &(*next(allColonies.begin(), selectedColony)->second).coef_Border,0.05,-1,1,"%.2f");
-                ImGui::SetNextItemWidth(200.f);
-                ImGui::DragFloat("coef_Born", &(*next(allColonies.begin(), selectedColony)->second).coef_Born,0.05,-1,1,"%.2f");
-                ImGui::SetNextItemWidth(200.f);
-                ImGui::DragFloat("coef_Eat", &(*next(allColonies.begin(), selectedColony)->second).coef_Eat,0.05,-1,1,"%.2f");
-                ImGui::SetNextItemWidth(200.f);
-                ImGui::DragFloat("coef_Protection", &(*next(allColonies.begin(), selectedColony)->second).coef_Protection,0.05,-1,1,"%.2f");
-                ImGui::SetNextItemWidth(200.f);
-                ImGui::DragFloat("coef_SpawnerEnemy", &(*next(allColonies.begin(), selectedColony)->second).coef_SpawnerEnemy,0.05,-1,1,"%.2f");
-                ImGui::SetNextItemWidth(200.f);
-                ImGui::DragFloat("coef_SpawnerTeam", &(*next(allColonies.begin(), selectedColony)->second).coef_SpawnerTeam,0.05,-1,1,"%.2f");
-                ImGui::SetNextItemWidth(200.f);
-                ImGui::DragFloat("coef_Synthesis", &(*next(allColonies.begin(), selectedColony)->second).coef_Synthesis,0.05,-1,1,"%.2f");
-                ImGui::SetNextItemWidth(200.f);
-                ImGui::DragFloat("coef_TeamClose", &(*next(allColonies.begin(), selectedColony)->second).coef_TeamClose,0.05,-1,1,"%.2f");
-                ImGui::SetNextItemWidth(200.f);
-                ImGui::DragFloat("coef_EnemyClose", &(*next(allColonies.begin(), selectedColony)->second).coef_EnemyClose,0.05,-1,1,"%.2f");
-                ImGui::SetNextItemWidth(200.f);
-                ImGui::DragFloat("coef_TeamSpawnerClose", &(*next(allColonies.begin(), selectedColony)->second).coef_TeamSpawnerClose,0.05,-1,1,"%.2f");
-                ImGui::SetNextItemWidth(200.f);
-                ImGui::DragFloat("coef_EnemySpawnerClose", &(*next(allColonies.begin(), selectedColony)->second).coef_EnemySpawnerClose,0.05,-1,1,"%.2f");
-                ImGui::SetNextItemWidth(200.f);
-                ImGui::DragFloat("coef_EatClose", &(*next(allColonies.begin(), selectedColony)->second).coef_EatClose,0.05,-1,1,"%.2f");
                 ImGui::EndGroup();
                 ImGui::EndTabItem();
             }
@@ -198,16 +237,15 @@ void render()
         //Фон Карти
         window.draw(airShape);
 
-
-        tempShape.setOutlineThickness(0);
         for (const auto area : colonyArea)
         {
-            tempAreaShape.setPosition(sf::Vector2f(area.x * multiplicator, area.y * multiplicator));
-            if(worldMap[area.x][area.y].minionAddress!=nullptr)
+            if (worldMap[area.x][area.y].minionAddress != nullptr) {
                 tempColor = (worldMap[area.x][area.y].minionAddress->myColony->colonyColor);
-            tempColor.a = 100;
-            tempAreaShape.setFillColor(tempColor);
-            window.draw(tempAreaShape);
+                tempAreaShape.setPosition(sf::Vector2f(area.x * multiplicator, area.y * multiplicator));
+                tempColor.a = 100;
+                tempAreaShape.setFillColor(tempColor);
+                window.draw(tempAreaShape);
+            }
         }
         for (const auto colony : allColonies)
         {
@@ -247,20 +285,16 @@ void render()
 
         for (const auto fruit : poolOfFruits)
         {
-
-            tempShape.setFillColor(dC::fruit);
-            tempShape.setPosition(sf::Vector2f(multiplicator * fruit.x, multiplicator * fruit.y));
-            window.draw(tempShape);
+            fruitShape.setPosition(sf::Vector2f(multiplicator * fruit.x, multiplicator * fruit.y));
+            window.draw(fruitShape);
         }
 
-        tempShape.setOutlineThickness((float)multiplicator / 10);
-        tempShape.setOutlineColor(dC::dead);
 
         for (std::pair<Colony*, Spawner*> spawner : allActiveSpawners)
         {
-            tempShape.setFillColor(spawner.first->colonyColor);
-            tempShape.setPosition(sf::Vector2f(multiplicator * spawner.second->spawnerPosition.x, multiplicator * spawner.second->spawnerPosition.y));
-            window.draw(tempShape);
+            spawnerShape.setFillColor(spawner.first->colonyColor);
+            spawnerShape.setPosition(sf::Vector2f(multiplicator * spawner.second->spawnerPosition.x, multiplicator * spawner.second->spawnerPosition.y));
+            window.draw(spawnerShape);
 
         }
 

@@ -1,5 +1,5 @@
 #include "primary_utilities.hpp"
-
+using namespace MinionSettings;
 Minion::Minion(Point spawn_position, Colony* currentColony) :position(spawn_position), myColony(currentColony), 
 MyBrain({ {MinionSettings::minionInputs + myColony->sizeMemmory, myColony->_neuronsCount.first},
           {myColony->_neuronsCount.first, myColony->_neuronsCount.second},
@@ -347,6 +347,7 @@ void Minion::nextMove()
         }
         infoMove currentMove;
         //setMarkForMove(answerId);
+        stopPhases();
         switch (answerId)
         {
         case 0:
@@ -398,7 +399,9 @@ void Minion::nextMove()
 }
 void Minion::getHungry(double count)
 {
-
+    count *= eat_cost;
+    if (count > 0.0)
+        health = 1.0;
     hunger = hunger + fat + count;
     if (hunger > 1)
     {
@@ -488,7 +491,7 @@ infoMove Minion::interact(size_t newPosX, size_t newPosY)
         }
         break;
     case Types::fruit:
-        getHungry(1.0);
+        getHungry(0.8);
         poolOfFruits.erase(Point{ newPosX,newPosY });
         move(newPosX, newPosY);
         return infoMove::eat;
@@ -496,6 +499,7 @@ infoMove Minion::interact(size_t newPosX, size_t newPosY)
 
     case Types::spawner:
         getHungry(-.02);
+        return infoMove::moveToBorder;
         break;
 
     case Types::air:
@@ -529,7 +533,7 @@ infoMove Minion::born(size_t posX, size_t posY)
     if (worldMap[posX][posY].type == Types::air && hunger > 0.5f)
     {
         myColony->createMinion({ posX , posY }, this, 0.5);
-        getHungry(-0.5);
+        getHungry(-0.4);
         return infoMove::born;
     }
     else
@@ -540,55 +544,46 @@ infoMove Minion::born(size_t posX, size_t posY)
 
 infoMove Minion::moveUp()
 {
-    stopPhases();
     return interact(position.x, position.y - 1);
 }
 
 infoMove Minion::moveUpLeft()
 {
-    stopPhases();
     return interact(position.x + 1, position.y - 1);
 }
 
 infoMove Minion::moveUpRight()
 {
-    stopPhases();
     return interact(position.x - 1, position.y - 1);
 }
 
 infoMove Minion::moveDown()
 {
-    stopPhases();
     return interact(position.x, position.y + 1);
 }
 
 infoMove Minion::moveDownLeft()
 {
-    stopPhases();
     return interact(position.x + 1, position.y + 1);
 }
 
 infoMove Minion::moveDownRight()
 {
-    stopPhases();
     return interact(position.x - 1, position.y + 1);
 }
 
 infoMove Minion::moveRight()
 {
-    stopPhases();
     return interact(position.x + 1, position.y);
 }
 
 infoMove Minion::moveLeft()
 {
-    stopPhases();
     return interact(position.x - 1, position.y);
 }
 infoMove Minion::bornUp()
 {
-    born(position.x, position.y - 1);
-    return infoMove::born;
+    return born(position.x, position.y - 1);
 }
 infoMove Minion::bornDown()
 {
@@ -605,14 +600,12 @@ infoMove Minion::bornRight()
 
 infoMove Minion::StartSynthesis()
 {
-    stopPhases();
     IsSynthesis = true;
     getHungry(-0.01);
     return infoMove::synthesis;
 }
 infoMove Minion::RaiseProtection()
 {
-    stopPhases();
     IsProtection = true;
     getHungry(-0.05);
     return infoMove::protection;
