@@ -48,6 +48,18 @@ void Minion::stopPhases()
     IsProtection = false;
     IsSynthesis = false;
 }
+void Minion::kill()
+{
+    worldMap[position.x][position.y].type = air;
+    for (auto it = myColony->colonyAddresses.begin(); it != myColony->colonyAddresses.end(); ++it)
+        if (*(it) == this)
+        {
+            myColony->colonyAddresses.erase(it);
+            --MinionSettings::countMiniones;
+            --myColony->sizeColony;
+            return;
+        }
+}
 
 void Minion::setMarkForMove(size_t answerId)
 {
@@ -399,9 +411,10 @@ void Minion::nextMove()
 }
 void Minion::getHungry(double count)
 {
-    count *= eat_cost;
     if (count > 0.0)
         health = 1.0;
+    else
+        count *= eat_cost;
     hunger = hunger + fat + count;
     if (hunger > 1)
     {
@@ -428,7 +441,7 @@ void Minion::allocateArea()
     colonyArea.insert((Point{ position.x - 1 ,position.y }));
     colonyArea.insert((Point{ position.x + 1 ,position.y }));
 
-    worldMap[position.x+1][position.y-1].minionAddress = this;
+    worldMap[position.x+1][position.y+1].minionAddress = this;
     worldMap[position.x+1][position.y-1].minionAddress = this;
     worldMap[position.x-1][position.y+1].minionAddress = this;
     worldMap[position.x-1][position.y-1].minionAddress = this;

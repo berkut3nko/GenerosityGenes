@@ -7,7 +7,7 @@ extern bool isMainWindowOpen;
 void InitializationRender();
 void worldInitialization();
 sf::Color defaultColor(Types type);
-extern unsigned int multiplicator;
+extern float multiplicator;
 
 extern bool isStoped;
 
@@ -64,9 +64,10 @@ public:
     Point position = { 1,1 };       //Моя позиція
 
     vector<double> memmory;
-
+    void kill();
 private:
     size_t rotting = 0;
+
     void LoadToWorld();
 
     void setMarkForMove(size_t answerId);

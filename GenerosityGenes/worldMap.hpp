@@ -52,5 +52,6 @@ extern std::vector<std::vector<object>> worldMap;
 extern std::map<std::string, Colony*> allColonies;
 extern std::map<Colony*, Spawner*> allActiveSpawners;
 extern std::set<Point,Comp> poolOfFruits;
+extern std::set<Point,Comp> poolOfBorders;
 
 extern std::set<Point,Comp> colonyArea;

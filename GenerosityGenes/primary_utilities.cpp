@@ -3,6 +3,7 @@
 std::map<std::string, Colony*> allColonies;
 std::map<Colony*, Spawner*> allActiveSpawners;
 std::set<Point,Comp> poolOfFruits;
+std::set<Point, Comp> poolOfBorders;
 std::set<Point, Comp> colonyArea;
 double Colony::AVRGpoints = 0.5;
 
@@ -83,20 +84,20 @@ void Colony::coefInitialization()
     coef_SpawnerEnemy = (double(rand() % 200) / 100.0) - 1.0;
     coef_SpawnerTeam = (double(rand() % 200) / 100.0) - 1.0;
     srand(static_cast<unsigned int>(time(NULL)));*/
-    coef_Synthesis = 0.1;
-    coef_Protection = 0.1;
-    coef_Born = 0.6;
-    coef_AttackEnemy = 0.7;
-    coef_Eat = 1.0;
-    coef_AttackTeam = -0.3;
-    coef_Border = -1.0;
-    coef_SpawnerEnemy = 0.5;
-    coef_SpawnerTeam = -1.0;
-    coef_TeamClose = 0.3;
-    coef_EnemyClose = 0.5;
-    coef_TeamSpawnerClose = -0.1;
-    coef_EnemySpawnerClose = 0.4;
-    coef_EatClose = 0.6;
+    coef_Synthesis = 0.1f;
+    coef_Protection = 0.1f;
+    coef_Born = 0.6f;
+    coef_AttackEnemy = 0.7f;
+    coef_Eat = 1.0f;
+    coef_AttackTeam = -0.3f;
+    coef_Border = -1.0f;
+    coef_SpawnerEnemy = 0.5f;
+    coef_SpawnerTeam = -1.0f;
+    coef_TeamClose = 0.3f;
+    coef_EnemyClose = 0.5f;
+    coef_TeamSpawnerClose = -0.1f;
+    coef_EnemySpawnerClose = 0.4f;
+    coef_EatClose = 0.6f;
 }
 
 //Початок симуляції життя
@@ -284,7 +285,6 @@ void Colony::LoadColonies(string version)
     std::ifstream LoadAllColoniesFile("SaveColonies_" + version + ".save");
     if (LoadAllColoniesFile.is_open()) {
         string name,colonyName;
-        size_t colonySize;
         bool colonyHasSpawner = false;
         std::pair<int, int> neuronsCount{32,28};
         
