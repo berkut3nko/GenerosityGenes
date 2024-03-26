@@ -1,17 +1,9 @@
-#include <iostream>
-#include <SFML/Graphics.hpp>
-#include <SFML/Network.hpp>
-#include <vector>
-
 #include "Server.hpp"
-
-using namespace sf;
-using namespace std;
-
+#include "primary_utilities.hpp"
 NetworkServer netServer;
 
 
-int main()
+int OpenServer()
 {
 	netServer.init();
 
@@ -58,7 +50,6 @@ int main()
 						{
 							netServer.clientsVec[receivedClientIndex].pos.y = y;
 						}
-						netServer.clientsVec[receivedClientIndex].rDataPacket.clear();
 						netServer.clientsVec[receivedClientIndex].rDataPacket.clear();
 					}
 				}

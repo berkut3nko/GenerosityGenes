@@ -126,6 +126,7 @@ char userName[64];
 NetworkClient netConnection;
 vector<string> namesVec;
 bool isConnected = false;
+bool isServerOpened = false;
 
 
 //ImGUI 
@@ -305,31 +306,46 @@ void imGui()
             {
                 ImGui::BeginGroup();
                 ImGui::SetNextItemWidth(200.f);
-                if (!isConnected) {
+                if (!isConnected && !isServerOpened) {
                     ImGui::InputText("IP adress", tempServerIpAdress, 64);
                     ImGui::SetNextItemWidth(200.f);
                     ImGui::InputText("Port", tempServerPort, 6);
                     ImGui::SetNextItemWidth(200.f);
                     ImGui::InputText("Player name", userName, 64);
-                    if (ImGui::Button("Connect", ImVec2(70, 30)))
+                    if (ImGui::Button("Connect", ImVec2(100, 50)))
                     {
                         serverIpAdress = sf::IpAddress(tempServerIpAdress);
                         serverPort = std::strtoul(tempServerPort,NULL,0);
-                        netConnection.init();
-                        netConnection.registerOnServer(serverIpAdress, serverPort, userName);
-
-                        
-                        if (netConnection.receiveConnectedClientsNames(namesVec) == sf::Socket::Done)
+                        if (netConnection.init() == sf::Socket::Done)
                             isConnected = true;
+                        netConnection.registerOnServer(serverIpAdress, serverPort, userName);
+                        netConnection.receiveConnectedClientsNames(namesVec);
+                    }
+                    ImGui::SameLine();
+                    if (ImGui::Button("OpenServer", ImVec2(140, 50)))
+                    {
+                        if (netServer.init() == sf::Socket::Done)
+                            isServerOpened = true;
                     }
                 }
-
+                else
+                {
+                    if (isConnected)
+                    {
+                        ImGui::Text(("Connection: " + string(userName) + "\nTo server: " + tempServerIpAdress + ':' + tempServerPort + " - Succeed").c_str());
+                    }
+                    else
+                        if (isServerOpened)
+                        {
+                            ImGui::Text(("Address: " + netServer.getAdress().toString() + ':' + std::to_string(netServer.getPort()) + " - Succeed").c_str());
+                        }
+                }
+                
                 ImGui::EndGroup();
                 ImGui::EndTabItem();
             }
         }
         ImGui::EndTabBar();
-
         ImGui::End();
 }
 void render()

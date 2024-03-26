@@ -54,6 +54,12 @@
     <ClCompile Include="NetworkClient.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="NetworkServer.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="ServerLogic.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="chatNeuro.hpp">
@@ -99,6 +105,9 @@
       <Filter>Header Files\imGui</Filter>
     </ClInclude>
     <ClInclude Include="Client.hpp">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Server.hpp">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

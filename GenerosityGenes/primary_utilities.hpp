@@ -3,6 +3,10 @@
 #include "chatNeuro.hpp"
 
 #include "Client.hpp"
+#include "Server.hpp"
+
+
+
 void render();
 
 extern bool isMainWindowOpen;
@@ -20,6 +24,9 @@ extern char userName[64];
 extern NetworkClient netConnection;
 extern vector<string> namesVec;
 extern bool isConnected;
+//Server
+extern NetworkServer netServer;
+void openServer();
 
 namespace MinionSettings
 {
