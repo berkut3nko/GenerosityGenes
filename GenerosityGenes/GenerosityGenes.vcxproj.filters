@@ -51,6 +51,9 @@
     <ClCompile Include="imGui\imgui-SFML.cpp">
       <Filter>Source Files\imguiLibs</Filter>
     </ClCompile>
+    <ClCompile Include="NetworkClient.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="chatNeuro.hpp">
@@ -94,6 +97,9 @@
     </ClInclude>
     <ClInclude Include="imGui\imstb_truetype.h">
       <Filter>Header Files\imGui</Filter>
+    </ClInclude>
+    <ClInclude Include="Client.hpp">
+      <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

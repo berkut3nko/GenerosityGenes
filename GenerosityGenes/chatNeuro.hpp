@@ -1,9 +1,7 @@
 #pragma once
 
-#include <vector>
-#include <fstream>
-#include <sstream>
-#include <string>
+#include "include.hpp"
+
 const double precision = 0.05;
 using std::string; using std::vector;
 class NeuralNetwork;

@@ -3,8 +3,8 @@
 class Minion;
 class Colony;
 class Spawner;
-const size_t sizeWorldX = 300;
-const size_t sizeWorldY = 200;
+const size_t sizeWorldX = 440;
+const size_t sizeWorldY = 240;
 
 namespace dC //defaultColors
 {

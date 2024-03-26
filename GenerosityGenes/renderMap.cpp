@@ -1,10 +1,16 @@
 #include "primary_utilities.hpp"
 #include "settings.hpp"
-float findMultiplierSize(unsigned int monitorSizeX, unsigned int monitorSizeY)
+
+struct screen
 {
-    return static_cast<float>((monitorSizeX / sizeWorldX >= monitorSizeY / sizeWorldY) ? monitorSizeY / sizeWorldY : monitorSizeX / sizeWorldX);
+    size_t x, y;
+};
+float findMultiplierSize(screen windowSize)
+{
+    return static_cast<float>((windowSize.x / sizeWorldX >= windowSize.y / sizeWorldY) ? windowSize.y / sizeWorldY : windowSize.x / sizeWorldX);
 }
-float multiplicator = findMultiplierSize(1980, 1080);
+screen myScreen = { 1980, 1080 };
+float multiplicator = findMultiplierSize(myScreen);
 sf::RenderWindow window(sf::VideoMode(static_cast<size_t>(multiplicator * sizeWorldX), static_cast<size_t>(multiplicator * sizeWorldY)), "GenerosityGenes");
 bool isMainWindowOpen = true;
 sf::Event event;
@@ -37,12 +43,15 @@ bool isWindowMinionBrain = false;
 
 sf::View mainCamera;
 size_t animationZoom = 0;
-sf::Vector2f mousePosOld = sf::Vector2f(multiplicator * sizeWorldX / 2, multiplicator * sizeWorldY / 2);
-bool zoom = false;
+sf::Vector2f cameraCenterPos = sf::Vector2f(multiplicator * sizeWorldX / 2, multiplicator * sizeWorldY / 2);
+
 sf::Vector2f mousePos;
+
+sf::Vector2f tempPos;
 Point mouseLocale;
 float animationZoomSin;
-double cosHealth;
+double cosHealth; 
+bool zoom = false;
 
 
 sf::Vector2f zoomSize;
@@ -108,6 +117,17 @@ enum editorMode
 
 editorMode cursorState = empty;
 
+//Connection
+char tempServerIpAdress[64];
+char tempServerPort[5];
+sf::IpAddress serverIpAdress;
+unsigned short serverPort;
+char userName[64];
+NetworkClient netConnection;
+vector<string> namesVec;
+bool isConnected = false;
+
+
 //ImGUI 
 char addColonyName[64];
 int firstLayer;
@@ -150,7 +170,7 @@ void imGui()
                 ImGui::SetNextItemWidth(150.f);
                 ImGui::DragFloat("camera zoom scale", &zoomScale, 0.1f, 1.0f, 50.0f, "%.2f");
                 ImGui::SetNextItemWidth(150.f);
-                ImGui::DragFloat("camera move speed", &cameraMoveSpeed, 0.01f, 0.1f, 1.0f, "%.2f");
+                ImGui::DragFloat("camera move speed", &cameraMoveSpeed, 0.01f, 0.05f, 0.5f, "%.2f");
                 ImGui::SetNextItemWidth(150.f);
                 ImGui::DragFloat("zoom animation quality", &animation_smoothness, 1.0f, 10.0f, 100.0f, "%.0f");
                 if (ImGui::Button("Stop game", ImVec2(140, 30)))
@@ -281,8 +301,35 @@ void imGui()
             {
                 cursorState = empty;
             }
+            if (ImGui::BeginTabItem("Server connection"))
+            {
+                ImGui::BeginGroup();
+                ImGui::SetNextItemWidth(200.f);
+                if (!isConnected) {
+                    ImGui::InputText("IP adress", tempServerIpAdress, 64);
+                    ImGui::SetNextItemWidth(200.f);
+                    ImGui::InputText("Port", tempServerPort, 6);
+                    ImGui::SetNextItemWidth(200.f);
+                    ImGui::InputText("Player name", userName, 64);
+                    if (ImGui::Button("Connect", ImVec2(70, 30)))
+                    {
+                        serverIpAdress = sf::IpAddress(tempServerIpAdress);
+                        serverPort = std::strtoul(tempServerPort,NULL,0);
+                        netConnection.init();
+                        netConnection.registerOnServer(serverIpAdress, serverPort, userName);
+
+                        
+                        if (netConnection.receiveConnectedClientsNames(namesVec) == sf::Socket::Done)
+                            isConnected = true;
+                    }
+                }
+
+                ImGui::EndGroup();
+                ImGui::EndTabItem();
+            }
         }
         ImGui::EndTabBar();
+
         ImGui::End();
 }
 void render()
@@ -292,8 +339,16 @@ void render()
         while (window.pollEvent(event))
         {
             ImGui::SFML::ProcessEvent(event);
-            if (event.type == sf::Event::Closed) {
+            switch (event.type)
+            {
+            case sf::Event::Closed:
                 window.close();
+                break;
+            case sf::Event::Resized:
+                cameraCenterPos = sf::Vector2f(multiplicator * sizeWorldX / 2, multiplicator * sizeWorldY / 2);
+                break;
+            default:
+                break;
             }
         }
         ImGui::SFML::Update(window, deltaClock.restart());
@@ -467,17 +522,17 @@ void render()
                 mainCamera.setSize(zoomSize);
                 mousePos = (window.mapPixelToCoords(sf::Mouse::getPosition(window)));
                 //Якщо вийшло за межі квадрата
-
-                    if (abs(mousePosOld.x - mousePos.x) + abs(mousePosOld.y - mousePos.y) > (cameraMoveRange/zoomScale) && !isWindowMinionBrain)
+                tempPos = sf::Vector2f((abs(cameraCenterPos.x - mousePos.x) / myScreen.x), (abs(cameraCenterPos.y - mousePos.y) / myScreen.y));
+                if (std::max({ tempPos.x,tempPos.y,(tempPos.x+ tempPos.y) * 0.6f }) > (cameraMoveRange / zoomScale) && !isWindowMinionBrain)
                     {
                         //Повільно рухати до миші
                         mousePos = sf::Vector2f(
-                            ((1 - (cameraMoveSpeed / 5)) * mousePosOld.x) + ((cameraMoveSpeed / 5) * mousePos.x),
-                            ((1 - (cameraMoveSpeed / 5)) * mousePosOld.y) + ((cameraMoveSpeed / 5) * mousePos.y));
+                            ((1 - (cameraMoveSpeed / 5)) * cameraCenterPos.x) + ((cameraMoveSpeed / 5) * mousePos.x),
+                            ((1 - (cameraMoveSpeed / 5)) * cameraCenterPos.y) + ((cameraMoveSpeed / 5) * mousePos.y));
                             
                         if (((mousePos.x >= 0 && mousePos.y >= 0) && (mousePos.x <= multiplicator * sizeWorldX && mousePos.y <= multiplicator * sizeWorldY)))
                         {
-                            mousePosOld = mousePos;
+                            cameraCenterPos = mousePos;
                             mainCamera.setCenter(mousePos);
                         }
                     }
@@ -490,9 +545,9 @@ void render()
                     --animationZoom; 
                     //Повільне наближення до центру
                     mainCamera.setCenter(sf::Vector2f(
-                                    (0.9f * mousePosOld.x) + (0.1f * multiplicator * sizeWorldX / 2) ,
-                                    (0.9f * mousePosOld.y) + (0.1f * multiplicator * sizeWorldY / 2) ));
-                    mousePosOld = mainCamera.getCenter();
+                                    (0.9f * cameraCenterPos.x) + (0.1f * multiplicator * sizeWorldX / 2) ,
+                                    (0.9f * cameraCenterPos.y) + (0.1f * multiplicator * sizeWorldY / 2) ));
+                    cameraCenterPos = mainCamera.getCenter();
                 }
                 else
                 {   

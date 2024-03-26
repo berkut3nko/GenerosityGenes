@@ -318,7 +318,7 @@ std::vector<double> Minion::inputs()
 void Minion::nextMove()
 {
     if(this)
-    if (IsDead == true)
+    if (IsDead)
     {
         if (rotting < 5) {
             ++rotting;

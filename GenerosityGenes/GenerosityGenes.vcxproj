@@ -150,11 +150,13 @@
     <ClCompile Include="imGui\imgui_widgets.cpp" />
     <ClCompile Include="main.cpp" />
     <ClCompile Include="MinionLogic.cpp" />
+    <ClCompile Include="NetworkClient.cpp" />
     <ClCompile Include="primary_utilities.cpp" />
     <ClCompile Include="renderMap.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="chatNeuro.hpp" />
+    <ClInclude Include="Client.hpp" />
     <ClInclude Include="imGui\imconfig-SFML.h" />
     <ClInclude Include="imGui\imconfig.h" />
     <ClInclude Include="imGui\imgui-SFML.h" />

@@ -1,8 +1,10 @@
 #pragma once
 #include "worldMap.hpp"
 #include "chatNeuro.hpp"
-#include "include.hpp"
+
+#include "Client.hpp"
 void render();
+
 extern bool isMainWindowOpen;
 void InitializationRender();
 void worldInitialization();
@@ -10,6 +12,14 @@ sf::Color defaultColor(Types type);
 extern float multiplicator;
 
 extern bool isStoped;
+
+//Connection
+extern sf::IpAddress serverIpAdress;
+extern unsigned short serverPort;
+extern char userName[64];
+extern NetworkClient netConnection;
+extern vector<string> namesVec;
+extern bool isConnected;
 
 namespace MinionSettings
 {
