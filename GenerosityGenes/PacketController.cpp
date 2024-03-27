@@ -7,19 +7,19 @@ enum typeOfReceivedPacket
     eat_coefficient
 };
 Packet packetSend;
+Packet receivedDataPacket;
+char name[64];
 bool Colony::sendPacket()
 {
-    netServer.registerNewClients();
-    netServer.sendConnectedClientsRecords();
+
 
 
     packetSend.clear();
-    packetSend << typeOfReceivedPacket::ColonyMinionsAreaInit;
-    size_t count = allColonies.size();
-    packetSend << count;
+    packetSend << size_t(typeOfReceivedPacket::ColonyMinionsAreaInit);
+    packetSend << allColonies.size();
     for (const auto& colony : allColonies)
     {
-        packetSend << colony.second->nameColony;
+        packetSend << strcpy_s(name,colony.second->nameColony.c_str());
         packetSend << colony.second->_neuronsCount.first;
         packetSend << colony.second->_neuronsCount.second;
 
@@ -57,7 +57,6 @@ bool Colony::sendPacket()
         packetSend << area.x;
         packetSend << area.y;
     }
-    if(netServer.clientsVec.size()>0)
     if (netServer.sendDataToAll(packetSend) == Socket::Status::Done)
     {
         return true;
@@ -70,6 +69,13 @@ void Colony::startListen()
     poolOfFruits.clear();
     poolOfBorders.clear();
     colonyArea.clear();
+    for (const auto& colony : allColonies)
+    {
+        for (Minion* minion : colony.second->colonyAddresses)
+        {
+            minion->kill();
+        }
+    }
     while (isMainWindowOpen == true) {
         Packet receivedDataPacket;
         typeOfReceivedPacket PacketType;
@@ -85,7 +91,6 @@ void Colony::startListen()
                     //Load Colony
                     bool colonyHasSpawner = false;
                     size_t count;
-                    string nameOfColony;
                     string value_str;
                     std::pair<int, int> neuronsCount{ 32,28 };
                     Colony* tempColony;
@@ -94,14 +99,11 @@ void Colony::startListen()
                     for (size_t i = 0; i < count; ++i)
                     {
                         //Load Names of colony
-                        receivedDataPacket >> nameOfColony;
+                        receivedDataPacket >> name;
                         receivedDataPacket >> neuronsCount.first;
                         receivedDataPacket >> neuronsCount.second;
-                        tempColony = new Colony(neuronsCount.first, neuronsCount.second, nameOfColony);
+                        tempColony = new Colony(neuronsCount.first, neuronsCount.second, (string)name);
 
-                        //temp->hasSpawner = colonyHasSpawner;
-                        //temp->colonyMinSize = colonySize;
-                        //if (colonyHasSpawner)new Spawner(temp, colonySize);
                         receivedDataPacket >> tempColony->coef_AttackEnemy;
                         receivedDataPacket >> tempColony->coef_AttackTeam;
                         receivedDataPacket >> tempColony->coef_Border;
@@ -149,11 +151,11 @@ void Colony::startListen()
                         receivedDataPacket >> count;
                         for (size_t i = 0; i < count; ++i)
                         {
-                            receivedDataPacket >> nameOfColony;
+                            receivedDataPacket >> name;
                             receivedDataPacket >> pos.x;
                             receivedDataPacket >> pos.y;
                             colonyArea.insert(pos);
-                            worldMap[pos.x][pos.y].minionAddress->myColony = allColonies[nameOfColony];
+                            worldMap[pos.x][pos.y].minionAddress->myColony = allColonies[(string)name];
                         }
                     }
                     break;

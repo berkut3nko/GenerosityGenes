@@ -209,6 +209,9 @@ void Colony::startLife()
             }
         }
         if (isServerOpened) {
+            netServer.registerNewClients();
+            netServer.sendConnectedClientsRecords();
+            if (netServer.clientsVec.size() > 0)
             if (sendPacket()) {
                 lastPacketSend = elapsedTimePacketSend.getElapsedTime();
                 std::cout << "Packet was sended\n";
