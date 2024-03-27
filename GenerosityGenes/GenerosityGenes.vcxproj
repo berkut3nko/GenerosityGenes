@@ -152,6 +152,7 @@
     <ClCompile Include="MinionLogic.cpp" />
     <ClCompile Include="NetworkClient.cpp" />
     <ClCompile Include="NetworkServer.cpp" />
+    <ClCompile Include="PacketController.cpp" />
     <ClCompile Include="primary_utilities.cpp" />
     <ClCompile Include="renderMap.cpp" />
     <ClCompile Include="ServerLogic.cpp" />

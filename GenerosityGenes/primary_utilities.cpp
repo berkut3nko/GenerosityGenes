@@ -7,6 +7,11 @@ std::set<Point, Comp> poolOfBorders;
 std::set<Point, Comp> colonyArea;
 double Colony::AVRGpoints = 0.5;
 
+Time lastPacketSend; 
+Clock elapsedTimePacketSend;
+
+string version = "v0.0.3";
+
 //ініціалізація singleton зміної
 bool isStoped = false;
 
@@ -107,7 +112,7 @@ void Colony::startLife()
     size_t count = 0;
     double maxPoints = -1;
     bool leaveOne;
-    while (true) {
+    while (!isConnected) {
         maxPoints = -1;
         if(!isStoped)
         if (poolOfFruits.size() < ((sizeWorldX * sizeWorldY) / 20)) {
@@ -203,6 +208,18 @@ void Colony::startLife()
                 count = 0;
             }
         }
+        if (isServerOpened) {
+            if (sendPacket()) {
+                lastPacketSend = elapsedTimePacketSend.getElapsedTime();
+                std::cout << "Packet was sended\n";
+                elapsedTimePacketSend.restart();
+            }
+            std::cout << netServer.clientsVec.size() << '\n';
+        }
+    } 
+    if (isConnected)
+    {
+        startListen();
     }
 }
 

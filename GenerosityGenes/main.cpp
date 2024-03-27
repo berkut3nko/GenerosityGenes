@@ -11,7 +11,7 @@ std::vector<std::vector<object>> worldMap(sizeWorldX, std::vector<object>(sizeWo
 //include.hpp  - швидкий доступ до підключаємих бібліотек
 
 
-string version = "v0.0.3";
+
 
 int main()
 {

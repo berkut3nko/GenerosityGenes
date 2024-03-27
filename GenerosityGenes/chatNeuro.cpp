@@ -27,18 +27,20 @@ void Layer::save_weights(const string& filename) const {
 
 void Layer::load_weights(const string& filename) {
     std::ifstream file(filename);
-    string line;
-    weights_.clear();
-    while (std::getline(file, line)) {
-        std::istringstream iss(line);
-        string value_str;
-        std::vector<double> row;
-        while (std::getline(iss, value_str, ',')) {
-            row.push_back(std::stod(value_str));
+    if (file.is_open()) {
+        string line;
+        weights_.clear();
+        while (std::getline(file, line)) {
+            std::istringstream iss(line);
+            string value_str;
+            std::vector<double> row;
+            while (std::getline(iss, value_str, ',')) {
+                row.push_back(std::stod(value_str));
+            }
+            weights_.push_back(row);
         }
-        weights_.push_back(row);
+        file.close();
     }
-    file.close();
 }
 
 NeuralNetwork::NeuralNetwork(const std::vector<std::pair<size_t, size_t>>& layer_sizes, string way) :NeuralNetworkWay(way) {

@@ -11,6 +11,7 @@
 #include <fstream>
 #include <sstream>
 #include <memory>
+#include <iostream>
 
 #include "imgui.h"
 #include "imgui-SFML.h"

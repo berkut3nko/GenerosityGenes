@@ -1,5 +1,12 @@
 #include "Server.hpp"
-
+unsigned short NetworkServer::getPort()
+{
+	return listener.getLocalPort();
+}
+IpAddress NetworkServer::getAdress()
+{
+	return regSocket.getRemoteAddress().getLocalAddress();
+}
 NetworkServer::NetworkServer()
 {
 	//listener.setBlocking(true);
@@ -11,18 +18,12 @@ Socket::Status NetworkServer::init()
 {
 	if (listener.listen(Socket::AnyPort) == Socket::Status::Done)
 	{
+		std::cout << "Port -" << listener.getLocalPort() << std::endl;
 		return Socket::Status();
 	}
 	else return Socket::Status::Error;
 }
-unsigned short NetworkServer::getPort()
-{
-	return listener.getLocalPort();
-}
-IpAddress NetworkServer::getAdress()
-{
-	return regSocket.getRemoteAddress().getPublicAddress();
-}
+
 Socket::Status NetworkServer::registerNewClients()
 {
 	acceptIncomingConnection();
@@ -43,6 +44,7 @@ Socket::Status NetworkServer::acceptIncomingConnection()
 		//cout << "Port -" << listener.getLocalPort() << endl;
 		if (listener.accept(regSocket) == Socket::Status::Done)
 		{
+			std::cout << "acceptIncomingConnection(): Accepted new connection\n";
 			regStep = 1;
 			return Socket::Status::Done;
 		}
@@ -70,9 +72,12 @@ Socket::Status NetworkServer::receiveClientRegData()
 					clientsVec.back().name = name;
 					clientsVec.back().Ip = regSocket.getRemoteAddress();
 					clientsVec.back().dataSocket = new UdpSocket;
+					if (clientsVec.back().dataSocket->bind(Socket::AnyPort) != Socket::Status::Done)
+						std::cout << "(!)receiveClientRegData(): Failed to bind port to the new client-dedicated data port\n";
 				}
 				else
 				{
+					std::cout << "(!)receiveClientRegData(): Failed to read client name from received packet\n";
 					return Socket::Status::Error;
 				}
 
@@ -83,13 +88,20 @@ Socket::Status NetworkServer::receiveClientRegData()
 				}
 				else
 				{
+					std::cout << "(!)receiveClientRegData(): Failed to read client data socket port from received packet\n";
 					return Socket::Status::Error;
 				}
+
+				if (!packet.endOfPacket())
+					std::cout << "(!)receiveClientRegData(): Client registration data received, but something left, data probably corrupted\n";
 			}
 			else
 			{
+				std::cout << "(!)receiveClientRegData(): Error, received packet is empty\n";
 				return Socket::Status::Error;
 			}
+
+			std::cout << "receiveClientRegData(): Client registration data received. New client: " << clientsVec.back().name << std::endl;
 			regStep = 2;
 			for (int i = 0; i < clientsVec.size() - 1; i++)
 				clientsVec[i].done = false;
@@ -160,6 +172,7 @@ Socket::Status NetworkServer::sendDedicatedDataPort()
 
 		if (regSocket.send(packet) == Socket::Status::Done)
 		{
+			std::cout << "sendDedicatedDataPort(): Dedicated data port sent\n";
 			regStep = 4;
 			packet.clear();
 			return Socket::Status::Done;
@@ -186,6 +199,7 @@ Socket::Status NetworkServer::sendConnectedClientsRecords()
 
 		if (regSocket.send(packet) == Socket::Status::Done)
 		{
+			std::cout << "sendConnectedClientsRecords(): Connected clients records sent to new client\n";
 			regStep = 5;
 			regSocket.disconnect();
 			return Socket::Status::Done;

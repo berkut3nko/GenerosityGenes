@@ -5,7 +5,7 @@
 #include "Client.hpp"
 #include "Server.hpp"
 
-
+extern string version;
 
 void render();
 
@@ -25,8 +25,10 @@ extern NetworkClient netConnection;
 extern vector<string> namesVec;
 extern bool isConnected;
 //Server
+extern bool isServerOpened;
 extern NetworkServer netServer;
 void openServer();
+extern Time lastPacketSend;
 
 namespace MinionSettings
 {
@@ -138,6 +140,8 @@ public:
     void createMinion(Point coordinate, Minion* parent, double hunger);
     friend class Minion;
     static void startLife();
+    static void startListen();
+    static bool sendPacket();
     static void summonFruit();
     static void SaveColonies(string version);
     static void LoadColonies(string version);
