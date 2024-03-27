@@ -9,7 +9,7 @@ struct Client
 	unsigned short port;
 	Packet rDataPacket;
 	Packet sDataPacket;
-	bool done = true;
+	bool done = false;
 
 	Vector2f pos{ 5,5 };
 };

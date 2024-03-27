@@ -12,6 +12,7 @@ bool Colony::sendPacket()
     netServer.registerNewClients();
     netServer.sendConnectedClientsRecords();
 
+
     packetSend.clear();
     packetSend << typeOfReceivedPacket::ColonyMinionsAreaInit;
     size_t count = allColonies.size();
@@ -56,6 +57,7 @@ bool Colony::sendPacket()
         packetSend << area.x;
         packetSend << area.y;
     }
+    if(netServer.clientsVec.size()>0)
     if (netServer.sendDataToAll(packetSend) == Socket::Status::Done)
     {
         return true;
@@ -65,8 +67,6 @@ bool Colony::sendPacket()
 }
 void Colony::startListen()
 {
-    Colony::SaveColonies(version);
-    Colony::SaveMiniones(version);
     poolOfFruits.clear();
     poolOfBorders.clear();
     colonyArea.clear();
@@ -95,43 +95,28 @@ void Colony::startListen()
                     {
                         //Load Names of colony
                         receivedDataPacket >> nameOfColony;
-                        receivedDataPacket >> value_str;
-                        neuronsCount.first = stoi(value_str);
-                        receivedDataPacket >> value_str;
-                        neuronsCount.second = stoi(value_str);
+                        receivedDataPacket >> neuronsCount.first;
+                        receivedDataPacket >> neuronsCount.second;
                         tempColony = new Colony(neuronsCount.first, neuronsCount.second, nameOfColony);
 
                         //temp->hasSpawner = colonyHasSpawner;
                         //temp->colonyMinSize = colonySize;
                         //if (colonyHasSpawner)new Spawner(temp, colonySize);
-                        receivedDataPacket >> value_str;
-                        tempColony->coef_AttackEnemy = std::stof(value_str);
-                        receivedDataPacket >> value_str;
-                        tempColony->coef_AttackTeam = std::stof(value_str);
-                        receivedDataPacket >> value_str;
-                        tempColony->coef_Border = std::stof(value_str);
-                        receivedDataPacket >> value_str;
-                        tempColony->coef_Born = std::stof(value_str);
-                        receivedDataPacket >> value_str;
-                        tempColony->coef_Eat = std::stof(value_str);
-                        receivedDataPacket >> value_str;
-                        tempColony->coef_EatClose = std::stof(value_str);
-                        receivedDataPacket >> value_str;
-                        tempColony->coef_EnemyClose = std::stof(value_str);
-                        receivedDataPacket >> value_str;
-                        tempColony->coef_EnemySpawnerClose = std::stof(value_str);
-                        receivedDataPacket >> value_str;
-                        tempColony->coef_Protection = std::stof(value_str);
-                        receivedDataPacket >> value_str;
-                        tempColony->coef_SpawnerEnemy = std::stof(value_str);
-                        receivedDataPacket >> value_str;
-                        tempColony->coef_SpawnerTeam = std::stof(value_str);
-                        receivedDataPacket >> value_str;
-                        tempColony->coef_Synthesis = std::stof(value_str);
-                        receivedDataPacket >> value_str;
-                        tempColony->coef_TeamClose = std::stof(value_str);
-                        receivedDataPacket >> value_str;
-                        tempColony->coef_TeamSpawnerClose = std::stof(value_str);
+                        receivedDataPacket >> tempColony->coef_AttackEnemy;
+                        receivedDataPacket >> tempColony->coef_AttackTeam;
+                        receivedDataPacket >> tempColony->coef_Border;
+                        receivedDataPacket >> tempColony->coef_Born;
+                        receivedDataPacket >> tempColony->coef_Eat;
+                        receivedDataPacket >> tempColony->coef_EatClose;
+                        receivedDataPacket >> tempColony->coef_EnemyClose;
+                        receivedDataPacket >> tempColony->coef_EnemySpawnerClose;
+                        receivedDataPacket >> tempColony->coef_Protection;
+                        receivedDataPacket >> tempColony->coef_SpawnerEnemy;
+                        
+                        receivedDataPacket >> tempColony->coef_SpawnerTeam;
+                        receivedDataPacket >> tempColony->coef_Synthesis;
+                        receivedDataPacket >> tempColony->coef_TeamClose;
+                        receivedDataPacket >> tempColony->coef_TeamSpawnerClose;
                     }
                     //Load Minions pos
                     Colony* colonyAddress;
@@ -152,11 +137,8 @@ void Colony::startListen()
                                     return; // call default constructor (dev tip)
                             }
 
-                            receivedDataPacket >> value_str;
-                            pos.x = stoull(value_str);
-
-                            receivedDataPacket >> value_str;
-                            pos.y = stoull(value_str);
+                            receivedDataPacket >> pos.x;
+                            receivedDataPacket >> pos.y;
 
                             Minion* temp = new Minion(pos, colonyAddress);
                             minionAddresses.push_back(temp);

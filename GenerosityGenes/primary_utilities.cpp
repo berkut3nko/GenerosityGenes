@@ -219,6 +219,7 @@ void Colony::startLife()
     } 
     if (isConnected)
     {
+        std::cout << "Listen was Started";
         startListen();
     }
 }
