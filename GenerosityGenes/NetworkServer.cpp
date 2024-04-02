@@ -71,7 +71,7 @@ Socket::Status NetworkServer::receiveClientRegData()
 					clientsVec.push_back(newClient);
 					clientsVec.back().name = name;
 					clientsVec.back().Ip = regSocket.getRemoteAddress();
-					clientsVec.back().dataSocket = new UdpSocket;
+					clientsVec.back().dataSocket = make_shared<UdpSocket>();
 					if (clientsVec.back().dataSocket->bind(Socket::AnyPort) != Socket::Status::Done)
 						std::cout << "(!)receiveClientRegData(): Failed to bind port to the new client-dedicated data port\n";
 				}
@@ -271,3 +271,48 @@ Socket::Status NetworkServer::sendDataToAll(Packet dataPacket)
 	}
 	else return Socket::Status::NotReady;
 }
+Socket::Status NetworkServer::sendDataToNewbie(Packet dataPacket,size_t countNewbie)
+{
+	if (sendingsRateTimer.getElapsedTime().asMilliseconds() > sendingsRate)
+	{
+		for (int i = clientsVec.size() - countNewbie; i < clientsVec.size(); i++)
+		{
+			if (!clientsVec[i].done)
+			{
+				if (clientsVec[i].dataSocket->isBlocking()) clientsVec[i].dataSocket->setBlocking(false);
+				IpAddress tempIp = clientsVec[i].Ip;
+				unsigned short tempPort = clientsVec[i].port;
+
+				if (clientsVec[i].sDataPacket.getDataSize() == 0) clientsVec[i].sDataPacket = dataPacket;
+
+				if (clientsVec[i].dataSocket->send(clientsVec[i].sDataPacket, tempIp, tempPort) == Socket::Status::Done)
+				{
+					clientsVec[i].done = true;
+				}
+
+				bool allIsDone = true;
+
+				for (int j = 0; j < clientsVec.size(); j++)
+				{
+					if (clientsVec[j].done == false) allIsDone = false;
+				}
+
+				if (allIsDone)
+				{
+					for (int j = 0; j < clientsVec.size(); j++)
+					{
+						clientsVec[j].sDataPacket.clear();
+						clientsVec[j].done = false;
+					}
+					sendingsRateTimer.restart();
+					return Socket::Status::Done;
+				}
+			}
+
+		}
+		return Socket::Status::NotReady;
+
+	}
+	else return Socket::Status::NotReady;
+}
+

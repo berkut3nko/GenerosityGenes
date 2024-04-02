@@ -21,6 +21,14 @@ struct Point
     {
         return (x == exmp.x && y == exmp.y) ? true : false;
     }
+    bool operator!=(const Point& exmp)
+    {
+        return (x == exmp.x && y == exmp.y) ? false : true;
+    }
+    bool inRange()
+    {
+        return (x < sizeWorldX&& y < sizeWorldY);
+    }
 };
 struct Comp
 {
@@ -49,9 +57,9 @@ struct object
 
 extern std::vector<std::vector<object>> worldMap;
 
-extern std::map<std::string, Colony*> allColonies;
-extern std::map<Colony*, Spawner*> allActiveSpawners;
+extern std::map<std::string, shared_ptr<Colony>> allColonies;
+extern std::map<shared_ptr<Colony>, shared_ptr<Spawner>> allActiveSpawners;
 extern std::set<Point,Comp> poolOfFruits;
 extern std::set<Point,Comp> poolOfBorders;
-
-extern std::set<Point,Comp> colonyArea;
+extern size_t countMiniones;
+extern std::map<Point, shared_ptr<Colony>, Comp> colonyArea;

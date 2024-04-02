@@ -5,7 +5,7 @@ struct Client
 {
 	string name;
 	IpAddress Ip;
-	UdpSocket* dataSocket;
+	shared_ptr<UdpSocket> dataSocket;
 	unsigned short port;
 	Packet rDataPacket;
 	Packet sDataPacket;
@@ -81,6 +81,10 @@ public:
 	/// <param name="dataPacket">data to be sended to everyone</param>
 	/// <returns>status code</returns>
 	Socket::Status sendDataToAll(Packet dataPacket);
+
+
+
+	Socket::Status sendDataToNewbie(Packet dataPacket, size_t countNewbie);
 
 private:
 

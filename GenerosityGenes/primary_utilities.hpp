@@ -34,7 +34,6 @@ namespace MinionSettings
 {
     static const size_t minionInputs = 77;
     static const size_t minionOutputs = 14;
-    static size_t countMiniones = 0;
     static float eat_cost = 1.0f;
 }
 
@@ -61,14 +60,16 @@ enum infoMove
 class Minion
 {
 public:
-    Minion(Point spawn_position, Colony* currentColony);
-    Minion(Point spawn_position, Colony* currentColony, NeuralNetwork* parentBrain, double hungerFromParent);
-    Minion(Colony* _myColony, Point _position, double _fat, double _hunger);
-
+    Minion(Point spawn_position, shared_ptr<Colony> currentColony);
+    Minion(Point spawn_position, shared_ptr<Colony> currentColony, NeuralNetwork* parentBrain, double hungerFromParent);
+    Minion(shared_ptr<Colony> _myColony, Point _position, double _fat, double _hunger);
+    Minion(const Minion& other);
+    Minion& operator=(const Minion& other);
+    size_t ID;
     void nextMove();
     string SaveMe();
     void LoadMe(string data);
-    Colony* myColony = nullptr;
+    shared_ptr<Colony> myColony = nullptr;
     NeuralNetwork MyBrain;
 
     double hunger = 0.3;              //Наскільки голодний 0-помераю 1-накопичую
@@ -79,24 +80,21 @@ public:
     bool IsSynthesis = false;       //Фаза синтезу
     bool IsProtection = false;      //Фаза Захисту
     bool IsDead = false;            //Чи я помер
+    size_t rotting = 0;
+
 
     Point position = { 1,1 };       //Моя позиція
 
     vector<double> memmory;
     void kill();
+    infoMove interact(size_t newPosX, size_t newPosY);
 private:
-    size_t rotting = 0;
-
     void LoadToWorld();
-
     void setMarkForMove(size_t answerId);
     double analyzeMove(infoMove move);
     double analyzePos(infoMove move);
-
     std::vector<double> inputs();
-
     void Attack(Minion* minion);
-    infoMove interact(size_t newPosX, size_t newPosY);
     void move(size_t MovePosX, size_t MovePosY);
     void allocateArea();
     infoMove born(size_t posX, size_t posY);
@@ -120,7 +118,6 @@ private:
     infoMove bornDown();
     infoMove bornLeft();
     infoMove bornRight();
-    size_t id = 0;
 };
 enum ColonolyCoefPreset
 {
@@ -140,7 +137,7 @@ public:
     void createMinion(Point coordinate, Minion* parent, double hunger);
     friend class Minion;
     static void startLife();
-    static void startListen();
+    static void packetReceive();
     static bool sendPacket();
     static void summonFruit();
     static void SaveColonies(string version);
@@ -149,11 +146,16 @@ public:
     void SaveColony();
     static void SaveMiniones(string version);
     static void LoadMiniones(string version);
-    static std::vector<Minion*> minionAddresses;
+
+    std::pair<size_t, size_t> getNeuronsCount();
+
+    static std::map<size_t, shared_ptr<Minion>> minionAddresses;
     static double AVRGpoints;
-    std::vector<Minion*> colonyAddresses;
-    std::map<Colony*, float> colonyRelations;
+    std::vector<shared_ptr<Minion>> colonyAddresses;
+    std::map<shared_ptr<Colony>, float> colonyRelations;
     
+    static size_t nextMinionID;
+
     size_t sizeColony = 0;
     size_t sizeMemmory = 2;
     float coef_Synthesis;
@@ -177,8 +179,8 @@ public:
 
     sf::Color colonyColor;
 private:
-    std::pair<size_t,size_t> _neuronsCount;
-    std::string nameColony;
+    std::pair<size_t, size_t> _neuronsCount;
+    string nameColony;
     NeuralNetwork bestMinionBrain;
     //NeuralNetwork colonyBrain;
 };
@@ -186,11 +188,11 @@ private:
 class Spawner
 {
 public:
-    Spawner(Colony* colony, size_t minPopulation, Point position);
-    Spawner(Colony* colony, size_t minPopulation);
+    Spawner(shared_ptr<Colony> colony, size_t minPopulation, Point position);
+    Spawner(shared_ptr<Colony> colony, size_t minPopulation);
 
     Point spawnerPosition;
-    Colony* summonSample = nullptr;
+    shared_ptr<Colony> summonSample = nullptr;
 private:
     friend class Colony;
     Point generateCord();

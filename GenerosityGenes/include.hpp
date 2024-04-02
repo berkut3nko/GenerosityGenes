@@ -16,5 +16,5 @@
 #include "imgui.h"
 #include "imgui-SFML.h"
 
-using std::string; using std::vector;
+using std::string; using std::vector; using std::shared_ptr; using std::make_shared;
 using namespace sf;

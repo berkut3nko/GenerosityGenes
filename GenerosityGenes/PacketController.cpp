@@ -8,79 +8,117 @@ enum typeOfReceivedPacket
 };
 Packet packetSend;
 Packet receivedDataPacket;
+size_t oldCountUsers=0;
+
 char name[64];
+bool colonyHasSpawner = false;
+
 bool Colony::sendPacket()
 {
-
-
-
     packetSend.clear();
-    packetSend << size_t(typeOfReceivedPacket::ColonyMinionsAreaInit);
-    packetSend << allColonies.size();
-    for (const auto& colony : allColonies)
+    if (oldCountUsers < netServer.clientsVec.size()) 
     {
-        packetSend << strcpy_s(name,colony.second->nameColony.c_str());
-        packetSend << colony.second->_neuronsCount.first;
-        packetSend << colony.second->_neuronsCount.second;
-
-        packetSend << colony.second->coef_AttackEnemy;
-        packetSend << colony.second->coef_AttackTeam;
-        packetSend << colony.second->coef_Border;
-        packetSend << colony.second->coef_Born;
-        packetSend << colony.second->coef_Eat;
-        packetSend << colony.second->coef_EatClose;
-        packetSend << colony.second->coef_EnemyClose;
-        packetSend << colony.second->coef_EnemySpawnerClose;
-        packetSend << colony.second->coef_Protection;
-        packetSend << colony.second->coef_SpawnerEnemy;
-        packetSend << colony.second->coef_SpawnerTeam;
-        packetSend << colony.second->coef_Synthesis;
-        packetSend << colony.second->coef_TeamClose;
-        packetSend << colony.second->coef_TeamSpawnerClose;
-    }
-    packetSend << "Miniones";
-    packetSend << MinionSettings::countMiniones;
-    for (const auto& colony : allColonies)
-    {
-        for (Minion* minion : colony.second->colonyAddresses)
+        std::cout << "ColonyMinionsAreaInit" << '\n';
+        packetSend << size_t(typeOfReceivedPacket::ColonyMinionsAreaInit);
+        packetSend << allColonies.size();
+        for (const auto colony : allColonies)
         {
-            packetSend << minion->myColony->nameColony;
-            packetSend << minion->position.x;
-            packetSend << minion->position.y;
+            strcpy_s(name, colony.first.c_str());
+            packetSend << name;
+            packetSend << colony.second->_neuronsCount.first;
+            packetSend << colony.second->_neuronsCount.second;
+
+            colonyHasSpawner = (bool)(allActiveSpawners.find(colony.second) != allActiveSpawners.end());
+            packetSend << colonyHasSpawner;
+            if (colonyHasSpawner)
+            {
+                packetSend << allActiveSpawners.find(colony.second)->second->populationSize;
+                packetSend << allActiveSpawners.find(colony.second)->second->spawnerPosition.x;
+                packetSend << allActiveSpawners.find(colony.second)->second->spawnerPosition.y;
+            }
+
+
+            packetSend << colony.second->coef_AttackEnemy;
+            packetSend << colony.second->coef_AttackTeam;
+            packetSend << colony.second->coef_Border;
+            packetSend << colony.second->coef_Born;
+            packetSend << colony.second->coef_Eat;
+            packetSend << colony.second->coef_EatClose;
+            packetSend << colony.second->coef_EnemyClose;
+            packetSend << colony.second->coef_EnemySpawnerClose;
+            packetSend << colony.second->coef_Protection;
+            packetSend << colony.second->coef_SpawnerEnemy;
+            packetSend << colony.second->coef_SpawnerTeam;
+            packetSend << colony.second->coef_Synthesis;
+            packetSend << colony.second->coef_TeamClose;
+            packetSend << colony.second->coef_TeamSpawnerClose;
         }
+        strcpy_s(name, "Miniones");
+
+        packetSend << name;
+        packetSend << Colony::minionAddresses.size();
+        for (std::pair<size_t, shared_ptr<Minion>> minion : minionAddresses)
+        {
+            packetSend << minion.second->myColony->nameColony;
+            packetSend << minion.second->ID;
+            packetSend << minion.second->ID;
+            packetSend << minion.second->position.x;
+            packetSend << minion.second->position.y;
+        }
+        strcpy_s(name, "Area");
+        packetSend << name;
+        packetSend << colonyArea.size();
+        for (const auto& area : colonyArea)
+        {
+            strcpy_s(name, area.second->nameColony.c_str());
+            packetSend << name;
+            packetSend << area.first.x;
+            packetSend << area.first.y;
+        }
+        if (netServer.sendDataToNewbie(packetSend, netServer.clientsVec.size() - oldCountUsers) == Socket::Status::Done)
+        packetSend.clear();
     }
-    packetSend << "Area";
-    packetSend << colonyArea.size();
-    for (const auto& area : colonyArea)
+        std::cout << "MinionsUpdate" << '\n';
+    packetSend << size_t(typeOfReceivedPacket::MinionsUpdate);
+    strcpy_s(name, "Miniones");
+    packetSend << name;
+    packetSend << Colony::minionAddresses.size();
+    for (std::pair<size_t, shared_ptr<Minion>> minion : minionAddresses)
     {
-        packetSend << worldMap[area.x][area.y].minionAddress->myColony->nameColony;
-        packetSend << area.x;
-        packetSend << area.y;
+        packetSend << minion.second->ID;
+        packetSend << minion.second->ID;
+        packetSend << minion.second->myColony->nameColony;
+        packetSend << minion.second->position.x;
+        packetSend << minion.second->position.y;
+        receivedDataPacket >> minion.second->IsSynthesis;
+        receivedDataPacket >> minion.second->IsProtection;
+        receivedDataPacket >> minion.second->IsDead;
+        receivedDataPacket >> minion.second->rotting;
+
     }
-    if (netServer.sendDataToAll(packetSend) == Socket::Status::Done)
-    {
+    oldCountUsers = netServer.clientsVec.size();
+    if (netServer.sendDataToAll(packetSend) == Socket::Status::Done)//(dev tip) sendDataToAll -> newUser / Users
         return true;
-    }
     else return false;
-
 }
-void Colony::startListen()
+
+
+void Colony::packetReceive()
 {
-    poolOfFruits.clear();
-    poolOfBorders.clear();
-    colonyArea.clear();
-    for (const auto& colony : allColonies)
+    typeOfReceivedPacket PacketType;
+    size_t typeID;
+    Colony::SaveColonies(version);
+    bool IsSynthesis = false;       //Фаза синтезу
+    bool IsProtection = false;      //Фаза Захисту
+    bool IsDead = false;            //Чи я помер
+    size_t rotting = 0;
+    size_t count, ID, ID_sure, populationSize;
+    shared_ptr<Colony> tempColony;
+    Point pos;
+    std::pair<size_t, size_t> neuronsCount{ 32,28 };
+    while (isMainWindowOpen == true)
     {
-        for (Minion* minion : colony.second->colonyAddresses)
-        {
-            minion->kill();
-        }
-    }
-    while (isMainWindowOpen == true) {
-        Packet receivedDataPacket;
-        typeOfReceivedPacket PacketType;
-        size_t typeID;
-        if (netConnection.receiveData(receivedDataPacket, serverIpAdress, serverPort) == Socket::Done) 
+        if (netConnection.receiveData(receivedDataPacket, serverIpAdress, serverPort) == Socket::Done)
         {
             if (receivedDataPacket.getDataSize() > 0) {
                 receivedDataPacket >> typeID;
@@ -88,12 +126,14 @@ void Colony::startListen()
                 switch (PacketType) {
                 case typeOfReceivedPacket::ColonyMinionsAreaInit:
                 {
+                    allColonies.clear();
+                    colonyArea.clear();
+                    poolOfFruits.clear();
+                    poolOfBorders.clear();
+                    Colony::minionAddresses.clear();
+                    worldInitialization();
                     //Load Colony
-                    bool colonyHasSpawner = false;
-                    size_t count;
-                    string value_str;
-                    std::pair<int, int> neuronsCount{ 32,28 };
-                    Colony* tempColony;
+
                     receivedDataPacket >> count;
                     //Count of colony
                     for (size_t i = 0; i < count; ++i)
@@ -102,7 +142,18 @@ void Colony::startListen()
                         receivedDataPacket >> name;
                         receivedDataPacket >> neuronsCount.first;
                         receivedDataPacket >> neuronsCount.second;
-                        tempColony = new Colony(neuronsCount.first, neuronsCount.second, (string)name);
+
+                        tempColony = make_shared<Colony>(neuronsCount.first, neuronsCount.second, (string)name);
+                        allColonies.insert({ (string)name ,tempColony });
+
+                        receivedDataPacket >> colonyHasSpawner;
+                        if (colonyHasSpawner)
+                        {
+                            receivedDataPacket >> populationSize;
+                            receivedDataPacket >> pos.x;
+                            receivedDataPacket >> pos.y;
+                            allActiveSpawners.insert(std::make_pair(tempColony, make_shared<Spawner>(tempColony, populationSize, pos)));
+                        }
 
                         receivedDataPacket >> tempColony->coef_AttackEnemy;
                         receivedDataPacket >> tempColony->coef_AttackTeam;
@@ -114,70 +165,138 @@ void Colony::startListen()
                         receivedDataPacket >> tempColony->coef_EnemySpawnerClose;
                         receivedDataPacket >> tempColony->coef_Protection;
                         receivedDataPacket >> tempColony->coef_SpawnerEnemy;
-                        
+
                         receivedDataPacket >> tempColony->coef_SpawnerTeam;
                         receivedDataPacket >> tempColony->coef_Synthesis;
                         receivedDataPacket >> tempColony->coef_TeamClose;
                         receivedDataPacket >> tempColony->coef_TeamSpawnerClose;
                     }
-                    //Load Minions pos
-                    Colony* colonyAddress;
-                    Point pos;
-                    receivedDataPacket >> value_str;
-                    if (value_str == "Miniones") {
+                    receivedDataPacket >> name;
+
+                    if (strncmp(name, "Miniones", sizeof(name)) == 0) {
                         receivedDataPacket >> count;
                         for (size_t i = 0; i < count; ++i)
                         {
-                            receivedDataPacket >> value_str;
-                            if (allColonies.count(value_str) > 0) {
-                                colonyAddress = allColonies[value_str];
+                            receivedDataPacket >> name;
+                            if (allColonies.count(string(name)) > 0) {
+                                tempColony = allColonies[string(name)];
                             }
                             else {
                                 if (allColonies.size() > 0)
-                                    colonyAddress = allColonies.begin()->second;
+                                    tempColony = allColonies.begin()->second;
                                 else
                                     return; // call default constructor (dev tip)
                             }
+                            receivedDataPacket >> ID;
+                            receivedDataPacket >> ID_sure;
+                            if (ID == ID_sure) {
+                                receivedDataPacket >> pos.x;
+                                receivedDataPacket >> pos.y;
 
-                            receivedDataPacket >> pos.x;
-                            receivedDataPacket >> pos.y;
 
-                            Minion* temp = new Minion(pos, colonyAddress);
-                            minionAddresses.push_back(temp);
+                                shared_ptr<Minion> newMinion = make_shared<Minion>(pos, tempColony);
+                                newMinion->ID = ID;
+                                Colony::minionAddresses.insert({ newMinion->ID,newMinion });
+                                tempColony->colonyAddresses.push_back(newMinion);
+                            }
                         }
                     }
-                    receivedDataPacket >> value_str;
-                    if (value_str == "Area") {
+                    receivedDataPacket >> name;
+                    if (strncmp(name, "Area", sizeof(name)) == 0) {
                         receivedDataPacket >> count;
                         for (size_t i = 0; i < count; ++i)
                         {
                             receivedDataPacket >> name;
                             receivedDataPacket >> pos.x;
                             receivedDataPacket >> pos.y;
-                            colonyArea.insert(pos);
-                            worldMap[pos.x][pos.y].minionAddress->myColony = allColonies[(string)name];
+                            colonyArea.insert({ pos ,allColonies[(string)name] });
                         }
                     }
                     break;
                 }
-                case typeOfReceivedPacket::MinionsUpdate: {
+                case typeOfReceivedPacket::MinionsUpdate:
+                {
+                    receivedDataPacket >> name;
+                    Point pos;
+                    if (strncmp(name, "Miniones", sizeof(name)) == 0) {
+                        receivedDataPacket >> count;
+                        for (size_t i = 0; i < count; ++i)
+                        {
+                            receivedDataPacket >> ID;
+                            receivedDataPacket >> ID_sure;
+                            if (ID == ID_sure) {
+                                receivedDataPacket >> name;
+                                receivedDataPacket >> pos.x;
+                                receivedDataPacket >> pos.y;
+                                //If the data is damaged
+                                if (!pos.inRange())
+                                {
+                                    size_t Xtemp, Ytemp;
+                                    while (true)
+                                    {
+                                        Xtemp = rand() % sizeWorldX;
+                                        Ytemp = rand() % sizeWorldY;
+                                        if (worldMap[Xtemp][Ytemp].type == Types::air)
+                                        {
+                                            pos = Point{ Xtemp ,Ytemp };
+                                            break;
+                                        }
+                                    }
+                                }
 
-                    break;
+                                if (Colony::minionAddresses.find(ID) == Colony::minionAddresses.end())
+                                {
+                                    if (allColonies.count(string(name)) > 0) {
+                                        tempColony = allColonies[string(name)];
+                                    }
+                                    else {
+                                        if (allColonies.size() > 0)
+                                            tempColony = allColonies.begin()->second;
+                                        else
+                                            return; // call default constructor (dev tip)
+                                    }
+                                    shared_ptr<Minion> newMinion = make_shared<Minion>(pos, tempColony);
+                                    newMinion->ID = ID;
+                                    Colony::minionAddresses.insert({ newMinion->ID,newMinion });
+                                    tempColony->colonyAddresses.push_back(newMinion);
+                                }
+                                receivedDataPacket >> IsSynthesis;
+                                receivedDataPacket >> IsProtection;
+                                receivedDataPacket >> IsDead;
+                                receivedDataPacket >> rotting;
+                                tempColony = Colony::minionAddresses[ID].get()->myColony;
+                                if (Colony::minionAddresses[ID].get()->position != pos)
+                                {
+                                    Colony::minionAddresses[ID].get()->interact(pos.x, pos.y);
+                                }
+                                Colony::minionAddresses[ID].get()->IsSynthesis = IsSynthesis;
+                                Colony::minionAddresses[ID].get()->IsProtection = IsProtection;
+                                Colony::minionAddresses[ID].get()->IsDead = IsDead;
+                                Colony::minionAddresses[ID].get()->rotting = rotting;
+                            }
+                            else std::cout << "\nData loss";
+                        }
+                    }
                 }
-                default:
-                    break;
+                for (auto minion : Colony::minionAddresses)
+                {
+                    if (minion.second->IsDead) {
+                        ++minion.second->rotting;
+                        if (minion.second->rotting == 6)
+                            minion.second->kill();
+                    }
                 }
-
+                for (int i = 0; i < 50; ++i)
+                {
+                    render();
+                }
+                }
             }
-            render();
-
-        }
-            else
-        {
-            isConnected = false;
-            startLife();
-            return;
+            //else {
+            //    isConnected = false;
+            //    startLife();
+            //    return;
+            //}
         }
     }
-    //(dev tip) un init connection or destruct
 }

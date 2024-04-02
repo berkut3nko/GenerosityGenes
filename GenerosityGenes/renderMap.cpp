@@ -118,7 +118,7 @@ enum editorMode
 editorMode cursorState = empty;
 
 //Connection
-char tempServerIpAdress[64];
+char tempServerIpAdress[64] = "localhost";
 char tempServerPort[5];
 sf::IpAddress serverIpAdress;
 unsigned short serverPort;
@@ -189,7 +189,8 @@ void imGui()
             {
                 ImGui::BeginGroup();
                 if (ImGui::Button("Create new colony")) {
-                    new Colony(firstLayer,secondLayer,addColonyName);
+                    
+                    allColonies.insert(std::make_pair(addColonyName, make_shared<Colony>(firstLayer, secondLayer, addColonyName)));
                     allColonies[addColonyName]->createMinion();
                     ColonyListUpdate();
                 }
@@ -208,7 +209,7 @@ void imGui()
                 ss.str("");
                 if (selectedColony != -1) {
                     ss << next(allColonies.begin(), selectedColony)->second->sizeColony;
-                    ImGui::Text(string("Colony size:" + ss.str()).c_str());
+                    ImGui::Text(string("Colony size:" + ss.str() + " and neural network size:" + std::to_string(next(allColonies.begin(), selectedColony)->second->getNeuronsCount().first) + ' ' + std::to_string(next(allColonies.begin(), selectedColony)->second->getNeuronsCount().second)).c_str());
                     if (ImGui::Button("Create minion", ImVec2(140, 30)))
                     {
                         next(allColonies.begin(), selectedColony)->second->createMinion();
@@ -247,15 +248,11 @@ void imGui()
                     {
                         for (const auto area : colonyArea)
                         {
-                            if (worldMap[area.x][area.y].minionAddress != nullptr)
-                            if(worldMap[area.x][area.y].minionAddress->myColony == next(allColonies.begin(), selectedColony)->second)
+                            if (area.second != nullptr)
+                            if(area.second == next(allColonies.begin(), selectedColony)->second)
                             {
-                                colonyArea.erase(area);
+                                colonyArea.erase(area.first);
                             }
-                        }
-                        for (auto minion : next(allColonies.begin(), selectedColony)->second->colonyAddresses)
-                        {
-                            delete minion;
                         }
                             allColonies.erase(next(allColonies.begin(), selectedColony)->first);
                             ColonyListUpdate();
@@ -315,7 +312,7 @@ void imGui()
                     if (ImGui::Button("Connect", ImVec2(100, 50)))
                     {
                         serverIpAdress = sf::IpAddress(tempServerIpAdress);
-                        serverPort = std::strtoul(tempServerPort,NULL,0);
+                        serverPort = static_cast<unsigned short>(std::stoul(tempServerPort,NULL,0));
                         if (netConnection.init() == sf::Socket::Done)
                             isConnected = true;
                         netConnection.registerOnServer(serverIpAdress, serverPort, userName);
@@ -376,9 +373,9 @@ void render()
 
         for (const auto area : colonyArea)
         {
-            if (worldMap[area.x][area.y].minionAddress != nullptr) {
-                tempColor = (worldMap[area.x][area.y].minionAddress->myColony->colonyColor);
-                tempAreaShape.setPosition(sf::Vector2f(area.x * multiplicator, area.y * multiplicator));
+            if (area.second != nullptr) {
+                tempColor = (area.second->colonyColor);
+                tempAreaShape.setPosition(sf::Vector2f(area.first.x * multiplicator, area.first.y * multiplicator));
                 tempColor.a = 100;
                 tempAreaShape.setFillColor(tempColor);
                 window.draw(tempAreaShape);
@@ -427,7 +424,7 @@ void render()
             window.draw(borderShape);
         }
 
-        for (std::pair<Colony*, Spawner*> spawner : allActiveSpawners)
+        for (std::pair<shared_ptr<Colony>, shared_ptr<Spawner>> spawner : allActiveSpawners)
         {
             spawnerShape.setFillColor(spawner.first->colonyColor);
             spawnerShape.setPosition(sf::Vector2f(multiplicator * spawner.second->spawnerPosition.x, multiplicator * spawner.second->spawnerPosition.y));

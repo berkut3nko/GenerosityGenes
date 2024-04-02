@@ -1,12 +1,12 @@
 #include "primary_utilities.hpp"
 #include "settings.hpp"
-std::map<std::string, Colony*> allColonies;
-std::map<Colony*, Spawner*> allActiveSpawners;
+std::map<std::string, shared_ptr<Colony>> allColonies;
+std::map<shared_ptr<Colony>, shared_ptr<Spawner>> allActiveSpawners;
 std::set<Point,Comp> poolOfFruits;
 std::set<Point, Comp> poolOfBorders;
-std::set<Point, Comp> colonyArea;
+std::map<Point, shared_ptr<Colony>, Comp> colonyArea;
 double Colony::AVRGpoints = 0.5;
-
+size_t countMiniones = 0;
 Time lastPacketSend; 
 Clock elapsedTimePacketSend;
 
@@ -17,6 +17,13 @@ bool isStoped = false;
 
 void worldInitialization()
 {
+    for (auto& line : worldMap)
+    {
+        for (auto& object : line)
+        {
+            object.type = air;
+        }
+    }
     for (size_t x = 0; x < sizeWorldX; ++x)
     {
         worldMap[x][0].type = border;
@@ -49,33 +56,18 @@ Colony::Colony(size_t neuronsCountFirst, size_t neuronsCountSecond, std::string 
         colony.second->colonyRelations.insert(std::make_pair(this, 0.5f));
     }
     coefInitialization();
-    allColonies.insert(std::make_pair(nameColony, &(*this)));
-}
-//Це завантажувальний конструктор
-Colony::Colony(string name) : nameColony(name),
-bestMinionBrain({ {MinionSettings::minionInputs + sizeMemmory, _neuronsCount.first},
-      {_neuronsCount.first, _neuronsCount.second},
-      {_neuronsCount.second,MinionSettings::minionOutputs + sizeMemmory} }, nameColony)
-{
-    for (auto colony : allColonies)
-    {
-        colonyRelations.insert(std::make_pair(colony.second, 0.5f));
-        colony.second->colonyRelations.insert(std::make_pair(this, 0.5f));
-    }
-    colonyColor = sf::Color(rand() % 256, rand() % 256, rand() % 256, 255);
-    coefInitialization();
-    allColonies.insert(std::make_pair(nameColony, this));
 }
 
 Colony::~Colony()
 {
     for (auto minion : colonyAddresses)
-        delete minion;
+        minion->kill();
 }
 
 //Ініціалізація верктору вказивників на своїх мінійонів
-std::vector<Minion*> Colony::minionAddresses;
-
+std::map<size_t, shared_ptr<Minion>> Colony::minionAddresses;
+//Унікальні індефікатори
+size_t Colony::nextMinionID = 0;
 
 void Colony::coefInitialization()
 {
@@ -149,12 +141,12 @@ void Colony::startLife()
         {
             for (auto colony : allColonies)
             {
-                for (Minion* minion : colony.second->colonyAddresses)
+                for (shared_ptr<Minion> minion : colony.second->colonyAddresses)
                 {
                     minion->nextMove();
                 }
             }
-            for (std::pair<Colony*, Spawner*> spawner : allActiveSpawners)
+            for (std::pair<shared_ptr<Colony>, shared_ptr<Spawner>> spawner : allActiveSpawners)
             {
                 if (spawner.first->sizeColony < spawner.second->populationSize)
                 {
@@ -217,13 +209,12 @@ void Colony::startLife()
                 std::cout << "Packet was sended\n";
                 elapsedTimePacketSend.restart();
             }
-            std::cout << netServer.clientsVec.size() << '\n';
         }
     } 
     if (isConnected)
     {
-        std::cout << "Listen was Started";
-        startListen();
+        std::cout << "Listen was Started\n";
+        packetReceive();
     }
 }
 
@@ -236,7 +227,8 @@ void Colony::createMinion()
         Ytemp = rand() % sizeWorldY;
         if (worldMap[Xtemp][Ytemp].type == Types::air)
         {
-            Minion* newMinion = new Minion({ Xtemp ,Ytemp }, this);
+            shared_ptr<Minion> newMinion = make_shared<Minion>(Point{ Xtemp ,Ytemp }, allColonies[this->nameColony]);
+            Colony::minionAddresses.insert({ newMinion->ID,newMinion });
             newMinion->MyBrain.mutate();
             colonyAddresses.push_back(newMinion);
             return;
@@ -247,8 +239,8 @@ void Colony::createMinion()
 void Colony::createMinion(Point coordinate)
 {
     if (worldMap[coordinate.x][coordinate.y].type == Types::air) {
-        Minion* newMinion = new Minion(coordinate, this);
-
+        shared_ptr<Minion> newMinion = make_shared<Minion>(coordinate, allColonies[this->nameColony]);
+        Colony::minionAddresses.insert({ newMinion->ID,newMinion });
         colonyAddresses.push_back(newMinion);
     }
 }
@@ -257,7 +249,8 @@ void Colony::createMinion(Point coordinate, Minion* parent, double hunger)
 {
         if (worldMap[coordinate.x][coordinate.y].type == Types::air)
         {
-            Minion* newMinion = new Minion({ coordinate.x ,coordinate.y }, this, &parent->MyBrain, hunger);
+            shared_ptr<Minion> newMinion = make_shared<Minion>(Point{ coordinate.x ,coordinate.y }, allColonies[this->nameColony], &parent->MyBrain, hunger);
+            Colony::minionAddresses.insert({ newMinion->ID,newMinion });
             colonyAddresses.push_back(newMinion);
             return;
         }
@@ -296,7 +289,6 @@ void Colony::SaveColonies(string version)
                 << colony.second->coef_Protection << '\t' << colony.second->coef_SpawnerEnemy << '\t'
                 << colony.second->coef_SpawnerTeam << '\t' << colony.second->coef_Synthesis << '\t'
                 << colony.second->coef_TeamClose << '\t' << colony.second->coef_TeamSpawnerClose << '\n';
-            colony.second->~Colony();
         }
         allColoniesFile.close();
     }
@@ -310,7 +302,7 @@ void Colony::LoadColonies(string version)
         std::pair<int, int> neuronsCount{32,28};
         
 
-        Colony* temp;
+        shared_ptr<Colony> temp;
         while (std::getline(LoadAllColoniesFile, name)) {
             std::istringstream iss(name);
             string value_str;
@@ -326,7 +318,7 @@ void Colony::LoadColonies(string version)
             neuronsCount.first = stoi(value_str);
             std::getline(iss, value_str, '\t');
             neuronsCount.second = stoi(value_str);
-            temp = new Colony(neuronsCount.first, neuronsCount.second,colonyName);
+            temp = make_shared<Colony>(neuronsCount.first, neuronsCount.second,colonyName);
             temp->LoadColony();
             //temp->hasSpawner = colonyHasSpawner;
             //temp->colonyMinSize = colonySize;
@@ -400,7 +392,7 @@ void Colony::LoadMiniones(string version)
     }
 
     string dataMinion;
-    Colony* colonyAddress;
+    shared_ptr<Colony> colonyAddress;
     Point pos;
     double fat, hunger;
     while (std::getline(file, dataMinion))
@@ -431,16 +423,15 @@ void Colony::LoadMiniones(string version)
         std::getline(iss, value_str, ' ');
         fat = stod(value_str);
 
-        Minion* temp = new Minion(colonyAddress, pos, fat, hunger);
-        minionAddresses.push_back(temp);
+        shared_ptr<Minion> newMinion = make_shared<Minion>(colonyAddress, pos, fat, hunger);
+        minionAddresses.insert({ newMinion->ID,newMinion });
     }
 
     file.close();
 }
-Spawner::Spawner(Colony* colony, size_t minPopulation, Point position) :summonSample(colony), populationSize(minPopulation), spawnerPosition(position)
+Spawner::Spawner(shared_ptr<Colony> colony, size_t minPopulation, Point position) :summonSample(colony), populationSize(minPopulation), spawnerPosition(position)
 {
     if (colony->hasSpawner == false) {
-        allActiveSpawners.insert(std::make_pair(summonSample, this));
         worldMap[spawnerPosition.x][spawnerPosition.y].type = Types::spawner;
         colony->hasSpawner = true;
         colony->colonyMinSize = minPopulation;
@@ -448,11 +439,11 @@ Spawner::Spawner(Colony* colony, size_t minPopulation, Point position) :summonSa
     return;
 
 }
-Spawner::Spawner(Colony* colony, size_t minPopulation) :summonSample(colony), populationSize(minPopulation)
+Spawner::Spawner(shared_ptr<Colony> colony, size_t minPopulation) :summonSample(colony), populationSize(minPopulation)
 {
     if (colony->hasSpawner == false) {
         size_t Xtemp, Ytemp;
-        while (true)
+        while (true)//search place to init
         {
             Xtemp = rand() % sizeWorldX;
             Ytemp = rand() % sizeWorldY;
@@ -462,7 +453,6 @@ Spawner::Spawner(Colony* colony, size_t minPopulation) :summonSample(colony), po
                 break;
             }
         }
-        allActiveSpawners.insert(std::make_pair(summonSample, this));
         worldMap[spawnerPosition.x][spawnerPosition.y].type = Types::spawner;
         colony->hasSpawner = true;
         colony->colonyMinSize = minPopulation;
@@ -474,4 +464,8 @@ Point Spawner::generateCord()
 {
     //(dev tip) потім переписати коли зявиться карта колоній спавнити нового на території колонії
     return { (rand() % 2 == 0) ? spawnerPosition.x - 1 : spawnerPosition.x + 1,(rand() % 2 == 0) ? spawnerPosition.y - 1 : spawnerPosition.y + 1 };
+}
+std::pair<size_t, size_t> Colony::getNeuronsCount()
+{
+    return _neuronsCount;
 }

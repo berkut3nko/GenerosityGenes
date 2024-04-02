@@ -1,46 +1,77 @@
 #include "primary_utilities.hpp"
 using namespace MinionSettings;
-Minion::Minion(Point spawn_position, Colony* currentColony) :position(spawn_position), myColony(currentColony), 
+Minion::Minion(Point spawn_position, shared_ptr<Colony> currentColony) :position(spawn_position), myColony(currentColony), 
 MyBrain({ {MinionSettings::minionInputs + myColony->sizeMemmory, myColony->_neuronsCount.first},
           {myColony->_neuronsCount.first, myColony->_neuronsCount.second},
           {myColony->_neuronsCount.second,MinionSettings::minionOutputs + myColony->sizeMemmory} }, myColony->nameColony)
 {
-    id = MinionSettings::countMiniones;
+    ID = myColony->nextMinionID;
+    ++myColony->nextMinionID;
+
     worldMap[position.x][position.y].type = minion;
     worldMap[position.x][position.y].minionAddress = this;
-    ++MinionSettings::countMiniones;
-    Colony::minionAddresses.push_back(this);
+    ++countMiniones;
     memmory.resize(myColony->sizeMemmory,0);
     ++myColony->sizeColony;
     allocateArea();
 }
-Minion::Minion(Point spawn_position, Colony* currentColony, NeuralNetwork* parentBrain, double hungerFromParent) :position(spawn_position), myColony(currentColony), MyBrain(*parentBrain), hunger(hungerFromParent)
+Minion::Minion(Point spawn_position, shared_ptr<Colony> currentColony, NeuralNetwork* parentBrain, double hungerFromParent) :position(spawn_position), myColony(currentColony), MyBrain(*parentBrain), hunger(hungerFromParent)
 {
-    id = MinionSettings::countMiniones;
+    ID = Colony::nextMinionID;
+    ++myColony->nextMinionID;
+
     worldMap[position.x][position.y].type = minion;
     worldMap[position.x][position.y].minionAddress = this;
-    ++MinionSettings::countMiniones;
-    Colony::minionAddresses.push_back(this);
+    ++countMiniones;
     memmory.resize(myColony->sizeMemmory, 0);
     ++myColony->sizeColony;
     allocateArea();
 }
-Minion::Minion(Colony* _myColony, Point _position,double _fat,double _hunger):myColony(_myColony),MyBrain(_myColony->bestMinionBrain), position(_position),fat(_fat),hunger(_hunger)
+Minion::Minion(shared_ptr<Colony> _myColony, Point _position,double _fat,double _hunger):myColony(_myColony),MyBrain(_myColony->bestMinionBrain), position(_position),fat(_fat),hunger(_hunger)
 {
 
-    id = MinionSettings::countMiniones;
-    ++MinionSettings::countMiniones;
+    ID = Colony::nextMinionID;
+    ++myColony->nextMinionID;
 
+    ++countMiniones;
     worldMap[position.x][position.y].type = minion;
     worldMap[position.x][position.y].minionAddress = this;
-
-    Colony::minionAddresses.push_back(this);
-    myColony->colonyAddresses.push_back(this);
     MyBrain = myColony->bestMinionBrain;
     memmory.resize(myColony->sizeMemmory, 0);
     ++myColony->sizeColony;
     allocateArea();
 }
+Minion::Minion(const Minion& other) :
+    myColony(other.myColony),
+    MyBrain(myColony->bestMinionBrain),
+    position(other.position),
+    fat(other.fat),
+    hunger(other.hunger),
+    health(other.health)
+{
+    ID = Colony::nextMinionID;
+    memmory.resize(myColony->sizeMemmory, 0);
+    ++myColony->sizeColony;
+    // Копіюємо всі поля класу Minion
+}
+
+Minion& Minion::operator=(const Minion& other) {
+    if (this != &other) { // Перевірка на самокопіювання
+        // Копіюємо всі поля класу Minion
+        this->myColony = other.myColony;
+        this->MyBrain = this->myColony->bestMinionBrain;
+        this->hunger = other.hunger;
+        this->fat = other.fat;
+        this->health = other.health;
+        this->position = other.position;
+    }
+    ID = Colony::nextMinionID;
+    memmory.resize(myColony->sizeMemmory, 0);
+    ++myColony->sizeColony;
+    allocateArea();
+    return *this;
+}
+
 
 
 void Minion::stopPhases()
@@ -50,15 +81,18 @@ void Minion::stopPhases()
 }
 void Minion::kill()
 {
-    worldMap[position.x][position.y].type = air;
-    for (auto it = myColony->colonyAddresses.begin(); it != myColony->colonyAddresses.end(); ++it)
-        if (*(it) == this)
-        {
-            myColony->colonyAddresses.erase(it);
-            --MinionSettings::countMiniones;
-            --myColony->sizeColony;
-            return;
-        }
+    if (this != nullptr) {
+        worldMap[position.x][position.y].type = air;
+        for (vector<shared_ptr<Minion>>::iterator it = myColony->colonyAddresses.begin(); it != myColony->colonyAddresses.end(); ++it)
+            if(it->get() != nullptr)
+                if (it->get()->ID == ID)
+                {
+                    myColony->colonyAddresses.erase(it);
+                    --countMiniones;
+                    --myColony->sizeColony;
+                }
+        Colony::minionAddresses.erase(this->ID);
+    }
 }
 
 void Minion::setMarkForMove(size_t answerId)
@@ -171,6 +205,7 @@ double Minion::analyzeMove(infoMove move)
 object tempObj;
 double Minion::analyzePos(infoMove move)
 {
+    object tempObj;
     double posMark = 0;
     for (int y = 0; y < 5; ++y)
     {
@@ -203,7 +238,7 @@ double Minion::analyzePos(infoMove move)
                 }
                 if (tempObj.type == Types::spawner)
                 {
-                    for (std::pair<Colony*, Spawner*> spawner : allActiveSpawners)
+                    for (std::pair<shared_ptr<Colony>, shared_ptr<Spawner>> spawner : allActiveSpawners)
                     {
                         if (spawner.second->spawnerPosition.x == position.x - (x - 1) && spawner.second->spawnerPosition.y == position.y - (y - 1))
                         {
@@ -266,7 +301,7 @@ std::vector<double> Minion::inputs()
                 }
                 else if (tempObj.type == Types::spawner)
                 {
-                    for (auto spawner : allActiveSpawners)
+                    for (std::pair<shared_ptr<Colony>, shared_ptr<Spawner>> spawner : allActiveSpawners)
                     {
                         if (spawner.second->spawnerPosition == Point({ position.x - (x - 2), position.y - (y - 2) }))
                         {
@@ -308,6 +343,7 @@ std::vector<double> Minion::inputs()
     }
     input[MinionSettings::minionInputs - 2] = hunger;
     input[MinionSettings::minionInputs - 1] = fat;
+    if(!memmory.empty())
     for (size_t i = 0; i < myColony->sizeMemmory; ++i)
     {
         input[MinionSettings::minionInputs + i] = memmory[i];
@@ -327,17 +363,8 @@ void Minion::nextMove()
         else 
         {
             rotting = 6;
-            worldMap[position.x][position.y].type = air;
-            for (auto it = myColony->colonyAddresses.begin(); it != myColony->colonyAddresses.end(); ++it)
-                if (*(it) == this)
-                {
-                    myColony->colonyAddresses.erase(it);
-                    --MinionSettings::countMiniones;
-                    --myColony->sizeColony;
-                    return;
-                }
+            this->kill();
         }
-
     }
     else
     {
@@ -431,26 +458,15 @@ void Minion::getHungry(double count)
 }
 void Minion::allocateArea()
 {
-    colonyArea.insert(Point{position.x ,position.y});
-    colonyArea.insert((Point{ position.x + 1 ,position.y + 1 }));
-    colonyArea.insert((Point{ position.x + 1 ,position.y - 1 }));
-    colonyArea.insert((Point{ position.x - 1 ,position.y + 1 }));
-    colonyArea.insert((Point{ position.x - 1 ,position.y - 1 }));
-    colonyArea.insert((Point{ position.x ,position.y + 1 }));
-    colonyArea.insert((Point{ position.x ,position.y - 1 }));
-    colonyArea.insert((Point{ position.x - 1 ,position.y }));
-    colonyArea.insert((Point{ position.x + 1 ,position.y }));
-
-    worldMap[position.x+1][position.y+1].minionAddress = this;
-    worldMap[position.x+1][position.y-1].minionAddress = this;
-    worldMap[position.x-1][position.y+1].minionAddress = this;
-    worldMap[position.x-1][position.y-1].minionAddress = this;
-
-    worldMap[position.x+1][position.y].minionAddress = this;
-    worldMap[position.x-1][position.y].minionAddress = this;
-    worldMap[position.x][position.y+1].minionAddress = this;
-    worldMap[position.x][position.y-1].minionAddress = this;
-
+    colonyArea.insert({Point{position.x ,position.y},myColony});
+    colonyArea.insert({(Point{ position.x + 1 ,position.y + 1 }),myColony});
+    colonyArea.insert({(Point{ position.x + 1 ,position.y - 1 }), myColony});
+    colonyArea.insert({(Point{ position.x - 1 ,position.y + 1 }), myColony});
+    colonyArea.insert({(Point{ position.x - 1 ,position.y - 1 }), myColony});
+    colonyArea.insert({(Point{ position.x ,position.y + 1 }), myColony});
+    colonyArea.insert({(Point{ position.x ,position.y - 1 }), myColony});
+    colonyArea.insert({(Point{ position.x - 1 ,position.y }), myColony});
+    colonyArea.insert({(Point{ position.x + 1 ,position.y }), myColony});
 }
 void Minion::move(size_t MovePosX, size_t MovePosY)
 {
@@ -488,14 +504,7 @@ infoMove Minion::interact(size_t newPosX, size_t newPosY)
         else
         {
             getHungry(.5);
-            for (auto it = myColony->colonyAddresses.begin(); it != myColony->colonyAddresses.end(); ++it)
-            {
-                if ((*it) == worldMap[newPosX][newPosY].minionAddress)
-                {
-                    myColony->colonyAddresses.erase(it);
-                    break;
-                }
-            }
+            worldMap[newPosX][newPosY].minionAddress->kill();
             move(newPosX, newPosY);
             if(worldMap[newPosX][newPosY].minionAddress->myColony == myColony)
                 return infoMove::eatTeammate;
@@ -520,7 +529,11 @@ infoMove Minion::interact(size_t newPosX, size_t newPosY)
         getHungry(-.02);
         return infoMove::move;
         break;
+    default:
+        return infoMove::move;
+        break;
     }
+    return infoMove::move;
 }
 void Minion::Attack(Minion* minion)
 {
@@ -528,15 +541,16 @@ void Minion::Attack(Minion* minion)
     {
         minion->health -= 0.25;
     }
-    else
+    else {
         if (minion->IsSynthesis)
         {
             minion->health -= 1.00;
         }
         else
-            {
-                minion->health -= 0.5;
-            }
+        {
+            minion->health -= 0.5;
+        }
+    }
 
     minion->getHungry(0.0);
     return;
