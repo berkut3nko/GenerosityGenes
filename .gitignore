@@ -89,7 +89,7 @@ StyleCopReport.xml
 *.pidb
 *.svclog
 *.scc
-*vcxproj
+
 
 # Chutzpah Test files
 _Chutzpah*
@@ -110,6 +110,7 @@ ipch/
 *.vsp
 *.vspx
 *.sap
+*.vcxproj
 
 # Visual Studio Trace Files
 *.e2e
