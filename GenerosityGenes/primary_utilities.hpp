@@ -16,6 +16,7 @@ sf::Color defaultColor(Types type);
 extern float multiplicator;
 
 extern bool isStoped;
+static float speedSummonFruit = 5.0f;
 
 //Connection
 extern sf::IpAddress serverIpAdress;
@@ -196,5 +197,5 @@ public:
 private:
     friend class Colony;
     Point generateCord();
-    size_t populationSize;
+
 };

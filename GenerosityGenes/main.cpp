@@ -20,22 +20,22 @@ int main()
     //imGuiInit();
         // ініціалізація колоній
     Colony::LoadColonies(version);
-    Colony::LoadMiniones(version);
+    //Colony::LoadMiniones(version);
+    colonyArea.clear();
 
+    //if (allColonies.find("highBrain") == allColonies.end())
+    //    allColonies.insert({"highBrain", make_shared<Colony>(32, 24, "highBrain") });
+    //srand(static_cast<unsigned int>(time(NULL)));
+    //if (allColonies.find("newBorn") == allColonies.end())
+    //    allColonies.insert({ "newBorn", make_shared<Colony>(50, 28, "newBorn") });
 
-    if (allColonies.find("highBrain") == allColonies.end())
-        allColonies.insert({"highBrain", make_shared<Colony>(32, 24, "highBrain") });
-    srand(static_cast<unsigned int>(time(NULL)));
-    if (allColonies.find("newBorn") == allColonies.end())
-        allColonies.insert({ "newBorn", make_shared<Colony>(50, 28, "newBorn") });
-
-    //Spawner spawner2(&mySecondColony, 5);
-    if(allColonies.find("highBrain") != allColonies.end())
-        allActiveSpawners.insert(std::make_pair(allColonies["highBrain"], make_shared<Spawner>(allColonies["highBrain"], 9)));
-    
-    if (allColonies.find("newBorn") != allColonies.end())
-        allActiveSpawners.insert(std::make_pair(allColonies["newBorn"], make_shared<Spawner>(allColonies["newBorn"], 4)));
-    
+    ////Spawner spawner2(&mySecondColony, 5);
+    //if(allColonies.find("highBrain") != allColonies.end())
+    //    allActiveSpawners.insert(std::make_pair(allColonies["highBrain"], make_shared<Spawner>(allColonies["highBrain"], 9)));
+    //
+    //if (allColonies.find("newBorn") != allColonies.end())
+    //    allActiveSpawners.insert(std::make_pair(allColonies["newBorn"], make_shared<Spawner>(allColonies["newBorn"], 4)));
+    //
 
     std::this_thread::sleep_for(std::chrono::milliseconds(50));
 

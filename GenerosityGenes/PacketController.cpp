@@ -32,7 +32,7 @@ bool Colony::sendPacket()
             packetSend << colonyHasSpawner;
             if (colonyHasSpawner)
             {
-                packetSend << allActiveSpawners.find(colony.second)->second->populationSize;
+                packetSend << colony.second->colonyMinSize;
                 packetSend << allActiveSpawners.find(colony.second)->second->spawnerPosition.x;
                 packetSend << allActiveSpawners.find(colony.second)->second->spawnerPosition.y;
             }
@@ -78,6 +78,10 @@ bool Colony::sendPacket()
         if (netServer.sendDataToNewbie(packetSend, netServer.clientsVec.size() - oldCountUsers) == Socket::Status::Done)
         packetSend.clear();
     }
+
+    //
+    // Forming a package to update the position and statuses of minions
+    //
         std::cout << "MinionsUpdate" << '\n';
     packetSend << size_t(typeOfReceivedPacket::MinionsUpdate);
     strcpy_s(name, "Miniones");

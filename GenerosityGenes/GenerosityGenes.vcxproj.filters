@@ -1,67 +1,90 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <ItemGroup>
-    <Filter Include="Source Files">
-      <UniqueIdentifier>{4FC737F1-C7A5-4376-A066-2A32D752A2FF}</UniqueIdentifier>
-      <Extensions>cpp;c;cc;cxx;c++;cppm;ixx;def;odl;idl;hpj;bat;asm;asmx</Extensions>
-    </Filter>
     <Filter Include="Header Files">
       <UniqueIdentifier>{93995380-89BD-4b04-88EB-625FBE52EBFB}</UniqueIdentifier>
       <Extensions>h;hh;hpp;hxx;h++;hm;inl;inc;ipp;xsd</Extensions>
     </Filter>
-    <Filter Include="Resource Files">
-      <UniqueIdentifier>{67DA6AB6-F800-4c08-8B7A-83BB121AAD01}</UniqueIdentifier>
-      <Extensions>rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe;resx;tiff;tif;png;wav;mfcribbon-ms</Extensions>
-    </Filter>
-    <Filter Include="Source Files\imguiLibs">
-      <UniqueIdentifier>{198d8cd4-2263-40d8-b116-9dddd7de6501}</UniqueIdentifier>
-    </Filter>
     <Filter Include="Header Files\imGui">
       <UniqueIdentifier>{1a564c39-dc30-4606-89ce-a66c69b0e67c}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Networking">
+      <UniqueIdentifier>{07c36dc9-84ae-4410-ab1d-278ac472ad92}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Networking\Headers">
+      <UniqueIdentifier>{ec94a91e-0830-446e-971b-273aa24b19d0}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Render">
+      <UniqueIdentifier>{c062a76b-2ed0-4255-afbf-0c6bda4d960d}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Render\Headers">
+      <UniqueIdentifier>{d93e4d16-75af-4ea1-b001-e26dd02485cb}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="GameLogistics">
+      <UniqueIdentifier>{e0ba5f15-38cd-4b1d-80a9-9b2831aba21f}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="ClassesRealization">
+      <UniqueIdentifier>{82133f3a-09e3-4fd1-9205-6e9eb58c317c}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="imguiLibs">
+      <UniqueIdentifier>{198d8cd4-2263-40d8-b116-9dddd7de6501}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="chatNeuro.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="main.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="primary_utilities.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="MinionLogic.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="renderMap.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="imGui\imgui.cpp">
-      <Filter>Source Files\imguiLibs</Filter>
+      <Filter>imguiLibs</Filter>
     </ClCompile>
     <ClCompile Include="imGui\imgui_draw.cpp">
-      <Filter>Source Files\imguiLibs</Filter>
+      <Filter>imguiLibs</Filter>
     </ClCompile>
     <ClCompile Include="imGui\imgui_tables.cpp">
-      <Filter>Source Files\imguiLibs</Filter>
+      <Filter>imguiLibs</Filter>
     </ClCompile>
     <ClCompile Include="imGui\imgui_widgets.cpp">
-      <Filter>Source Files\imguiLibs</Filter>
+      <Filter>imguiLibs</Filter>
     </ClCompile>
     <ClCompile Include="imGui\imgui-SFML.cpp">
-      <Filter>Source Files\imguiLibs</Filter>
+      <Filter>imguiLibs</Filter>
     </ClCompile>
     <ClCompile Include="NetworkClient.cpp">
-      <Filter>Source Files</Filter>
+      <Filter>Networking</Filter>
     </ClCompile>
     <ClCompile Include="NetworkServer.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="ServerLogic.cpp">
-      <Filter>Source Files</Filter>
+      <Filter>Networking</Filter>
     </ClCompile>
     <ClCompile Include="PacketController.cpp">
-      <Filter>Source Files</Filter>
+      <Filter>Networking</Filter>
+    </ClCompile>
+    <ClCompile Include="main.cpp" />
+    <ClCompile Include="renderMap.cpp">
+      <Filter>Render</Filter>
+    </ClCompile>
+    <ClCompile Include="ImGuiGame.cpp">
+      <Filter>Render</Filter>
+    </ClCompile>
+    <ClCompile Include="MinionLogic.cpp">
+      <Filter>GameLogistics</Filter>
+    </ClCompile>
+    <ClCompile Include="GameLogic.cpp">
+      <Filter>GameLogistics</Filter>
+    </ClCompile>
+    <ClCompile Include="ServerLogic.cpp">
+      <Filter>GameLogistics</Filter>
+    </ClCompile>
+    <ClCompile Include="ColonyClass.cpp">
+      <Filter>ClassesRealization</Filter>
+    </ClCompile>
+    <ClCompile Include="SpawnerClass.cpp">
+      <Filter>ClassesRealization</Filter>
+    </ClCompile>
+    <ClCompile Include="MinionClass.cpp">
+      <Filter>ClassesRealization</Filter>
+    </ClCompile>
+    <ClCompile Include="MinionMoveMarking.cpp">
+      <Filter>GameLogistics</Filter>
+    </ClCompile>
+    <ClCompile Include="chatNeuro.cpp">
+      <Filter>GameLogistics</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -108,15 +131,16 @@
       <Filter>Header Files\imGui</Filter>
     </ClInclude>
     <ClInclude Include="Client.hpp">
-      <Filter>Header Files</Filter>
+      <Filter>Networking\Headers</Filter>
     </ClInclude>
     <ClInclude Include="Server.hpp">
-      <Filter>Header Files</Filter>
+      <Filter>Networking\Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="renderData.hpp">
+      <Filter>Render\Headers</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
-    <Text Include="innovations.txt">
-      <Filter>Resource Files</Filter>
-    </Text>
+    <Text Include="innovations.txt" />
   </ItemGroup>
 </Project>
