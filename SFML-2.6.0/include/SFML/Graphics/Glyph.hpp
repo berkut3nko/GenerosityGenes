@@ -46,7 +46,7 @@ public:
     /// \brief Default constructor
     ///
     ////////////////////////////////////////////////////////////
-    Glyph() : advance(0) {}
+    Glyph() : advance(0), lsbDelta(NULL), rsbDelta(NULL) {}
 
     ////////////////////////////////////////////////////////////
     // Member data

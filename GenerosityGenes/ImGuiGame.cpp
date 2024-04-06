@@ -30,7 +30,7 @@ editorMode cursorState = empty;
 void ColonyListUpdate()
 {
     colonyNames = "";
-    for (auto colony : allColonies)
+    for (std::pair<string, shared_ptr<Colony>> colony : allColonies)
     {
         colonyNames += colony.first + '\0';
     }
@@ -85,7 +85,7 @@ void imGui()
             ImGui::Combo("All colonies", &selectedColony, colonyNames.c_str(), static_cast<int>(allColonies.size()));
             ss.str("");
             if (selectedColony != -1) {
-                spawnerSize = next(allColonies.begin(), selectedColony)->second->colonyMinSize;
+                spawnerSize = static_cast<int>(next(allColonies.begin(), selectedColony)->second->colonyMinSize);
                 ss << next(allColonies.begin(), selectedColony)->second->sizeColony;
                 ImGui::Text(string("Colony size:" + ss.str() + " and neural network size:" + std::to_string(next(allColonies.begin(), selectedColony)->second->getNeuronsCount().first) + ' ' + std::to_string(next(allColonies.begin(), selectedColony)->second->getNeuronsCount().second)).c_str());
                 if (ImGui::Button("Create minion", ImVec2(140, 30)))
@@ -134,7 +134,7 @@ void imGui()
                 ImGui::DragFloat("coef_EatClose", &(*next(allColonies.begin(), selectedColony)->second).coef_EatClose, 0.05f, -1.f, 1.f, "%.2f");
                 if (ImGui::Button("Delete colony"))
                 {
-                    for (const auto area : colonyArea)
+                    for (const std::pair<Point,shared_ptr<Colony>> area : colonyArea)
                     {
                         if (area.second != nullptr)
                             if (area.second == next(allColonies.begin(), selectedColony)->second)

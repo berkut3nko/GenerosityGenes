@@ -15,10 +15,9 @@ class NetworkClient
 	Int16 sendRate = 2;
 
 	IpAddress S_Ip;
-	unsigned short S_regPort;
-	unsigned short S_dataPort;
+	unsigned short S_regPort=0;
+	unsigned short S_dataPort=0;
 public:
-	NetworkClient();
 
 	/////// Execute these ones ///////
 

@@ -1,8 +1,6 @@
 
 #include "Client.hpp"
-NetworkClient::NetworkClient()
-{
-}
+
 
 Socket::Status NetworkClient::init(unsigned short preferablePort)
 {
@@ -36,6 +34,7 @@ Socket::Status NetworkClient::registerOnServer(IpAddress serverIp, unsigned shor
 
 	if (recieveDedicatedDataServerPort() != Socket::Status::Done)
 		return Socket::Status::Error;
+	return Socket::Status::Done;
 
 }
 

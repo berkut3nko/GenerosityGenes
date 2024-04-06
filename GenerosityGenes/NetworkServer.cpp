@@ -52,6 +52,8 @@ Socket::Status NetworkServer::acceptIncomingConnection()
 
 		return Socket::Status::NotReady;
 	}
+	else
+		return Socket::Status::Done;
 }
 
 Socket::Status NetworkServer::receiveClientRegData()
@@ -110,6 +112,8 @@ Socket::Status NetworkServer::receiveClientRegData()
 		}
 		else return Socket::Status::NotReady;
 	}
+	else
+		return Socket::Status::Done;
 }
 
 Socket::Status NetworkServer::sendNewClientDataToAll()
@@ -159,6 +163,8 @@ Socket::Status NetworkServer::sendNewClientDataToAll()
 			return Socket::Status::Done;
 		}
 	}
+	else
+		return Socket::Status::Done;
 }
 
 Socket::Status NetworkServer::sendDedicatedDataPort()
@@ -179,6 +185,8 @@ Socket::Status NetworkServer::sendDedicatedDataPort()
 		}
 		else return Socket::Status::NotReady;
 	}
+	else
+		return Socket::Status::Done;
 }
 
 Socket::Status NetworkServer::sendConnectedClientsRecords()
@@ -206,6 +214,8 @@ Socket::Status NetworkServer::sendConnectedClientsRecords()
 		}
 		else return Socket::Status::NotReady;
 	}
+	else
+		return Socket::Status::Done;
 }
 
 Socket::Status NetworkServer::receiveData(unsigned int& receivedClientIndex)
@@ -275,7 +285,7 @@ Socket::Status NetworkServer::sendDataToNewbie(Packet dataPacket,size_t countNew
 {
 	if (sendingsRateTimer.getElapsedTime().asMilliseconds() > sendingsRate)
 	{
-		for (int i = clientsVec.size() - countNewbie; i < clientsVec.size(); i++)
+		for (size_t i = clientsVec.size() - countNewbie; i < clientsVec.size(); i++)
 		{
 			if (!clientsVec[i].done)
 			{

@@ -25,7 +25,7 @@ struct Point
     {
         return (x == exmp.x && y == exmp.y) ? false : true;
     }
-    bool inRange()
+    bool inRange() const
     {
         return (x < sizeWorldX&& y < sizeWorldY);
     }
@@ -52,7 +52,7 @@ enum Types
 struct object
 {
     Types type = Types::air;
-    Minion* minionAddress;
+    Minion* minionAddress = nullptr;
 };
 
 extern std::vector<std::vector<object>> worldMap;
