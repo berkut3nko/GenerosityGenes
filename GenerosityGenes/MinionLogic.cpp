@@ -58,7 +58,7 @@ void Minion::nextMove()
             memmory[i] = answers[i + MinionSettings::minionOutputs];
         }
         infoMove currentMove;
-        //setMarkForMove(answerId);
+        setMarkForMove(answerId);
         stopPhases();
         switch (answerId)
         {

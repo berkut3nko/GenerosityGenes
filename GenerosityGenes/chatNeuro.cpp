@@ -48,7 +48,7 @@ NeuralNetwork::NeuralNetwork(const std::vector<std::pair<size_t, size_t>>& layer
         layers_.emplace_back(layer_size.first, layer_size.second);
     }
 }
-
+//Neural network calculation for minion
 vector<double> NeuralNetwork::forward_minion(vector<double> input) const {
     std::vector<double> output;
     double sum;
@@ -66,7 +66,7 @@ vector<double> NeuralNetwork::forward_minion(vector<double> input) const {
         for (size_t j = 0; j < layers_[l].output_size_; ++j) {
             sum = 0;
             for (size_t i = 0; i < layers_[l].input_size_; ++i) {
-                // рахуємо вихід шару // перші 75 з першого слою за формулою sum += cos((input[i]+weights_[i][j])*(PI/2)) усі інші sum += input[i] * layer.weights_[i][j];
+                // рахуємо вихід шару // перші 75 з першого слою за формулою sum += cos((input[i]+weights_[i][j])*(PI/2)) усі інші sum += input[i] * layer.weights_[i][j]; s
                 if (i < 75 && l == 0) {
                     sum += std::sin((input[i] + layers_[l].weights()[i][j]) * (3.14 / 2));//sin((input *  weight)*pi/2)
                 }
@@ -77,7 +77,6 @@ vector<double> NeuralNetwork::forward_minion(vector<double> input) const {
             }
             output[j] = (2.0 / (exp(sum) + 1.0)) - 1.0;
         }
-        //
     }
     return output;
 }
@@ -103,7 +102,6 @@ vector<double> NeuralNetwork::forward_colony(vector<double> input) const {
             }
             output[j] = (2.0 / (exp(sum) + 1.0)) - 1.0;
         }
-        //
     }
     return output;
 }

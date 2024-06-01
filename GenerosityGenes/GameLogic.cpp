@@ -75,6 +75,7 @@ void worldInitialization()
 //Початок симуляції життя
 void Colony::startLife()
 {
+
     bool newColonyBrain = false;
     size_t count = 0;
     double maxPoints = -1;
@@ -130,9 +131,9 @@ void Colony::startLife()
                         spawner.first->createMinion(tempPos);
                 }
             }
-
+            //The method of combining knowladge of minions
             ++count;
-            if (count == size_t(20 * Colony::AVRGpoints))   //(dev tip)
+            if (count == size_t(retrainingLimit * Colony::AVRGpoints))
             {
                 newColonyBrain = false;
 
