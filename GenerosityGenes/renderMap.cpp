@@ -153,6 +153,26 @@ void render()
 
         //Фон Карти
         window.draw(airShape);
+        if (isTestVersion) {
+
+            size_t y = 100;
+            //Test Texture
+            for (size_t i = 0; i < minionTexturesPool.size(); ++i)
+            {
+                Sprite temp;
+                temp.setTexture(minionTexturesPool[i].first.idle);
+                size_t x = 100;
+                temp.setPosition(sf::Vector2f(100., 100.));
+                window.draw(temp);
+                x += 100;
+                window.draw(Sprite(minionTexturesPool[i].first.dead));
+                x += 100;
+                window.draw(Sprite(minionTexturesPool[i].first.protection));
+                x += 100;
+                window.draw(Sprite(minionTexturesPool[i].first.synthesis));
+                y += 100;
+            }
+        }
 
         for (const auto area : colonyArea)
         {

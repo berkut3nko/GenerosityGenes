@@ -7,6 +7,20 @@
 
 extern string version;
 
+struct MinionStackTexture
+{
+    sf::Texture idle,
+                synthesis,
+                protection,
+                dead;
+
+};
+extern vector<std::pair<MinionStackTexture, bool>> minionTexturesPool; //MinionStackTexture and if his claimed 
+
+void loadTextures();
+
+
+
 void render();
 
 extern bool isMainWindowOpen;

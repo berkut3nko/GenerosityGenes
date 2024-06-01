@@ -5,6 +5,9 @@ std::map<shared_ptr<Colony>, shared_ptr<Spawner>> allActiveSpawners;
 std::set<Point,Comp> poolOfFruits;
 std::set<Point, Comp> poolOfBorders;
 std::map<Point, shared_ptr<Colony>, Comp> colonyArea;
+
+vector<std::pair<MinionStackTexture, bool>> minionTexturesPool;
+
 double Colony::AVRGpoints = 0.5;
 size_t countMiniones = 0;
 Time lastPacketSend; 
@@ -14,6 +17,33 @@ string version = "v0.0.4";
 
 //ініціалізація singleton зміної
 bool isStoped = false;
+
+void loadTextures()
+{
+    std::string folder_path; // Вказуйте шлях до папки тут
+    std::filesystem::path currentPath = std::filesystem::current_path() / "Textures";
+    folder_path = currentPath.generic_string();
+    
+
+    size_t file_count = 0;
+    bool state = true;
+    // Отримуємо список файлів в папці
+    for (const auto& entry : std::filesystem::directory_iterator(folder_path)) {
+        if (entry.is_regular_file()) {
+            ++file_count;
+        }
+    }
+    for (size_t i = 0; i < file_count / 4; ++i)
+    {
+        MinionStackTexture texturePack;
+        sf::IntRect size; size.width = 512; size.height = 512;
+        state = texturePack.idle        .loadFromFile((folder_path + "/Idle_0" + std::to_string(i) + ".png"), size);
+        state = texturePack.dead        .loadFromFile(folder_path + "/Dead_0" + std::to_string(i) + ".png", size);
+        state = texturePack.protection  .loadFromFile(folder_path + "/Protection_0" + std::to_string(i) + ".png", size);
+        state = texturePack.synthesis   .loadFromFile(folder_path + "/Synthesis_0" + std::to_string(i) + ".png", size);
+        minionTexturesPool.push_back({ texturePack, false });
+    }
+}
 
 void worldInitialization()
 {
